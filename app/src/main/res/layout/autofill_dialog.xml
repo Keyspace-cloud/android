@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    android:layout_height="match_parent"
+    tools:context=".Dashboard">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingBottom="10dp"
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginVertical="5dp"
+                android:layout_weight="2"
+
+                app:cardBackgroundColor="@color/material_on_surface_stroke"
+                app:cardCornerRadius="100dp"
+
+                app:cardElevation="-5dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@color/cardBorderColor"
+                app:strokeWidth="0.75dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/searchButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="start"
+                        android:layout_weight="0.01"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="10dp"
+                        android:tintMode="src_in"
+                        app:srcCompat="?android:attr/actionModeWebSearchDrawable"
+                        app:tint="?attr/colorSurfaceInverse" />
+
+                    <EditText
+                        android:id="@+id/searchBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:hint="Search Keyspace"
+                        android:inputType="textPersonName"
+                        android:textColor="?attr/colorSurfaceInverse"
+                        android:textColorHint="?attr/colorSurfaceInverse"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="6dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/showLoginsButton"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2.5dp"
+                app:chipEndPadding="15dp"
+                android:text="Logins"
+                app:chipIcon="@drawable/ic_baseline_account_circle_24"
+                app:chipIconEnabled="true"
+                app:chipIconSize="19dp"
+                app:chipIconTint="@color/grey_500"
+                app:chipMinHeight="42dp"
+                app:iconStartPadding="7.5dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/show2faButton"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2.5dp"
+                app:chipEndPadding="15dp"
+                android:text="2FA"
+                app:chipIcon="@drawable/ic_baseline_time_24"
+                app:chipIconEnabled="true"
+                app:chipIconSize="22dp"
+                app:chipIconTint="@color/grey_500"
+                app:chipMinHeight="42dp"
+                app:iconStartPadding="7.5dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/showCardsButton"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2.5dp"
+                app:chipEndPadding="15dp"
+                android:visibility="gone"
+                android:text="Cards"
+                app:chipIcon="@drawable/ic_baseline_credit_card_24"
+                app:chipIconEnabled="true"
+                app:chipMinHeight="42dp"
+                app:iconStartPadding="7.5dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/openKeyspaceButton"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2.5dp"
+                app:chipEndPadding="15dp"
+                android:text="Open app"
+                app:chipIcon="@drawable/keyspace"
+                app:chipIconEnabled="true"
+                app:chipIconSize="22dp"
+                app:chipIconTint="@color/grey_500"
+                app:chipMinHeight="42dp"
+                app:iconStartPadding="7.5dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/addCardButton"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2.5dp"
+                app:chipEndPadding="15dp"
+                android:text="Card"
+                android:visibility="gone"
+                app:chipIcon="@drawable/ic_baseline_add_24"
+                app:chipIconEnabled="true"
+                app:chipMinHeight="42dp"
+                app:iconStartPadding="7.5dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/addLoginButton"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2.5dp"
+                app:chipEndPadding="15dp"
+                android:text="Login"
+                android:visibility="gone"
+                app:chipIcon="@drawable/ic_baseline_add_24"
+                app:chipIconEnabled="true"
+                app:chipIconTint="@color/grey_500"
+                app:chipMinHeight="42dp"
+                app:iconStartPadding="7.5dp" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <FrameLayout
+            android:id="@+id/fragmentRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/autofillLoginsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/login">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/autofillCardsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/card" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DeveloperOptions">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="50dp"
+            android:orientation="vertical"
+            android:paddingTop="105dp">
+
+            <TextView
+                android:id="@+id/developerOptionsActivityLabelTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginBottom="20dp"
+                android:text="Developer options"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:id="@+id/blake2bSettings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:duplicateParentState="true"
+                    android:enabled="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="22dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/blake2bLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="10dp"
+                            android:text="BLAKE2B tester"
+                            android:textColor="?attr/colorAccent"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/blake2bDescriptionText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:text="Test BLAKE2B hashing on your device and see if using a custom implementation of it via overriding causes any side-effects." />
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/blake2bPassphraseInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Password (string)"
+                                android:inputType="textPersonName"
+                                android:text="" />
+
+                            <EditText
+                                android:id="@+id/blake2bWordsInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Words as spaced string"
+                                android:inputType="textPersonName"
+                                android:text="rib route company bleak soccer speak unaware fragile negative follow scissors brand" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/blake2bHashButton"
+                                style="@style/Widget.Material3.Button.TonalButton.Icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BLAKE2B hash"
+                                app:icon="@drawable/ic_baseline_root_24" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/blake2bOutput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:textIsSelectable="true" />
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/argon2Settings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:duplicateParentState="true"
+                    android:enabled="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="22dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/Argon2iLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="10dp"
+                            android:text="Argon2i tester"
+                            android:textColor="?attr/colorAccent"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/argon2DescriptionText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:text="Test Argon2i hashing performance on your device" />
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <RadioGroup
+                                android:id="@+id/argon2AlgoPicker"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <RadioButton
+                                    android:id="@+id/argon2id13"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="10dp"
+                                    android:text="argon2id13" />
+
+                                <RadioButton
+                                    android:id="@+id/argon2i13"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="10dp"
+                                    android:checked="true"
+                                    android:text="argon2i13" />
+                            </RadioGroup>
+
+                            <EditText
+                                android:id="@+id/passwordInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Password (string)"
+                                android:inputType="textPersonName"
+                                android:text="littlekidlover" />
+
+                            <EditText
+                                android:id="@+id/saltInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Salt (words as spaced string)"
+                                android:inputType="textPersonName"
+                                android:text="rib route company bleak soccer speak unaware fragile negative follow scissors brand" />
+
+                            <EditText
+                                android:id="@+id/hashLength"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Hash length"
+                                android:inputType="number"
+                                android:text="32" />
+
+                            <EditText
+                                android:id="@+id/opsLimitInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Hash cycles (opslimit)"
+                                android:inputType="number"
+                                android:text="4" />
+
+                            <EditText
+                                android:id="@+id/memoryLimitInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Memory limit (kilobytes)"
+                                android:inputType="number"
+                                android:text="128000" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/argon2HashButton"
+                                style="@style/Widget.Material3.Button.TonalButton.Icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Argon2i hash"
+                                app:icon="@drawable/ic_baseline_root_24" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/argon2Output"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:textIsSelectable="true" />
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bip39Settings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:duplicateParentState="true"
+                    android:enabled="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="22dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/bip39Label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingStart="5dp"
+                            android:paddingBottom="10dp"
+                            android:text="BIP39 tester"
+                            android:textColor="?attr/colorAccent"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/bip39DescriptionText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:text="Bitcoin Improvement Protocol proposal 39 defines how seed phrases are made, and summarizes how BIP32 and BIP44 standards allow wallets to supercharge seed phrases to support many more keys. BIP39 seed phrases can be a minimum of 12 words (what Keyspace uses) and a maximum of 24 words. The library contains a total of 2048 English words, with each word being at least 3 characters long and at most 8 characters long. The maximum entropy supported is 256 bits." />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/bip39PassphraseSeedInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Passphrase (used as a seed input)"
+                                android:inputType="number"
+                                android:text="owais_was_here_>:)" />
+
+                            <TextView
+                                android:id="@+id/bip39Text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="24dp"
+                                android:layout_marginStart="5dp"
+                                android:textIsSelectable="true"
+                                android:hint="Salt (words as spaced string)"
+                                android:text="Tap the button below to generate words" />
+
+                            <TextView
+                                android:id="@+id/bip39SeedText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:duplicateParentState="true"
+                                android:textIsSelectable="true"
+                                android:paddingHorizontal="5dp"
+                                android:text="" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/bip39Button"
+                                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="10dp"
+                                    android:text="Generate words"
+                                    app:icon="@drawable/ic_baseline_checklist_24" />
+
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

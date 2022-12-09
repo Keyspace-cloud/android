@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   width="581px"
+   height="581px"
+   viewBox="-0.5 -0.5 581 581"
+   content="&lt;mxfile host=&quot;app.diagrams.net&quot; modified=&quot;2021-01-30T12:41:39.554Z&quot; agent=&quot;5.0 (X11)&quot; etag=&quot;nhEuN7EmADAOXpt1BhAN&quot; version=&quot;14.2.9&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;yGWtwPvJ5FSRlH2z2niW&quot; name=&quot;Page-1&quot;&gt;zVZdb5swFP01PE4CHJfwOGiyadM0qZm0x8kBB6wYmxlTyH79rouBkIQ2mdSuT/E9vl8+594kDoqL9pMiZf5NppQ7vpu2Drp3fN9b+gv4MMihQ0JsgUyx1DqNwIb9oRZ0LVqzlFYTRy0l16ycgokUgiZ6ghGlZDN120k+rVqSjJ4Bm4Twc/QnS3XeoUvsjvhnyrK8r+y59qYgvbMFqpyksjmC0MpBsZJSd6eijSk35PW8dHHrmduhMUWFvibgV1g9/t6G5Ee1JzluvyRfg4cPNssj4bV9sG1WH3oGIAuQDUbU5EzTTUkSc9OA3oDluuBgeXAkVdkpsGMthaJRpZXc01hyqQAVUpgkO8b5CWR7oErTdvZx3kAZzBqVBdXqAC59AMJdiB0zL7CsN6NoeGmx/EiwASR2ULIh98glHCydN1AbvkxtpmRtSITh1YQJqiyTs4TYKSfbPoN7K1F+MCXKv0AUci8QhZ4jypZ7ML2JDJq7qR6+UG5xUo1wTZUgmkayFml1ps7w0n8XDL8s2NG0X1oGWPHSmKyScb2lwEu0JcneyCzS77XmzMz7Uzi4fHxiCkx8shaOj9YLtMLx3A5dtTDzQ3k+HP3W4CuHwXu1rbl7RyL4wX0Q3r25CO5/FyF4TyJ40Tr231qE11wEMMdf/e7La/zvhFZ/AQ==&lt;/diagram&gt;&lt;/mxfile&gt;"
+   id="svg20"
+   sodipodi:docname="keyspace-stack-green-squished.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1662"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="1.1290878"
+     inkscape:cx="290.05716"
+     inkscape:cy="219.64634"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg20" />
+  <defs
+     id="defs2" />
+  <path
+     d="m 140,322.02 150,72.03 150,-72.03 M 290,394.05 V 430"
+     fill="none"
+     stroke="none"
+     pointer-events="all"
+     id="path8" />
+  <path
+     d="m 290,214 150,72.02 v 35.96 L 290,394 140,321.98 v -35.96 z"
+     fill="#27d796"
+     stroke="none"
+     pointer-events="all"
+     id="path10" />
+  <path
+     d="m 140,272.02 150,72.03 150,-72.03 M 290,344.05 V 380"
+     fill="none"
+     stroke="none"
+     pointer-events="all"
+     id="path12" />
+  <path
+     d="m 140,222.02 150,72.03 150,-72.03 M 290,294.05 V 330"
+     fill="none"
+     stroke="none"
+     pointer-events="all"
+     id="path16" />
+</svg>

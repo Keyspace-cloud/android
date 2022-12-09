@@ -1,0 +1,18 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="dashboard"
+        android:enabled="false"
+        android:icon="@drawable/ic_baseline_dashboard_24"
+        android:shortcutShortLabel="@string/title_activity_dashboard"
+        android:shortcutLongLabel="@string/title_activity_dashboard"
+        android:shortcutDisabledMessage="@string/sign_in_first">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.keyspace.keyspacemobile"
+            android:targetClass="cloud.keyspace.android.Dashboard" />
+        <!-- If your shortcut is associated with multiple intents, include them
+             here. The last intent in the list determines what the user sees when
+             they launch this shortcut. -->
+    </shortcut>
+    <!-- Specify more shortcuts here. -->
+</shortcuts>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="cardBorderColor">#303030</color>
+    <color name="transparent">#00000000</color>
+
+    <!--
+        DARK SCHEMES
+    -->
+    <color name="darkBackgroundColor">#000000</color>
+    <color name="darkSecondaryBackgroundColor">#232323</color>
+
+    <color name="darkForegroundColor">#FFFFFF</color>
+    <color name="darkSecondaryForegroundColor">#A3A3A3</color>
+
+    <color name="darkFinesseColor">#009688</color>
+
+    <color name="darkSystemUIStatusBarColor">#2C2B34</color>
+    <color name="darkSystemUINavBarColor">#2A2932</color>
+
+    <!--
+        LIGHT SCHEMES
+    -->
+    <color name="lightBackgroundColor">#FFFFFF</color>
+    <color name="lightSecondaryBackgroundColor">#A3A3A3</color>
+
+    <color name="lightForegroundColor">#000000</color>
+    <color name="lightSecondaryForegroundColor">#232323</color>
+
+    <color name="lightFinesseColor">#64B5F6</color>
+
+    <color name="lightSystemUIStatusBarColor">#E5E3E6</color>
+    <color name="lightSystemUINavBarColor">#E9E7E9</color>
+
+</resources>

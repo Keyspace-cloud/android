@@ -1,0 +1,117 @@
+<resources>
+    <string name="app_name">Keyspace</string>
+    <string name="vault_version">0.2</string>
+
+    <string name="support_email">info@keyspace.cloud</string>
+
+    <string name="title_activity_dashboard">Dashboard</string>
+    <string name="title_activity_start_here">StartHere</string>
+    <string name="title_activity_add_login">AddLogin</string>
+    <string name="title_activity_add_note">AddNote</string>
+    <string name="title_activity_add_card">AddCard</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="sign_in_first">Sign in to Keyspace</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="accessibility_service_description">
+        Sometimes, Android\'s official Autofill API may not automatically fill-in your passwords in certain places,
+        such as browsers, WebViews, or in apps where the developer hasn\'t integrated Autofill support.
+        This is due to a fragmented implementation of Autofill APIs across multiple platforms in general.\n\nIf
+        you enable this setting, Keyspace can  use the Accessibility Service on your phone to scan for text fields
+        on your screen and manually fill data into username, password and OTP fields, in case the Autofill API isn\'t able to do so.
+    </string>
+
+    <string name="play_store_web_url">https://play.google.com/store/apps/details?id=</string>
+    <string name="play_store_android_url">market://details?id=</string>
+    <string name="keyguard_permission_description">Keyspace uses Android Keystore and device lock to safely store and retrieve your encryption keys.\n\nPlease set up a screen lock to continue.</string>
+
+    <string name="permissions_learn_more"><html>Your safety is our priority. To see how Keyspace Android works internally, check out the <a href="https://github.com/Keyspace-cloud/android">source code</a>.</html></string>
+
+    <string name="blurbDescriptionDeviceLock">Your Vault is kept secure using your device lock and is only decrypted when you unlock Keyspace. If your device has a fingerprint sensor or facial recognition, we recommend setting it up for your convenience.\n\nTap the button below to unlock.</string>
+    <string name="blurbDescriptionBiometrics">Your Vault is kept secure using your biometrics and is only decrypted when you unlock Keyspace.\n\nTap the button below to unlock.</string>
+
+    <string name="passphrase_error">Enter a passphrase</string>
+    <string name="subtitlePassphrase">Make sure it\'s strong</string>
+    <string name="descriptionPassphrase">Your Keyspace passphrase is an advanced security feature that lets you strengthen your account\'s security.\n\nThis step is optional.</string>
+    <string name="show_words_disclaimer"><html>Write this recovery phrase in <b>correct order</b> on a piece of paper and keep it safe. Don\'t share this with anyone!</html></string>
+    <string name="email_error">Enter a valid email ID</string>
+    <string name="update_text">Please update Keyspace to the latest version.</string>
+    <string name="play_store_text">Open Play Store</string>
+    <string name="incorrect_credentials_error">Incorrect username or password entered. Please try again.</string>
+    <string name="maintenance_error">Keyspace servers are undergoing maintenance. Come back later.</string>
+    <string name="exit">Exit</string>
+    <string name="retry">Retry</string>
+    <string name="connection_error">Couldn\'t connect to Keyspace servers. Please check your connection and try again.</string>
+
+    <string name="biometrics_generic_subtitle">Scan biometrics or enter credentials</string>
+    <string name="biometrics_generic_description">Unlock your device to continue</string>
+
+    <string name="autofill_login_biometrics_generic_subtitle">Password autofill</string>
+    <string name="autofill_login_biometrics_generic_description">Authenticate to autofill login data</string>
+
+    <string name="autofill_card_biometrics_generic_subtitle">Payment autofill</string>
+    <string name="autofill_card_biometrics_generic_description">Authenticate to autofill payment details</string>
+
+    <string name="biometrics_keyring_description">Hold your phone upright and unlock your vault.\n\n(This is done once in a while to keep your data secure)</string>
+    <string name="biometrics_onboarding_completion_description">This stores your encryption keys in the Keyring.</string>
+    <string name="biometrics_modify_item_description">Enter your credentials to unlock the Keyring and access data.</string>
+
+    <string name="markdown_guide">
+        # Title
+        \n## Subtitle
+        \n### Sub subtitle
+        \n\n**Bold strategy cotton**
+        \n\n_Italic text mamma mia_ 🤌🍕🇮🇹
+        \n\nKeyspace is ~~good~~ awesome!
+        \n\n\Don\'t go to this [link.](https:\/\/www.youtube.com\/watch?v=dQw4w9WgXcQ)
+        \n\n![It\'s-a me! Mario!](https:\/\/play.nintendo.com\/images\/1x1-Mario_Day_10_nes_mario.6ef5f3152e16d0ba.jpg)
+        \n\nTry making a shopping list...
+        \n- [x] Milk\n- [x] Eggs\n- [ ] Bread
+        \n\n- Nacho\n- Taco\n- Chimichanga
+        \n\n1. First\n2. दुसरा\n3. Troisième
+        \n\nYou can inline code too!
+        \n```\nOwais\'); DROP TABLE STUDENTS; --\n```
+        \n\n> It\'s relatively straightforward to duplicate a technology. It\'s very difficult to duplicate a community. — Balaji Srinivasan
+        \n\nUse some asterisks\n*****\nto make a line
+        \n\nAnd that\'s about it...
+        \n\n
+    </string>
+
+    <string name="license">
+    The Keyspace Team
+    \n\n**Owais Shaikh (4f77616973)**\nAndroid App
+    \n\n**Nimish Karmali (nimish-ks)**\nCryptography, Architecture and Infrastructure
+    \n\n**Rohan Chaturvedi (rohan-keyspace)**\nBackend, Browser and Desktop Apps
+
+    \n\nLicensed under the GNU GPLv3 License
+    \n```\n
+    Keyspace Android\n
+    Copyright © 2022\n
+    Keyspace\n
+    info@keyspace.cloud\n\nThis program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    \n```\n
+    </string>
+
+    <string name="title_activity_permissions_error">PermissionsError</string>
+    <string name="title_activity_developer_options">DeveloperOptions</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="title_activity_autofill_accessibility">AutofillAccessibilityActivity</string>
+    <string name="write_down_words_text">Write down these words somewhere, preferably on a piece of paper</string>
+    <string name="verify_words_text">Verify that the words are in the <b>exact order</b> as given with proper spelling</string>
+    <string name="safeguard_words_text">Store your recovery phrase in a secure location and make sure only you can access it</string>
+
+</resources>

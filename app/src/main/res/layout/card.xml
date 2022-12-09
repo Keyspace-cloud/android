@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:layout_editor_absoluteY="349dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/CardsCardLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:foregroundGravity="center"
+        android:gravity="center"
+        android:minWidth="435dp"
+        android:minHeight="285dp"
+        android:maxWidth="435dp"
+        android:maxHeight="285dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/CardsCardBack"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:supportsRtl="false"
+            app:cardCornerRadius="15dp"
+
+            app:cardElevation="5dp"
+            app:cardMaxElevation="5dp"
+
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/CardsCardFront"
+            app:rippleColor="@android:color/transparent"
+            app:strokeColor="@color/cardBorderColor"
+            app:strokeWidth="0.75dp"
+            tools:ignore="RtlEnabled"
+            tools:replace="android:supportsRtl">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/CardsCardBackLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?android:attr/colorBackground"
+                android:supportsRtl="false"
+                tools:ignore="RtlEnabled"
+                tools:replace="android:supportsRtl">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/editButton"
+                    style="@style/Widget.Material3.Button.TonalButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:supportsRtl="false"
+                    android:text="Edit"
+                    android:textColor="@color/white"
+                    app:icon="@drawable/ic_baseline_edit_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.945"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.690"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="2.5dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toTopOf="@+id/magstripe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl">
+
+                    <TextView
+                        android:id="@+id/miscText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        android:drawablePadding="5dp"
+                        android:ellipsize="marquee"
+                        android:fadingEdge="horizontal"
+                        android:gravity="center|end"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:paddingHorizontal="10dp"
+                        android:scrollbars="none"
+                        android:paddingEnd="-1.5dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:supportsRtl="false"
+                        android:text="Misc stuff"
+                        android:textSize="14sp"
+                        android:textStyle="normal"
+                        app:drawableEndCompat="@drawable/ic_baseline_help_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/TagText"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+
+                    <TextView
+                        android:id="@+id/tagText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        android:drawablePadding="5dp"
+                        android:ellipsize="marquee"
+                        android:fadingEdge="horizontal"
+                        android:gravity="center|end"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:paddingHorizontal="10dp"
+                        android:paddingEnd="-1.5dp"
+                        android:scrollbars="none"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:supportsRtl="false"
+                        android:text="Tag"
+                        android:textSize="14sp"
+                        app:drawableEndCompat="@drawable/ic_baseline_circle_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/CardObverseNotes"
+                    android:layout_width="275dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="5dp"
+                    android:drawableStart="@drawable/ic_baseline_notes_24"
+                    android:drawablePadding="20dp"
+                    android:gravity="center|start"
+                    android:maxHeight="100dp"
+                    android:supportsRtl="false"
+                    android:text="One of the things that happens when people make the leap from a certain amount of money to tens of millions of dollars is that the people around you dramatically change. - Dave Chappelle"
+                    android:textIsSelectable="true"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.760"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <View
+                    android:id="@+id/magstripe"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginVertical="10dp"
+                    android:background="@android:color/darker_gray"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.115"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <LinearLayout
+                    android:id="@+id/CodesLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="5dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.75"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/magstripe"
+                    app:layout_constraintVertical_bias="0.075"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl">
+
+                    <ImageView
+                        android:id="@+id/hideCodes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_visibility_24" />
+
+                    <LinearLayout
+                        android:id="@+id/PinLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:supportsRtl="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/SecurityCodeLayout"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.360"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl">
+
+                        <TextView
+                            android:id="@+id/PinLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:paddingEnd="10dp"
+                            android:supportsRtl="false"
+                            android:text="PIN"
+                            android:textSize="10sp"
+                            tools:ignore="RtlEnabled"
+                            tools:replace="android:supportsRtl" />
+
+                        <TextView
+                            android:id="@+id/Pin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/beam"
+                            android:letterSpacing="0.25"
+                            android:maxLength="4"
+                            android:scaleY="1.25"
+                            android:supportsRtl="false"
+                            android:text="7890"
+                            android:textIsSelectable="true"
+                            android:textSize="16sp"
+                            tools:ignore="RtlEnabled"
+                            tools:replace="android:supportsRtl" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/SecurityCodeLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:supportsRtl="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.380"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.350"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl">
+
+                        <TextView
+                            android:id="@+id/SecurityCodeLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:paddingEnd="10dp"
+                            android:supportsRtl="false"
+                            android:text="Security\nCode"
+                            android:textSize="10sp"
+                            app:textAllCaps="true"
+                            tools:ignore="RtlEnabled"
+                            tools:replace="android:supportsRtl" />
+
+                        <TextView
+                            android:id="@+id/SecurityCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/beam"
+                            android:letterSpacing="0.25"
+                            android:maxLength="4"
+                            android:scaleY="1.25"
+                            android:supportsRtl="false"
+                            android:text="123"
+                            android:textIsSelectable="true"
+                            android:textSize="16sp"
+                            tools:ignore="RtlEnabled"
+                            tools:replace="android:supportsRtl" />
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/BankNameLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:paddingEnd="7dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl">
+
+                    <TextView
+                        android:id="@+id/bankNameBack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:paddingHorizontal="10dp"
+                        android:supportsRtl="false"
+                        android:text="Banky McBankface"
+                        android:textIsSelectable="true"
+                        android:textSize="16sp"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+
+                    <ImageView
+                        android:id="@+id/bankLogoBack"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="4dp"
+                        android:supportsRtl="false"
+                        app:srcCompat="@drawable/ic_baseline_account_balance_24"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/CardsCardFront"
+            android:layout_width="0dp"
+
+            android:layout_height="0dp"
+            android:supportsRtl="false"
+
+            app:cardCornerRadius="15dp"
+            app:cardElevation="5dp"
+            app:cardMaxElevation="5dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="@android:color/transparent"
+            app:strokeColor="@color/cardBorderColor"
+            app:strokeWidth="0.75dp"
+            tools:ignore="RtlEnabled"
+            tools:replace="android:supportsRtl">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/CardsCardFrontLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?android:attr/colorBackground"
+                android:supportsRtl="false"
+                tools:ignore="RtlEnabled"
+                tools:replace="android:supportsRtl">
+
+                <ImageView
+                    android:id="@+id/PaymentGateway"
+                    android:layout_width="110dp"
+                    android:layout_height="75dp"
+                    android:paddingHorizontal="20dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:srcCompat="@drawable/ic_baseline_credit_card_24"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <ImageView
+                    android:id="@+id/RfidIcon"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:padding="7.5dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.270"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.35"
+                    app:srcCompat="@drawable/ic_contactless"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <TextView
+                    android:id="@+id/CardNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/beam"
+                    android:letterSpacing="0.2"
+                    android:maxLength="19"
+                    android:paddingHorizontal="20dp"
+                    android:scaleY="1.25"
+                    android:singleLine="true"
+                    android:supportsRtl="false"
+                    android:text="1234 5678 9012 3456"
+                    android:textIsSelectable="true"
+                    android:textSize="21sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.575"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <TextView
+                    android:id="@+id/CardHolder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/beam"
+                    android:letterSpacing="0.15"
+                    android:maxLength="20"
+                    android:paddingHorizontal="20dp"
+                    android:singleLine="true"
+                    android:supportsRtl="false"
+                    android:text="Clayton Bigsby"
+                    android:textIsSelectable="true"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/PaymentGateway"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.90"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl" />
+
+                <LinearLayout
+                    android:id="@+id/ValidUptoLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="15dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.740"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl">
+
+                    <TextView
+                        android:id="@+id/toLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:paddingEnd="15dp"
+                        android:supportsRtl="false"
+                        android:text="Valid\nThru"
+                        android:textSize="10sp"
+                        app:textAllCaps="true"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+
+                    <TextView
+                        android:id="@+id/toDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/beam"
+                        android:letterSpacing="0.25"
+                        android:maxLength="5"
+                        android:scaleY="1.25"
+                        android:supportsRtl="false"
+                        android:text="01/25"
+                        android:textIsSelectable="true"
+                        android:textSize="16sp"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/BankNameLayoutBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:paddingEnd="5dp"
+                    android:supportsRtl="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlEnabled"
+                    tools:replace="android:supportsRtl">
+
+                    <TextView
+                        android:id="@+id/bankNameFront"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:paddingHorizontal="15dp"
+                        android:supportsRtl="false"
+                        android:text="Banky McBankface"
+                        android:textIsSelectable="true"
+                        android:textSize="20sp"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+
+                    <ImageView
+                        android:id="@+id/bankLogoFront"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginEnd="7dp"
+                        android:supportsRtl="false"
+                        app:srcCompat="@drawable/ic_baseline_account_balance_24"
+                        tools:ignore="RtlEnabled"
+                        tools:replace="android:supportsRtl" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

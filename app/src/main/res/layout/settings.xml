@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Settings">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="50dp"
+            android:orientation="vertical"
+            android:paddingTop="55dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:layout_marginHorizontal="8dp"
+                android:gravity="end"
+                app:strokeColor="@color/cardBorderColor"
+                app:strokeWidth="0.25dp"
+                android:layout_marginEnd="25dp"
+                android:padding="2dp"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="0.5dp">
+
+                <ImageView
+                    android:id="@+id/keyspaceAccountPicture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Account"
+                    app:srcCompat="@mipmap/ic_launcher" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/settingsActivityLabelTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginBottom="20dp"
+                android:text="Settings"
+                android:textSize="32sp" />
+
+            <!--<TextView
+                android:id="@+id/autofillSettingsCategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorAccent"
+                android:duplicateParentState="true"
+                android:paddingTop="10dp"
+                android:paddingStart="22dp"
+                android:text="Autofill (beta)"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/autofillSettings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:duplicateParentState="true"
+                    android:enabled="false"
+                    android:visibility="gone"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/autofillSettingsIcon"
+                        android:layout_width="175dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        app:srcCompat="@drawable/ic_baseline_password_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/autofillSettingsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:padding="5dp"
+                            android:text="Autofill settings"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/autofillSettingsText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:text="Open the Autofill page in Android's device settings." />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/autofillSettingsArrow"
+                        android:layout_width="170dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="30dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        app:srcCompat="@drawable/ic_baseline_navigate_next_24" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/accessibilitySettings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:duplicateParentState="true"
+                    android:enabled="false"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/accessibilitySettingsIcon"
+                        android:layout_width="175dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        app:srcCompat="@drawable/ic_baseline_settings_accessibility_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/accessibilitySettingsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Accessibility settings"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/accessibilitySettingsText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:paddingHorizontal="5dp"
+                            android:text="Open the Accessibility services page in Android's device settings." />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/accessibilitySettingsArrow"
+                        android:layout_width="170dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="30dp"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        app:srcCompat="@drawable/ic_baseline_navigate_next_24" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fastAutofill"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/fastAutofillIcon"
+                        android:layout_width="175dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_speed_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/instantAutofillLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Instant autofill"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/instantAutofillText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Skip item selection screen while autofilling when available. If multiple items have the same URL, the latest item will be autofilled." />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/fastAutofillButton"
+                        android:layout_width="205dp"
+                        app:thumbTint="@color/cardBorderColor"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="15dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+            </LinearLayout>-->
+
+            <TextView
+                android:id="@+id/privacyAndSecuritySettingsCategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="true"
+                android:paddingTop="10dp"
+                android:textColor="?attr/colorAccent"
+                android:paddingStart="22dp"
+                android:text="Privacy and Security"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/strongBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:duplicateParentState="true"
+                    android:enabled="false"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/strongBoxIcon"
+                        android:layout_width="175dp"
+                        android:duplicateParentState="true"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_phonelink_lock_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:duplicateParentState="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/strongBoxLabel"
+                            android:layout_width="match_parent"
+                            android:duplicateParentState="true"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Store data in secure hardware"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/strongBoxText"
+                            android:layout_width="match_parent"
+                            android:duplicateParentState="true"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Keyspace is encrypting your keys and tokens using tamper-resistant hardware on your phone." />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/strongBoxTypeIcon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:padding="7.5dp"
+                        android:layout_marginHorizontal="15dp"
+                        android:layout_gravity="center_vertical"
+                        app:srcCompat="@drawable/ic_baseline_chip_24" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lockApp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/lockAppIcon"
+                        android:layout_width="175dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_lock_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/lockAppLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Lock app when minimized (unstable)"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/lockAppText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Lock the Keyspace app with your biometrics or PIN, pattern or password when you swipe to switch to another app or go home." />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/lockAppButton"
+                        android:layout_width="205dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="15dp"
+                        app:thumbTint="@color/cardBorderColor"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/allowScreenshots"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/allowScreenshotsIcon"
+                        android:layout_width="175dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_screenshot_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/allowScreenshotsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Allow in-app screenshots"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/allowScreenshotsText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Disabling screenshots can prevent you from accidentally screen recording your passwords and such." />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/appScreenshotsButton"
+                        android:layout_width="205dp"
+                        app:thumbTint="@color/cardBorderColor"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="15dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/networkingSettingsCategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="true"
+                android:paddingTop="10dp"
+                android:textColor="?attr/colorAccent"
+                android:paddingStart="22dp"
+                android:text="Connectivity"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/sync"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/syncIcon"
+                        android:layout_width="95dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_sync_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/syncLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Vault refresh interval"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/syncText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Control how frequently your vault items synchronize with Keyspace servers" />
+
+                        <RadioGroup
+                            android:id="@+id/intervalButtonGroup"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" >
+
+                            <com.google.android.material.radiobutton.MaterialRadioButton
+                                android:id="@+id/instantButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:paddingHorizontal="18dp"
+                                android:layout_marginStart="7.5dp"
+                                android:gravity="center"
+                                android:text="Instant" />
+
+                            <com.google.android.material.radiobutton.MaterialRadioButton
+                                android:id="@+id/manualButton"
+                                android:layout_width="wrap_content"
+                                android:gravity="center"
+                                android:layout_marginStart="7.5dp"
+                                android:layout_height="match_parent"
+                                android:paddingHorizontal="18dp"
+                                android:text="Manual" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="225dp"
+                                android:layout_height="wrap_content"
+                                app:startIconDrawable="@drawable/ic_baseline_av_timer_24">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/syncTimeoutEditText"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint=" Enter interval (ms)"
+                                    android:digits="0123456789"
+                                    android:inputType="none|phone"
+                                    app:endIconMode="clear_text" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </RadioGroup>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/aboutLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="true"
+                android:paddingTop="10dp"
+                android:textColor="?attr/colorAccent"
+                android:paddingStart="22dp"
+                android:text="About"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/buildVersionLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/buildIcon"
+                        android:layout_width="95dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_outline_info_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/buildText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Build version"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/buildLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Version 0.0" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/openSourceLicensesLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/openSourceLicensesIcon"
+                        android:layout_width="95dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/ic_baseline_code_24" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/openSourceLicensesText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Open-source license"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/openSourceLicensesLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Tap to view" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/keyspacerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/keyspacerIcon"
+                        android:layout_width="90dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/gigachad" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="18dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/keyspacerText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="5dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Developer options"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/keyspacerLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="5dp"
+                            android:text="Welcome chad!" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

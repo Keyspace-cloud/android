@@ -1,0 +1,105 @@
+<resources>
+
+    <style name="Theme.KeyspaceMobile.WithTopBar" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/darkFinesseColor</item>
+        <item name="colorSecondary">@color/darkFinesseColor</item>
+        <item name="colorTertiary">@color/darkFinesseColor</item>
+        <item name="colorContainer">@color/darkFinesseColor</item>
+        <item name="colorPrimaryContainer">@color/darkFinesseColor</item>
+        <item name="colorSecondaryContainer">@color/darkFinesseColor</item>
+        <item name="colorTertiaryContainer">@color/darkFinesseColor</item>
+        <item name="colorOnContainer">@color/darkFinesseColor</item>
+        <item name="colorOnPrimaryContainer">@color/darkFinesseColor</item>
+        <item name="colorOnTertiaryContainer">@color/darkFinesseColor</item>
+
+        <item name="backgroundColor">@color/darkSecondaryBackgroundColor</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/darkSecondaryBackgroundColor</item>
+        <item name="android:windowBackground">@color/darkBackgroundColor</item>
+
+        <item name="android:windowActivityTransitions">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+
+    </style>
+
+    <style name="Theme.KeyspaceMobile.WithTopBar.NoBottomNavigationView" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/darkFinesseColor</item>
+        <item name="colorPrimaryDark">@color/darkFinesseColor</item>
+        <item name="colorSecondary">@color/darkFinesseColor</item>
+        <item name="colorTertiary">@color/darkFinesseColor</item>
+        <item name="colorContainer">@color/darkFinesseColor</item>
+        <item name="colorPrimaryContainer">@color/darkFinesseColor</item>
+        <item name="colorSecondaryContainer">@color/darkFinesseColor</item>
+        <item name="colorTertiaryContainer">@color/darkFinesseColor</item>
+        <item name="colorOnContainer">@color/darkFinesseColor</item>
+        <item name="colorOnPrimaryContainer">@color/darkFinesseColor</item>
+        <item name="colorOnTertiaryContainer">@color/darkFinesseColor</item>
+        <item name="colorControlActivated">@color/darkFinesseColor  </item>
+        <item name="colorControlHighlight">@color/darkFinesseColor</item>
+
+        <item name="colorAccent">@color/darkSecondaryBackgroundColor</item>
+
+        <item name="backgroundColor">@color/darkSecondaryBackgroundColor</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="android:statusBarColor">@color/darkSecondaryBackgroundColor</item>
+        <item name="android:windowBackground">@color/darkBackgroundColor</item>
+
+        <item name="android:windowActivityTransitions">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+
+    </style>
+
+    <style name="Theme.KeyspaceMobile.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/darkFinesseColor</item>
+        <item name="colorSecondary">@color/darkFinesseColor</item>
+        <item name="colorTertiary">@color/darkFinesseColor</item>
+        <item name="colorContainer">@color/darkFinesseColor</item>
+        <item name="colorPrimaryContainer">@color/darkFinesseColor</item>
+        <item name="colorSecondaryContainer">@color/darkFinesseColor</item>
+        <item name="colorTertiaryContainer">@color/darkFinesseColor</item>
+        <item name="colorOnContainer">@color/darkFinesseColor</item>
+        <item name="colorOnPrimaryContainer">@color/darkFinesseColor</item>
+        <item name="colorOnTertiaryContainer">@color/darkFinesseColor</item>
+
+        <item name="backgroundColor">@color/darkBackgroundColor</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="android:statusBarColor">@color/darkBackgroundColor</item>
+        <item name="android:navigationBarColor">@color/darkBackgroundColor</item>
+        <item name="android:windowBackground">@color/darkBackgroundColor</item>
+
+        <item name="android:windowActivityTransitions">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+
+    </style>
+
+    <style name="Theme.KeyspaceMobile.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+
+    <style name="Theme.KeyspaceMobile.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/darkSecondaryBackgroundColor</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+
+    <style name="Theme.KeyspaceMobile.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    
+</resources>

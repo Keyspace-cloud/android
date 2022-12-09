@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "29",
+      "name": "vector",
+      "type": "vector",
+      "width": 24,
+      "height": 24,
+      "children": [
+        {
+          "id": "3",
+          "name": "path",
+          "type": "path",
+          "pathData": "M 10 18 L 14 18 L 14 16 L 10 16 L 10 18 Z M 3 6 L 3 8 L 21 8 L 21 6 L 3 6 Z M 6 13 L 18 13 L 18 11 L 6 11 L 6 13 Z",
+          "fillColor": "#8b8b8b"
+        },
+        {
+          "id": "30",
+          "name": "path_1",
+          "type": "path",
+          "pathData": "M 3 18 L 9 18 L 9 16 L 3 16 L 3 18 Z M 3 6 L 3 8 L 21 8 L 21 6 L 3 6 Z M 3 13 L 15 13 L 15 11 L 3 11 L 3 13 Z",
+          "fillColor": "#8b8b8b"
+        }
+      ]
+    },
+    "hiddenLayerIds": [
+      "3"
+    ]
+  },
+  "timeline": {
+    "animation": {
+      "id": "2",
+      "name": "anim",
+      "duration": 500,
+      "blocks": [
+        {
+          "id": "72",
+          "layerId": "30",
+          "propertyName": "pathData",
+          "startTime": 0,
+          "endTime": 500,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "path",
+          "fromValue": "M 3 18 L 9 18 L 9 16 L 3 16 L 3 18 Z M 3 6 L 3 8 L 21 8 L 21 6 L 3 6 Z M 3 13 L 15 13 L 15 11 L 3 11 L 3 13 Z",
+          "toValue": "M 10 18 L 14 18 L 14 16 L 10 16 L 10 18 Z M 3 6 L 3 8 L 21 8 L 21 6 L 3 6 Z M 6 13 L 18 13 L 18 11 L 6 11 L 6 13 Z"
+        }
+      ]
+    }
+  }
+}

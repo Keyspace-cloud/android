@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="560dp"
+    android:orientation="vertical"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="160dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="20dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:contentDescription="Add item"
+        android:elevation="6dp"
+        android:translationY="12.5dp"
+        app:elevation="9dp"
+        app:srcCompat="@drawable/ic_baseline_add_24"
+        app:tint="?attr/colorSurfaceInverse" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/swiper"
+        android:layout_width="wrap_content"
+        android:layout_height="55dp"
+        app:strokeColor="#00FFFFFF"
+        app:strokeWidth="0.75dp"
+
+        android:layout_gravity="center"
+        android:layout_marginTop="-28dp"
+        android:animateLayoutChanges="true"
+        android:animationCache="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:backgroundTint="?android:attr/colorSecondary"
+        android:foregroundGravity="center"
+        android:translationY="-15dp"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="8dp">
+
+        <LinearLayout
+            android:id="@+id/swipeHint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:animateLayoutChanges="true"
+            android:animationCache="true"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp">
+
+            <ImageView
+                android:id="@+id/swipeIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:translationX="-4.5dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_baseline_keyboard_arrow_up_24"
+                app:tint="?android:attr/textColorPrimary" />
+
+            <TextView
+                android:id="@+id/swipeText"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:foregroundGravity="center"
+                android:gravity="center"
+                android:text="Swipe to scan code"
+                android:textColor="?attr/colorSurfaceInverse"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomSheetQrViewfinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginBottom="95dp"
+        app:cardCornerRadius="25dp"
+        app:strokeColor="@color/cardBorderColor"
+        app:strokeWidth="0.25dp"
+        app:cardElevation="15dp">
+
+        <com.budiyev.android.codescanner.CodeScannerView
+            android:id="@+id/code_scanner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:backgroundTint="@null"
+            android:backgroundTintMode="add"
+            android:foreground="@null"
+            android:foregroundTint="@null"
+            android:foregroundTintMode="add"
+            android:tooltipText="Put QR Code in frame"
+            app:autoFocusButtonColor="@android:color/white"
+            app:frameColor="#00FFFFFF"
+            app:frameCornersRadius="20dp"
+            app:frameThickness="0.335dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maskColor="#00FFFFFF">
+
+        </com.budiyev.android.codescanner.CodeScannerView>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:id="@+id/afterScanLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"></LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    tools:context=".Onboarding"
+    android:id="@+id/root"
+    android:fitsSystemWindows="true">
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="25dp">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/ic_baseline_lock_24"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/titlePassphrase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Recovery phrase"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/subtitleEnterWords"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:text="Enter your words below"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/textProgressEnterWords"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:text="0 complete, 12 to go."
+                android:textStyle="normal" />
+
+            <ProgressBar
+                android:id="@+id/progressEnterWords"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="100dp"
+                android:layout_marginBottom="10dp"
+                android:max="12" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/enterWordsLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word1"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="text"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word1Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="1st word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word2"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word2Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="2nd word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word3"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word3Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="3rd word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word4"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word4Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="4th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word5"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word5Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="5th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word6"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word6Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="6th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word7"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word7Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="7th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word8"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word8Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="8th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word9"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word9Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="9th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word10"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word10Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="10th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word11"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word11Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="11th word"
+                            android:imeOptions="flagNoPersonalizedLearning|actionNext"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/word12"
+                        android:layout_width="175dp"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:nextFocusForward="@id/signInButton"
+                        android:padding="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/word12Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                            android:focusableInTouchMode="true"
+                            android:hint="12th word"
+                            android:nextFocusForward="@id/signInButton"
+                            android:imeOptions="flagNoPersonalizedLearning|actionDone"
+                            android:singleLine="true"
+                            app:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </com.google.android.material.chip.ChipGroup>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="25dp"
+                android:paddingHorizontal="10dp"
+                android:layout_marginBottom="25dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageView
+                    android:id="@+id/backButton"
+                    android:layout_width="18dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableTint="?attr/colorAccent"
+                    android:src="@drawable/ic_baseline_arrow_back_ios_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="?attr/colorAccent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/signInButton"
+                    style="@style/Widget.Material3.Button.ElevatedButton.Icon"
+                    android:text="Next"
+                    android:textSize="18sp"
+                    app:icon="@drawable/ic_baseline_navigate_next_24"
+                    app:iconGravity="textEnd"
+                    android:layout_width="wrap_content"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="12dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+        </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

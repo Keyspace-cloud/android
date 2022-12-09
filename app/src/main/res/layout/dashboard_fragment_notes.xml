@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/notes_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Dashboard" >
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.tsuryo.swipeablerv.SwipeableRecyclerView
+            android:id="@+id/notes_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:clipToPadding="false"
+            android:animateLayoutChanges="false"
+            android:smoothScrollbar="true"
+
+            android:paddingBottom="70dp"
+            android:paddingTop="8dp"
+            app:leftBgColor="@color/black"
+            app:leftImage="@drawable/ic_baseline_notes_24"
+            app:leftText="Copy Note"
+
+            app:rightBgColor="@color/black"
+            app:rightImage="@drawable/ic_baseline_edit_24"
+            app:rightText="Edit"
+
+            app:textColor="@android:color/white"
+            app:textSize="18sp"
+            tools:ignore="SpeakableTextPresentCheck"
+            tools:itemCount="5"
+            tools:listitem="@layout/login" />
+    </androidx.core.widget.NestedScrollView>
+
+    </FrameLayout>

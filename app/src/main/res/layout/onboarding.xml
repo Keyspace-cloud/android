@@ -1,0 +1,11 @@
+<FrameLayout
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:clipChildren="false"
+    tools:context=".StartHere"
+    android:id="@+id/onboardingRoot"
+    android:fitsSystemWindows="true">
+
+</FrameLayout>

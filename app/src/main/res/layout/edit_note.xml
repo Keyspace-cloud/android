@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/noteRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddNote">
+
+    <LinearLayout
+        android:id="@+id/AddNoteToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackgroundFloating"
+        android:elevation="5dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/statusBarColor"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/menubarlayout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="10dp"
+                android:elevation="5dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/backButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="12.75dp"
+                    app:srcCompat="@drawable/abc_vector_test"
+                    app:tint="?android:attr/textColorPrimary" />
+
+                <TextView
+                    android:id="@+id/toolbarTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="3.25"
+                    android:gravity="center|start"
+                    android:paddingHorizontal="15dp"
+                    android:text="Note"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    android:id="@+id/menubar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:foregroundGravity="center"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingEnd="15dp">
+
+
+                    <ImageView
+                        android:id="@+id/colorButton"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:contentDescription="Note color"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_outline_color_lens_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/favoriteButton"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:contentDescription="Favorite account"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_baseline_star_border_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/tag"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:contentDescription="Add a tag to your login"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_baseline_tag_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/delete"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:foregroundGravity="right"
+                        android:padding="10dp"
+                        android:visibility="visible"
+                        app:srcCompat="@drawable/ic_baseline_delete_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/done"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:foregroundGravity="right"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_baseline_check_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:id="@+id/noteToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="12.75dp"
+                android:fadingEdgeLength="100dp"
+                android:requiresFadingEdge="horizontal"
+                android:paddingBottom="10dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/helpButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_help_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/titleButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_title_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/boldButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_format_bold_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/italicButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_format_italic_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/lineButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_line_style_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/checkedButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_check_box_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/uncheckedButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_check_box_outline_blank_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/bulletListButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_format_list_bulleted_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/numberListButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_format_list_numbered_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/strikethroughButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_format_strikethrough_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/quoteButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_format_quote_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/codeButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_code_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/linkButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_link_24"
+                        app:tint="?android:attr/textColorPrimaryNoDisable" />
+
+                    <ImageView
+                        android:id="@+id/imageButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:foregroundGravity="center_horizontal"
+                        android:paddingHorizontal="12.75dp"
+                        app:srcCompat="@drawable/ic_baseline_image_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/dateAndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingHorizontal="15dp"
+                android:paddingBottom="10dp"
+                android:text="Date, Time"
+                android:textColor="?attr/actionMenuTextColor"
+                android:textStyle="italic" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/noteViewerScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:nestedScrollingEnabled="true"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/AddNoteToolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled="true"
+            android:orientation="vertical">
+
+            <com.yydcdut.markdown.MarkdownEditText
+                android:id="@+id/noteViewer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:gravity="top"
+                android:hapticFeedbackEnabled="true"
+                android:hint="Tap to start typing..."
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textCapSentences"
+                android:isScrollContainer="true"
+                android:nestedScrollingEnabled="true"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:singleLine="false"
+                android:textCursorDrawable="@null"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

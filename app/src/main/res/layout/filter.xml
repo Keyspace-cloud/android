@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/name"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:text="Name"
+                    app:checkedIcon="@drawable/ic_baseline_sort_by_alpha_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_sort_by_alpha_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/color"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:text="Color"
+                    app:checkedIcon="@drawable/ic_baseline_color_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_color_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/tagText"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:text="Tag"
+                    app:checkedIcon="@drawable/ic_baseline_tag_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_tag_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/oldest"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:text="Oldest"
+                    app:checkedIcon="@drawable/ic_baseline_history_24"
+                    app:checkedIconEnabled="false"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_history_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/favorite"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:text="Favorites"
+                    app:checkedIcon="@drawable/ic_baseline_star_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_star_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/username"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:checked="false"
+                    android:text="Username"
+                    app:checkedIcon="@drawable/ic_baseline_account_circle_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_account_circle_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/email"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:checked="false"
+                    android:text="Email"
+                    app:checkedIcon="@drawable/ic_baseline_email_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_email_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/authenticator"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:checked="false"
+                    android:text="Authenticator"
+                    app:checkedIcon="@drawable/ic_baseline_time_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_time_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/weakest"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:checked="false"
+                    android:text="Weakest"
+                    app:checkedIcon="@drawable/ic_baseline_warning_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_warning_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/recentlyEdited"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:checked="false"
+                    android:text="Recently Edited"
+                    app:checkedIcon="@drawable/ic_baseline_edit_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_edit_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/notes"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="2.5dp"
+                    android:checked="false"
+                    android:text="Notes"
+                    app:checkedIcon="@drawable/ic_baseline_notes_24"
+                    app:checkedIconEnabled="true"
+                    app:chipEndPadding="15dp"
+                    app:chipIcon="@drawable/ic_baseline_notes_24"
+                    app:chipIconEnabled="true"
+                    app:chipMinHeight="40dp"
+                    app:chipStartPadding="10dp" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
