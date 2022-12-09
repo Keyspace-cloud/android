@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/License-GPLv3-purple?style=flat-square&logo=libreoffice)](LICENSE)
 [![Latest Version](https://img.shields.io/github/v/tag/Keyspace-cloud/android?label=Version&style=flat-square&logo=semver)](https://github.com/Keyspace-cloud/android/tags)
 [![Play Store](https://img.shields.io/badge/Play%20Store-Click%20Here-3DDC84?style=flat-square&logo=googleplay)](https://play.google.com/store/apps/details?id=cloud.keyspace.android)
-[![Download APK](https://img.shields.io/badge/Download%20APK-Click%20Here-blue?style=flat-square&logo=dropbox)](https://github.com/Keyspace-cloud/android/actions/workflows/android.yml?query=is%3Asuccess)
+[![Download APK](https://img.shields.io/badge/Download%20APK-Click%20Here-blue?style=flat-square&logo=dropbox)](https://github.com/Keyspace-cloud/android/releases/)
 
 # Keyspace Android
 
