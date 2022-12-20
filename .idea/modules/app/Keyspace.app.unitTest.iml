@@ -30,7 +30,6 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
-                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/c7d859e8680e88470398e1d4a3544280/transformed/jetified-permissionx-1.6.4-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/7a6529ceca3b6b6044b75e5d158879d0/transformed/jetified-viewbinding-7.3.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/159708edf2c31728f409883828136d33/transformed/jetified-preference-ktx-1.2.0-api.jar</arg>
