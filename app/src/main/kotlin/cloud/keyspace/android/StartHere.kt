@@ -69,7 +69,7 @@ private val MODE_SIGN_IN = "signIn"
 class StartHere : AppCompatActivity() {
     private lateinit var fadeAnimation: Animation
     private lateinit var slideAnimation: Animation
-
+    // test
     private lateinit var crypto: CryptoUtilities
     private lateinit var misc: MiscUtilities
     private lateinit var configData: SharedPreferences
