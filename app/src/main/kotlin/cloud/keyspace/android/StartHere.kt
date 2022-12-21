@@ -66,6 +66,7 @@ private lateinit var _supportFragmentManager: FragmentManager
 private val MODE_CREATE_ACCOUNT = "createAccount"
 private val MODE_SIGN_IN = "signIn"
 
+class VaultExistsException : Exception()
 class StartHere : AppCompatActivity() {
     private lateinit var fadeAnimation: Animation
     private lateinit var slideAnimation: Animation
@@ -449,8 +450,6 @@ class StartHere : AppCompatActivity() {
                                             CoroutineScope(Dispatchers.IO).launch {
                                                 withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
 
-                                                    grabVault(signedToken)
-
                                                     Handler().postDelayed({
                                                         sendToReceive()
                                                         CoroutineScope(Dispatchers.IO).launch {
@@ -593,7 +592,7 @@ class StartHere : AppCompatActivity() {
                                                     )
                                                 )!!
 
-                                                if (createAccountResponse.status != network.RESPONSE_SUCCESS) throw InvalidPropertiesFormatException("") else {
+                                                if (createAccountResponse.status != network.RESPONSE_SUCCESS) throw VaultExistsException() else {
                                                     CoroutineScope(Dispatchers.IO).launch {
                                                         withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
 
@@ -603,8 +602,6 @@ class StartHere : AppCompatActivity() {
                                                                     withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
 
                                                                         kotlin.runCatching {
-
-                                                                            grabVault(network.generateSignedToken())
 
                                                                             Handler().postDelayed({
                                                                                 receiveToKeystore()
@@ -628,7 +625,7 @@ class StartHere : AppCompatActivity() {
                                                     }
                                                 }
 
-                                            } catch (corruptSignature: InvalidPropertiesFormatException) {
+                                            } catch (corruptSignature: VaultExistsException) {
 
                                                 corruptSignature.printStackTrace()
 
@@ -708,33 +705,6 @@ class StartHere : AppCompatActivity() {
 
             keyring = null
             System.gc()
-        }
-
-        private suspend fun grabVault(signedToken: String): Boolean {
-            try {
-                Log.d("KSTEST", signedToken.toString())
-                Log.d("KSTEST", email.toString())
-                val vaultData = network.grabLatestVaultFromBackend (signedToken, email)
-                when {
-                    vaultData.first == null -> displayVaultError()
-                    vaultData.second == network.RESPONSE_VAULT_CORRUPT -> {
-                        displayVaultError()
-                        activity?.finish()
-                    }
-                    vaultData.second == network.NETWORK_ERROR -> {
-                        displayVaultError()
-                        activity?.finish()
-                    }
-                    else -> {
-                        val vault = vaultData.first!!
-                        io.writeVault(vault)
-                        return true
-                    }
-                }} catch (noData: JSONException) {
-                return false
-            }
-
-            return false
         }
 
         private fun displayVaultError() {
