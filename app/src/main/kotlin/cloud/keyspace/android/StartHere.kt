@@ -69,7 +69,7 @@ private val MODE_SIGN_IN = "signIn"
 class StartHere : AppCompatActivity() {
     private lateinit var fadeAnimation: Animation
     private lateinit var slideAnimation: Animation
-    // test
+
     private lateinit var crypto: CryptoUtilities
     private lateinit var misc: MiscUtilities
     private lateinit var configData: SharedPreferences
@@ -345,7 +345,6 @@ class StartHere : AppCompatActivity() {
         lateinit var symmetricKey: ByteArray
         lateinit var publicKey: ByteArray
         lateinit var privateKey: ByteArray
-        lateinit var token: ByteArray
         lateinit var keyring: CryptoUtilities.Keyring
 
         lateinit var signedToken: String
@@ -461,8 +460,6 @@ class StartHere : AppCompatActivity() {
 
                                                                     val vaultData = network.grabLatestVaultFromBackend (signedToken, email)
                                                                     if (vaultData.first != null) io.writeVault(vaultData.first!!) else io.getVault()
-
-                                                                    token = HexMessageEncoder().decode(signedToken)
 
                                                                     Handler().postDelayed({ receiveToKeystore()
                                                                         storeToKeyring()
@@ -607,9 +604,7 @@ class StartHere : AppCompatActivity() {
 
                                                                         kotlin.runCatching {
 
-                                                                            grabVault(signedToken)
-
-                                                                            token = HexMessageEncoder().decode(signedToken)
+                                                                            grabVault(network.generateSignedToken())
 
                                                                             Handler().postDelayed({
                                                                                 receiveToKeystore()
@@ -717,8 +712,9 @@ class StartHere : AppCompatActivity() {
 
         private suspend fun grabVault(signedToken: String): Boolean {
             try {
+                Log.d("KSTEST", signedToken.toString())
+                Log.d("KSTEST", email.toString())
                 val vaultData = network.grabLatestVaultFromBackend (signedToken, email)
-
                 when {
                     vaultData.first == null -> displayVaultError()
                     vaultData.second == network.RESPONSE_VAULT_CORRUPT -> {
@@ -770,20 +766,6 @@ class StartHere : AppCompatActivity() {
             }, 400)
         }
 
-        private fun logger() {
-            Log.d("KeyspaceONBOARDING", "WORDS: ${String(spacedWords)}")
-            Log.d("KeyspaceONBOARDING", "EMAIL: ${email}")
-            Log.d("KeyspaceONBOARDING", "PASSPHRASE: ${String(passphrase)}")
-            Log.d("KeyspaceONBOARDING", "WORDS SHA256: ${sha256.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "SEED FROM WORDS: ${bip39Seed.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "ASYMM HARDENED SEED: ${asymmetricHardenedSeed.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "SYMM HARDENED SEED: ${symmetricHardenedSeed.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "PUBLIC KEY: ${publicKey.toHexString()}")
-            Log.d ("KeyspaceONBOARDING", "PRIVATE KEY: ${privateKey.toHexString()}")
-            Log.d ("KeyspaceONBOARDING", "SYMMETRIC KEY: ${symmetricKey.toHexString()}")
-            //Log.d ("KeyspaceSIGNUP", "MESSAGE SIGNED W PRIV KEY: ${signedToken}")
-        }
-
         @SuppressLint("UseCompatLoadingForDrawables")
         private fun loadContent() {
             // NetworkUtilities is defined in generateCryptoObject()
@@ -822,7 +804,7 @@ class StartHere : AppCompatActivity() {
 
         private fun keygenToSend() {
             Handler().postDelayed({
-                iconography.animate().scaleX(0.95f).scaleY(0.95f)
+                iconography.animate().scaleX(1.5f).scaleY(1.5f)
                 iconography.setImageDrawable(animatedLogoToSend)
                 loadingText.setText ("Uploading")
                 loadingSubtitle.setText ("Sending your account details")
@@ -831,6 +813,7 @@ class StartHere : AppCompatActivity() {
 
         private fun sendToReceive() {
             Handler().postDelayed({
+                iconography.animate().scaleX(1.5f).scaleY(1.5f)
                 iconography.setImageDrawable(sendToReceive)
                 loadingText.setText ("Downloading")
                 loadingSubtitle.setText ("Fetching your Keyspace vault")
@@ -839,7 +822,7 @@ class StartHere : AppCompatActivity() {
 
         private fun receiveToKeystore() {
             Handler().postDelayed({
-                iconography.animate().scaleX(0.75f).scaleY(0.75f)
+                iconography.animate().scaleX(1.25f).scaleY(1.25f)
                 loadingText.setText ("Storing keys")
 
                 var strongBoxExists = try {
@@ -861,7 +844,7 @@ class StartHere : AppCompatActivity() {
 
         private fun keystoreToTick() {
             Handler().postDelayed({
-                iconography.animate().scaleX(0.65f).scaleY(0.65f)
+                iconography.animate().scaleX(0.85f).scaleY(0.85f)
                 iconography.startAnimation(loadAnimation(requireContext(), R.anim.zoom_spin))
                 iconography.setImageDrawable(requireContext().getDrawable(R.drawable.ic_baseline_check_24))
                 loadingText.setText ("Signed in")
@@ -908,7 +891,7 @@ class StartHere : AppCompatActivity() {
 
         private fun loadOnboardingBlurb() {
             val iAgreeText = iAgree.text.toString()
-            var timer = 10
+            var timer = 0 /*10*/
 
             iAgree.isEnabled = false
             timer += 1
@@ -1139,7 +1122,7 @@ class StartHere : AppCompatActivity() {
 
         private fun loadUI() {
             val nextButtonText = nextButton.text.toString()
-            var timer = 30
+            var timer = 0 /*30*/
 
             nextButton.isEnabled = false
             timer += 1

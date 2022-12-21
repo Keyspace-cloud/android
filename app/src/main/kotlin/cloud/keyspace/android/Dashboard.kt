@@ -2842,6 +2842,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             connectionStatusDot.visibility = View.GONE
 
                             lateinit var signedToken: String
+
                             try {
                                 signedToken = network.generateSignedToken()
                             }  catch (_: Exception) {
@@ -2894,6 +2895,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         }
 
                     } catch (noInternet: NetworkError) {
+                        cancel()
+                    } catch (noInternet: NullPointerException) {
                         cancel()
                     }
                 }
