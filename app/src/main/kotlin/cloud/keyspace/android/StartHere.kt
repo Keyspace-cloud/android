@@ -42,6 +42,7 @@ import androidx.fragment.app.commit
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import cash.z.ecc.android.bip39.Mnemonics
+import com.android.volley.NetworkError
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -648,6 +649,27 @@ class StartHere : AppCompatActivity() {
                                                     _supportFragmentManager.popBackStackImmediate()
                                                     _supportFragmentManager.popBackStackImmediate()
                                                     _supportFragmentManager.popBackStackImmediate()
+                                                    _supportFragmentManager.popBackStackImmediate()
+                                                    _supportFragmentManager.popBackStackImmediate()
+                                                }
+
+                                                alertDialog.show()
+
+                                            } catch (noInternet: NetworkError) {
+
+                                                noInternet.printStackTrace()
+
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
+                                                alertDialog.setTitle("No internet access")
+                                                alertDialog.setIcon(requireContext().getDrawable(R.drawable.ic_baseline_error_24))
+                                                alertDialog.setMessage("Cannot connect to Keyspace servers. Please make sure you're online and try again.")
+
+                                                _supportFragmentManager.popBackStackImmediate()
+                                                _supportFragmentManager.popBackStackImmediate()
+                                                _supportFragmentManager.popBackStackImmediate()
+                                                _supportFragmentManager.popBackStackImmediate()
+
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Restart") { dialog, _ ->
                                                     _supportFragmentManager.popBackStackImmediate()
                                                     _supportFragmentManager.popBackStackImmediate()
                                                 }
@@ -1818,6 +1840,13 @@ class StartHere : AppCompatActivity() {
 
             }
 
+    }
+
+    private fun restartApp () {
+        val intent = baseContext.packageManager.getLaunchIntentForPackage(baseContext.packageName)
+        intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+        finish()
     }
 
     private fun startDashboard () {
