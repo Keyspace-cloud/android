@@ -10,6 +10,7 @@ import com.android.volley.*
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.*
 import org.json.JSONArray
@@ -157,7 +158,6 @@ class NetworkUtilities (
     }
 
     fun completeQueueTasks (signedToken: String): Boolean {
-
         var deleteQueueFile = File(applicationContext.cacheDir, deleteQueueFilename!!)
         val deleteQueueStream = FileOutputStream (deleteQueueFile, true)
         val deleteQueue: MutableList<String> = mutableListOf()
@@ -299,6 +299,8 @@ class NetworkUtilities (
         }
     }
 
+    class IncorrectCredentialsException : Exception()
+
     /**
      * Make a synchronous GET request with an authorization header using Volley and Kotlin coroutines. The response from this function can be used on a UI thread.
      *
@@ -321,13 +323,15 @@ class NetworkUtilities (
                     }
                 },  { error ->
                     error.printStackTrace()
-                    continuation.cancel (NetworkError())
+                    when (error.networkResponse.statusCode) {
+                        500 -> continuation.cancel (IncorrectCredentialsException())
+                        else -> continuation.cancel (NetworkError())
+                    }
                     Log.e("Keyspace", "Keyspace: Couldn't access this resource. Is it online and is your device connected to the internet?")
                 }) {
                 @Throws(AuthFailureError::class)
                 override fun getHeaders(): Map<String, String> {
                     val params: MutableMap<String, String> = HashMap()
-
                     // Headers are case insensitive
                     params["public-key"] = keyring.ED25519_PUBLIC_KEY!!.toHexString()
                     params["signed-token"] = signedToken
@@ -434,102 +438,76 @@ class NetworkUtilities (
     val RESPONSE_VAULT_DOES_NOT_EXIST = "RESPONSE_VAULT_DOES_NOT_EXIST"
     val RESPONSE_SUCCESS = "success"
 
-    suspend fun grabLatestVaultFromBackend (signedToken: String, email: String): Pair <IOUtilities.Vault?, String> {
+    suspend fun grabLatestVaultFromBackend (signedToken: String): IOUtilities.Vault {
 
         val io = IOUtilities(applicationContext, appCompatActivity, keyring)
         val freshVault = io.getVault()
 
         var response: String? = null
         var vault: IOUtilities.Vault? = null
-        lateinit var statusCode: String
-        try {
 
-            val vaultData = synchronousGetRequestWithAuthorizationHeader (
-                vault_items_endpoint,
-                signedToken = signedToken
-            )
+        val vaultData = synchronousGetRequestWithAuthorizationHeader (
+            vault_items_endpoint,
+            signedToken = signedToken
+        )
 
-            val TYPE_LOGIN = "login"
-            val TYPE_NOTE = "note"
-            val TYPE_CARD = "card"
-            val TYPE_TAG = "tag"
+        val TYPE_LOGIN = "login"
+        val TYPE_NOTE = "note"
+        val TYPE_CARD = "card"
+        val TYPE_TAG = "tag"
 
-            var vaultItemList = mutableListOf<String>()
-            if (vaultData.toString().contains("corrupt")) throw InvalidObjectException(RESPONSE_VAULT_CORRUPT)
+        var vaultItemList = mutableListOf<String>()
+        if (vaultData.toString().contains("corrupt")) throw InvalidObjectException(RESPONSE_VAULT_CORRUPT)
+        val data = JSONObject(vaultData?.get("data").toString())
 
-            val data = JSONObject(vaultData?.get("data").toString())
+        var loginsJSONArray = JSONArray()
+        var notesJSONArray = JSONArray()
+        var cardsJSONArray = JSONArray()
+        var tagsJSONArray = JSONArray()
 
-            var loginsJSONArray = JSONArray()
-            var notesJSONArray = JSONArray()
-            var cardsJSONArray = JSONArray()
-            var tagsJSONArray = JSONArray()
+        try { loginsJSONArray = data.getJSONArray(TYPE_LOGIN) } catch (_: JSONException) {}
+        try { notesJSONArray = data.getJSONArray(TYPE_NOTE) } catch (_: JSONException) {}
+        try { cardsJSONArray = data.getJSONArray(TYPE_CARD) } catch (_: JSONException) {}
+        try { tagsJSONArray = data.getJSONArray(TYPE_TAG) } catch (_: JSONException) {}
 
-            try { loginsJSONArray = data.getJSONArray(TYPE_LOGIN) } catch (_: JSONException) {}
-            try { notesJSONArray = data.getJSONArray(TYPE_NOTE) } catch (_: JSONException) {}
-            try { cardsJSONArray = data.getJSONArray(TYPE_CARD) } catch (_: JSONException) {}
-            try { tagsJSONArray = data.getJSONArray(TYPE_TAG) } catch (_: JSONException) {}
+        val logins: MutableList<IOUtilities.Login> = mutableListOf()
+        val notes: MutableList<IOUtilities.Note> = mutableListOf()
+        val cards: MutableList<IOUtilities.Card> = mutableListOf()
+        val tags: MutableList<IOUtilities.Tag> = mutableListOf()
 
-            val logins: MutableList<IOUtilities.Login> = mutableListOf()
-            val notes: MutableList<IOUtilities.Note> = mutableListOf()
-            val cards: MutableList<IOUtilities.Card> = mutableListOf()
-            val tags: MutableList<IOUtilities.Tag> = mutableListOf()
-
-            for (index in 0 until loginsJSONArray.length()) {
-                val loginAsJSONObject = JSONObject(loginsJSONArray[index].toString())["data"].toString()
-                val login = mapper.readValue (loginAsJSONObject, IOUtilities.Login::class.java)
-                logins.add(login)
-            }
-
-            for (index in 0 until notesJSONArray.length()) {
-                val noteAsJSONObject = JSONObject(notesJSONArray[index].toString())["data"].toString()
-                val note = mapper.readValue (noteAsJSONObject, IOUtilities.Note::class.java)
-                notes.add(note)
-            }
-
-            for (index in 0 until cardsJSONArray.length()) {
-                val cardAsJSONObject = JSONObject(cardsJSONArray[index].toString())["data"].toString()
-                val card = mapper.readValue (cardAsJSONObject, IOUtilities.Card::class.java)
-                cards.add(card)
-            }
-
-            for (index in 0 until tagsJSONArray.length()) {
-                val tagAsJSONObject = JSONObject(tagsJSONArray[index].toString())["data"].toString()
-                val tag = mapper.readValue (tagAsJSONObject, IOUtilities.Tag::class.java)
-                tags.add(tag)
-            }
-
-            vault = IOUtilities.Vault (
-                version = keyspaceStatus().apiVersion,
-                tag = tags,
-                login = logins,
-                note = notes,
-                card = cards,
-            )
-
-            statusCode = RESPONSE_SUCCESS
-
-        } catch (emptyVault: JSONException) {
-            //Log.d("KeyspaceVAULTSYNC", "Server returned empty vault! Received vaultData: ${response.toString()}")
-            //Log.e("KeyspaceVAULTSYNC", emptyVault.stackTraceToString())
-            statusCode = RESPONSE_VAULT_DOES_NOT_EXIST
-            vault = freshVault
-            return Pair (vault, statusCode)
-
-        } catch (corruptVault: InvalidObjectException) {
-            //Log.d("KeyspaceVAULTSYNC", "Server returned corrupt vault! Received vaultData: ${response.toString()}")
-            //Log.e("KeyspaceVAULTSYNC", corruptVault.stackTraceToString())
-            statusCode = RESPONSE_VAULT_CORRUPT
-            vault = freshVault
-            return Pair (vault, statusCode)
-
-        } catch (noInternet: NetworkError) {
-            vault = null
-            statusCode = NETWORK_ERROR
-            return Pair (vault, statusCode)
-
+        for (index in 0 until loginsJSONArray.length()) {
+            val loginAsJSONObject = JSONObject(loginsJSONArray[index].toString())["data"].toString()
+            val login = mapper.readValue (loginAsJSONObject, IOUtilities.Login::class.java)
+            logins.add(login)
         }
 
-        return Pair (vault, statusCode)
+        for (index in 0 until notesJSONArray.length()) {
+            val noteAsJSONObject = JSONObject(notesJSONArray[index].toString())["data"].toString()
+            val note = mapper.readValue (noteAsJSONObject, IOUtilities.Note::class.java)
+            notes.add(note)
+        }
+
+        for (index in 0 until cardsJSONArray.length()) {
+            val cardAsJSONObject = JSONObject(cardsJSONArray[index].toString())["data"].toString()
+            val card = mapper.readValue (cardAsJSONObject, IOUtilities.Card::class.java)
+            cards.add(card)
+        }
+
+        for (index in 0 until tagsJSONArray.length()) {
+            val tagAsJSONObject = JSONObject(tagsJSONArray[index].toString())["data"].toString()
+            val tag = mapper.readValue (tagAsJSONObject, IOUtilities.Tag::class.java)
+            tags.add(tag)
+        }
+
+        vault = IOUtilities.Vault (
+            version = keyspaceStatus().apiVersion,
+            tag = tags,
+            login = logins,
+            note = notes,
+            card = cards,
+        )
+
+        return vault
 
     }
 
@@ -629,6 +607,7 @@ class NetworkUtilities (
         val email: String,
     )
 
+    class AccountExistsException : Exception()
     suspend fun sendSignupRequest (signupParameters: SignupParameters): SignupResponse? {
         var signupResponse: SignupResponse? = null
 
@@ -642,10 +621,14 @@ class NetworkUtilities (
             Map::class.java
         ) as Map<String, String>
 
-        signupResponse = mapper.readValue (
-            synchronousJsonPostRequest(signup_endpoint, signupParametersAsMap)!!.toString(),
-            SignupResponse::class.java
-        )
+        try {
+            signupResponse = mapper.readValue (
+                synchronousJsonPostRequest(signup_endpoint, signupParametersAsMap)!!.toString(),
+                SignupResponse::class.java
+            )
+        } catch (_: MissingKotlinParameterException) {
+            throw AccountExistsException()
+        }
 
         return signupResponse
     }
