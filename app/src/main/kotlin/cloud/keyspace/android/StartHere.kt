@@ -441,93 +441,62 @@ class StartHere : AppCompatActivity() {
 
         private fun signIn () {
             CoroutineScope(Dispatchers.IO).launch {
-                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                    mapper = jacksonObjectMapper()
-                    val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(network.sendKeyauthRequest())
-                    val signedToken = crypto.sign(message, privateKey)
-                    Handler().postDelayed({
-                        setKeygen()
-                        try {
-                            generateCryptoObjects()
-                            Handler().postDelayed({
-                                keygenToSend()
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                                        Handler().postDelayed({
-                                            sendToReceive()
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                                                    kotlin.runCatching {
-                                                        val vaultData = network.grabLatestVaultFromBackend (signedToken)
-                                                        io.writeVault(vaultData)
-                                                        Handler().postDelayed({
-                                                            receiveToKeystore()
-                                                            storeToKeyring()
-                                                            Handler().postDelayed({
-                                                                keystoreToTick()
-                                                                Handler().postDelayed({
-                                                                    startPermissions() },
-                                                                    3000) },
-                                                                1500) },
-                                                            1500)
-                                                    }.onFailure {
-                                                        when (it) {
-                                                            is NetworkUtilities.IncorrectCredentialsException -> {
-                                                                activity?.supportFragmentManager?.popBackStackImmediate()
-                                                                activity?.supportFragmentManager?.popBackStackImmediate()
-                                                                activity?.supportFragmentManager?.popBackStackImmediate()
-                                                                activity?.supportFragmentManager?.popBackStackImmediate()
-                                                                activity?.supportFragmentManager?.popBackStackImmediate()
-                                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
-                                                                alertDialog.setTitle("Incorrect credentials")
-                                                                alertDialog.setIcon(requireContext().getDrawable(R.drawable.ic_baseline_error_24))
-                                                                alertDialog.setMessage("Please check your username, passphrase or recovery phrase and try again.")
-                                                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Go back") { dialog, _ ->
-                                                                    dialog.dismiss()
-                                                                }
-                                                                alertDialog.show()
-                                                            }
-                                                            is NetworkError -> {
-                                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
-                                                                alertDialog.setTitle("No internet access")
-                                                                alertDialog.setIcon(requireContext().getDrawable(R.drawable.ic_baseline_error_24))
-                                                                alertDialog.setMessage("Cannot connect to Keyspace servers. Please make sure you're online and try again.")
-                                                                _supportFragmentManager.popBackStackImmediate()
-                                                                _supportFragmentManager.popBackStackImmediate()
-                                                                _supportFragmentManager.popBackStackImmediate()
-                                                                _supportFragmentManager.popBackStackImmediate()
-                                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Restart") { dialog, _ ->
-                                                                    _supportFragmentManager.popBackStackImmediate()
-                                                                    _supportFragmentManager.popBackStackImmediate()
-                                                                }
-                                                                alertDialog.show()
-                                                            }
-                                                            else -> throw it
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }, 1500)
-                                    }
-                                }
-                            }, 250)
-                        } catch (unknownError: Exception) {
-                            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
-                            dialogBuilder
-                                .setCancelable(false)
-                                .setTitle("Cryptography error")
-                                .setIcon(R.drawable.ic_baseline_error_24)
-                                .setMessage("A cryptographic error occurred. Contact Keyspace support immediately.")
-                                .setPositiveButton("Quit app") { dialog, _ ->
-                                    dialog.dismiss()
-                                    requireActivity().finishAffinity()
-                                    requireActivity().finish()
-                                }
+                val keyauthResponse = network.sendKeyauthRequest()
+                val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(keyauthResponse)
+                val signedToken = crypto.sign(message, privateKey)
 
-                            val alert = dialogBuilder.create()
-                            alert.show()
+                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                    delay (500)
+                    setKeygen()
+
+                    try {
+                        generateCryptoObjects()
+                        delay (500)
+
+                        keygenToSend()
+                        delay(1000)
+
+                        sendToReceive()
+                        delay(1000)
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            kotlin.runCatching {
+                                val vaultData = network.grabLatestVaultFromBackend (signedToken)
+                                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                    io.writeVault(vaultData)
+
+                                    receiveToKeystore()
+                                    storeToKeyring()
+                                    delay (1000)
+
+                                    keystoreToTick()
+                                    delay (3000)
+
+                                    startPermissions()
+                                }
+                            }.onFailure {
+                                when (it) {
+                                    is NetworkUtilities.IncorrectCredentialsException -> {
+                                        withContext(Dispatchers.Main) {
+                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
+                                            showIncorrectCredentialsDialog()
+                                        }
+                                    }
+                                    is NetworkError -> {
+                                        withContext(Dispatchers.Main) {
+                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
+                                            showNetworkErrorDialog()
+                                        }
+                                    }
+                                    else -> throw it
+                                }
+                            }
                         }
-                    }, 250)
+
+                    } catch (unknownError: Exception) {
+                        showCryptographyErrorDialog ()
+                    }
+
                 }
             }
         }
@@ -581,11 +550,13 @@ class StartHere : AppCompatActivity() {
                                             showDuplicateAccountDialog()
                                         }
                                     }
-
                                     is NetworkError -> {
-                                        for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
-                                        showNetworkErrorDialog()
+                                        withContext(Dispatchers.Main) {
+                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
+                                            showNetworkErrorDialog()
+                                        }
                                     }
+                                    else -> throw it
                                 }
                             }
                         }
@@ -596,6 +567,24 @@ class StartHere : AppCompatActivity() {
 
                 }
             }
+        }
+
+        private fun showIncorrectCredentialsDialog () {
+            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+            dialogBuilder
+                .setCancelable(false)
+                .setTitle("Incorrect credentials")
+                .setIcon(R.drawable.ic_baseline_error_24)
+                .setMessage("Please check your username, passphrase or recovery phrase and try again.")
+                .setPositiveButton("Quit app") { dialog, _ ->
+                    dialog.dismiss()
+                    requireActivity().finishAffinity()
+                    requireActivity().finish()
+                }
+
+            val alert = dialogBuilder.create()
+            alert.show()
+
         }
 
         private fun showDuplicateAccountDialog () {
@@ -967,7 +956,7 @@ class StartHere : AppCompatActivity() {
 
             createAccountButton.isEnabled = false
             createAccountButton.setOnClickListener {
-                loadFragment(AuthenticationFragment(email, passphrase, spacedWords, mode = MODE_CREATE_ACCOUNT))
+                loadFragment(StartHere.AuthenticationFragment(email, passphrase, spacedWords, mode = MODE_CREATE_ACCOUNT))
             }
 
         }
