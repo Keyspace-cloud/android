@@ -175,6 +175,7 @@ class StartHere : AppCompatActivity() {
         lateinit var titleBiometrics: TextView
         lateinit var descriptionBiometrics: TextView
         lateinit var authenticateButton: MaterialButton
+        lateinit var backButton: ImageView
 
         val email = email
         val passphrase = passphrase
@@ -199,6 +200,8 @@ class StartHere : AppCompatActivity() {
                 displayScreenLock()
             }
 
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+
             return authenticationScreenFragmentView
 
         }
@@ -213,6 +216,7 @@ class StartHere : AppCompatActivity() {
             descriptionBiometrics = authenticationScreenFragmentView!!.findViewById(R.id.descriptionBiometrics)
             titleBiometrics = authenticationScreenFragmentView!!.findViewById(R.id.titleBiometrics)
             authenticateButton = authenticationScreenFragmentView!!.findViewById(R.id.authenticateButton)
+            backButton = authenticationScreenFragmentView!!.findViewById(R.id.backButton)
 
             if (!misc.biometricsExist()) {
                 authenticationIcon.setImageDrawable(requireContext().getDrawable(R.drawable.ic_baseline_phonelink_lock_24))
@@ -379,20 +383,7 @@ class StartHere : AppCompatActivity() {
                 else if (mode == MODE_SIGN_IN) signIn()
 
             } catch (unknownError: Exception) {
-                val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
-                dialogBuilder
-                    .setCancelable(false)
-                    .setTitle("Cryptography error")
-                    .setIcon(R.drawable.ic_baseline_error_24)
-                    .setMessage("A cryptographic error occurred. Contact Keyspace support immediately.")
-                    .setPositiveButton("Quit app") { dialog, _ ->
-                        dialog.dismiss()
-                        requireActivity().finishAffinity()
-                        requireActivity().finish()
-                    }
-
-                val alert = dialogBuilder.create()
-                alert.show()
+                showCryptographyErrorDialog()
             }
 
             return loadingScreenFragmentView
@@ -803,7 +794,7 @@ class StartHere : AppCompatActivity() {
             iAgree = wordsBlurbFragmentView!!.findViewById(R.id.iAgree)
             recoveryPhraseBlurbContinue = wordsBlurbFragmentView!!.findViewById(R.id.recoveryPhraseBlurbContinue)
             backButton = wordsBlurbFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate(); timerObject.cancel(); timerObject.purge() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed(); timerObject.cancel(); timerObject.purge() }
         }
 
         private fun loadOnboardingBlurb() {
@@ -886,7 +877,7 @@ class StartHere : AppCompatActivity() {
             tapWordsChips.isSingleSelection = true
             createAccountButton = tapWordsFragmentView!!.findViewById(R.id.createAccountButton)
             backButton = tapWordsFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { loadFragment(WordsBlurbFragment(email, passphrase)) }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
         private fun loadUI() {
@@ -1002,7 +993,7 @@ class StartHere : AppCompatActivity() {
             wordChips = wordsFragmentView!!.findViewById(R.id.showWordsChips)
             nextButton = wordsFragmentView!!.findViewById(R.id.nextButtonOnShowScreen)
             backButton = wordsFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate(); timerObject.cancel(); timerObject.purge() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed(); timerObject.cancel(); timerObject.purge() }
         }
 
         private fun loadChips() {
@@ -1114,7 +1105,7 @@ class StartHere : AppCompatActivity() {
             enterWordsLayout.isSingleSelection = true
             signInButton = enterWordsFragmentView!!.findViewById(R.id.signInButton)
             backButton = enterWordsFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
         private fun loadUI() {
@@ -1237,7 +1228,7 @@ class StartHere : AppCompatActivity() {
             signInButton = passphraseFragmentView!!.findViewById(R.id.passphraseSignin)
             createNewButton = passphraseFragmentView!!.findViewById(R.id.passphraseCreateNew)
             backButton = passphraseFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
         private fun loadForSigningIn() {
