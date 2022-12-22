@@ -785,7 +785,7 @@ class StartHere : AppCompatActivity() {
 
         private fun loadOnboardingBlurb() {
             val iAgreeText = iAgree.text.toString()
-            var timer = 0//10
+            var timer = 10
 
             iAgree.isEnabled = false
             timer += 1
@@ -1015,7 +1015,7 @@ class StartHere : AppCompatActivity() {
 
         private fun loadUI() {
             val nextButtonText = nextButton.text.toString()
-            var timer = 0//30
+            var timer = 30
 
             nextButton.isEnabled = false
             timer += 1
@@ -1283,7 +1283,7 @@ class StartHere : AppCompatActivity() {
                                 "This is a great passphrase!"
                             }
                             withContext(Dispatchers.Main) {
-                                    passphraseStrength.text = feedback
+                                passphraseStrength.text = feedback
                             }
                         }
                         if (passphrase.toString().length >= 8) {
@@ -1569,177 +1569,177 @@ class StartHere : AppCompatActivity() {
         keystoreProgress.visibility = View.VISIBLE
 
         val biometricPromptThread = Handler(Looper.getMainLooper())
-            val executor: Executor = ContextCompat.getMainExecutor(this@StartHere) // execute on different thread awaiting response
+        val executor: Executor = ContextCompat.getMainExecutor(this@StartHere) // execute on different thread awaiting response
 
-            try {
-                val biometricManager = BiometricManager.from(this@StartHere)
-                val canAuthenticate =
-                    biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        try {
+            val biometricManager = BiometricManager.from(this@StartHere)
+            val canAuthenticate =
+                biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
 
-                if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-                    Log.d("Keyspace", "Device lock found")
-                } else {
-                    Log.d("Keyspace", "Device lock not set")
-                    throw NoSuchMethodError()
-                }
+            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+                Log.d("Keyspace", "Device lock found")
+            } else {
+                Log.d("Keyspace", "Device lock not set")
+                throw NoSuchMethodError()
+            }
 
-                biometricPromptThread.removeCallbacksAndMessages(null)
+            biometricPromptThread.removeCallbacksAndMessages(null)
 
-                authenticateTitle.setText("Unlock Keyspace")
-                if (misc.biometricsExist()) {
-                    authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_fingerprint_24))
-                    authenticateDescription.setText(getString(R.string.blurbDescriptionBiometrics))
-                }
-                else {
-                    authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_phonelink_lock_24))
-                    authenticateDescription.setText(getString(R.string.blurbDescriptionDeviceLock))
-                }
+            authenticateTitle.setText("Unlock Keyspace")
+            if (misc.biometricsExist()) {
+                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_fingerprint_24))
+                authenticateDescription.setText(getString(R.string.blurbDescriptionBiometrics))
+            }
+            else {
+                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_phonelink_lock_24))
+                authenticateDescription.setText(getString(R.string.blurbDescriptionDeviceLock))
+            }
 
-                val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
+            val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
 
-                        authenticateButton.visibility = View.INVISIBLE
-                        authenticateButton.isEnabled = false
+                    authenticateButton.visibility = View.INVISIBLE
+                    authenticateButton.isEnabled = false
 
-                        authenticateDescription.setText("Authentication token")
+                    authenticateDescription.setText("Authentication token")
 
-                        Handler().postDelayed({
+                    Handler().postDelayed({
                         authenticateDescription.setText("Ed25519 public key")
                         Handler().postDelayed({ authenticateDescription.setText("Ed25519 private key")
                             Handler().postDelayed({ authenticateDescription.setText("XChaCha20-Poly1305 symmetric key") }, 50) }, 100) }, 100)
 
-                        val keyringThread = Thread { keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!! }
-                        keyringThread.start()
+                    val keyringThread = Thread { keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!! }
+                    keyringThread.start()
 
-                        if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox exists
-                            authenticateTitle.setText("Reading Strongbox")
-                        } else if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if hardware keystore exists
-                            authenticateTitle.setText("Reading HAL Keystore")
-                        } else authenticateTitle.setText("Reading Keystore")
+                    if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox exists
+                        authenticateTitle.setText("Reading Strongbox")
+                    } else if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if hardware keystore exists
+                        authenticateTitle.setText("Reading HAL Keystore")
+                    } else authenticateTitle.setText("Reading Keystore")
 
-                        if (misc.biometricsExist()) authenticationIcon.setImageDrawable(fingerprintToUnlock)
-                        else authenticationIcon.setImageDrawable(keyguardToUnlock)
+                    if (misc.biometricsExist()) authenticationIcon.setImageDrawable(fingerprintToUnlock)
+                    else authenticationIcon.setImageDrawable(keyguardToUnlock)
 
-                        fingerprintToUnlock!!.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                            override fun onAnimationEnd(drawable: Drawable) {
-                                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_check_24))
-                                keyringThread.join()
+                    fingerprintToUnlock!!.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                        override fun onAnimationEnd(drawable: Drawable) {
+                            authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_check_24))
+                            keyringThread.join()
 
-                                zoomSpin.setAnimationListener(object : AnimationListener {
+                            zoomSpin.setAnimationListener(object : AnimationListener {
 
-                                    override fun onAnimationStart(animation: Animation) {
-                                        authenticateTitle.setText("All done!")
-                                        authenticateDescription.setText("daaaammn if you can read this you have eagle eyes... \uD83E\uDD85")
-                                    }
+                                override fun onAnimationStart(animation: Animation) {
+                                    authenticateTitle.setText("All done!")
+                                    authenticateDescription.setText("daaaammn if you can read this you have eagle eyes... \uD83E\uDD85")
+                                }
 
-                                    override fun onAnimationRepeat(animation: Animation) {  }
+                                override fun onAnimationRepeat(animation: Animation) {  }
 
-                                    @SuppressLint("UseCompatLoadingForDrawables")
-                                    override fun onAnimationEnd(animation: Animation) {
-                                        keystoreProgress.visibility = View.INVISIBLE
-                                        startDashboard()
-                                    }
+                                @SuppressLint("UseCompatLoadingForDrawables")
+                                override fun onAnimationEnd(animation: Animation) {
+                                    keystoreProgress.visibility = View.INVISIBLE
+                                    startDashboard()
+                                }
 
-                                })
+                            })
 
-                                authenticationIcon.startAnimation(zoomSpin)
+                            authenticationIcon.startAnimation(zoomSpin)
 
-                            }
-                        })
+                        }
+                    })
 
-                        fingerprintToUnlock.start()
+                    fingerprintToUnlock.start()
 
-                        Log.d("Keyspace", "Authentication successful")
-                    }
-
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
-                        biometricPromptThread.removeCallbacksAndMessages(null)
-                        authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
-                        authenticateTitle.setText("Authentication failed")
-                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
-                        findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
-                        keystoreProgress.visibility = View.INVISIBLE
-                        Log.d("Keyspace", "Authentication canceled")
-                    }
-
-                    override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
-                        biometricPromptThread.removeCallbacksAndMessages(null)
-                        authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
-                        authenticateTitle.setText("Authentication failed")
-                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
-                        findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
-                        keystoreProgress.visibility = View.INVISIBLE
-                        Log.d("Keyspace", "Incorrect credentials supplied")
-                    }
+                    Log.d("Keyspace", "Authentication successful")
                 }
 
-                val biometricPrompt = BiometricPrompt(this@StartHere, executor, authenticationCallback)
-
-                val builder = BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(resources.getString(R.string.app_name))
-                    .setSubtitle(resources.getString(R.string.biometrics_generic_subtitle))
-                    .setDescription(resources.getString(R.string.biometrics_modify_item_description))
-                builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                builder.setConfirmationRequired(true)
-
-                val promptInfo = builder.build()
-                biometricPrompt.authenticate(promptInfo)
-
-                biometricPromptThread.postDelayed({
-                    biometricPrompt.cancelAuthentication()
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
                     biometricPromptThread.removeCallbacksAndMessages(null)
+                    authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
+                    authenticateTitle.setText("Authentication failed")
+                    (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                    findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
                     keystoreProgress.visibility = View.INVISIBLE
-                    val timeoutDialogBuilder = MaterialAlertDialogBuilder(this@StartHere)
-                    timeoutDialogBuilder.setTitle("Authentication error")
-                    timeoutDialogBuilder.setMessage("Authentication timed out because you waited too long.\n\nPlease try again.")
-                    timeoutDialogBuilder.setNegativeButton("Retry") { _, _ ->
-                       loggedInBiometrics()
-                    }
-
-                    try {
-                        val timeoutDialog: AlertDialog = timeoutDialogBuilder.create()
-                        timeoutDialog.setCancelable(true)
-                        timeoutDialog.show()
-                    } catch (_: WindowManager.BadTokenException) { }
-
-                }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
-
-
-            } catch (noLockSet: NoSuchMethodError) {
-                biometricPromptThread.removeCallbacksAndMessages(null)
-                noLockSet.printStackTrace()
-                keystoreProgress.visibility = View.INVISIBLE
-                val builder = MaterialAlertDialogBuilder(this@StartHere)
-                builder.setTitle("No biometric hardware")
-                builder.setMessage("Your biometric sensors (fingerprint, face ID or iris scanner) could not be accessed. Please add biometrics from your phone's settings to continue.\n\nTry restarting your phone if you have already enrolled biometrics.")
-                builder.setNegativeButton("Exit") { _, _ ->
-                    this@StartHere.finishAffinity()
+                    Log.d("Keyspace", "Authentication canceled")
                 }
-                val errorDialog: AlertDialog = builder.create()
-                errorDialog.setCancelable(true)
-                errorDialog.show()
 
-                Log.e("Keyspace", "Please set a screen lock.")
-                noLockSet.stackTrace
-
-            } catch (incorrectCredentials: Exception) {
-                biometricPromptThread.removeCallbacksAndMessages(null)
-                incorrectCredentials.printStackTrace()
-                keystoreProgress.visibility = View.INVISIBLE
-                val builder = MaterialAlertDialogBuilder(this@StartHere)
-                builder.setTitle("Authentication failed")
-                builder.setMessage("Your identity couldn't be verified. Please try again after a while.")
-                builder.setNegativeButton("Exit") { _, _ ->
-                    this@StartHere.finishAffinity()
+                override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
+                    biometricPromptThread.removeCallbacksAndMessages(null)
+                    authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
+                    authenticateTitle.setText("Authentication failed")
+                    (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                    findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
+                    keystoreProgress.visibility = View.INVISIBLE
+                    Log.d("Keyspace", "Incorrect credentials supplied")
                 }
-                val errorDialog: AlertDialog = builder.create()
-                errorDialog.setCancelable(true)
-                errorDialog.show()
-
-                Log.e("Keyspace", "Your identity could not be verified.")
-                incorrectCredentials.stackTrace
-
             }
+
+            val biometricPrompt = BiometricPrompt(this@StartHere, executor, authenticationCallback)
+
+            val builder = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(resources.getString(R.string.app_name))
+                .setSubtitle(resources.getString(R.string.biometrics_generic_subtitle))
+                .setDescription(resources.getString(R.string.biometrics_modify_item_description))
+            builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+            builder.setConfirmationRequired(true)
+
+            val promptInfo = builder.build()
+            biometricPrompt.authenticate(promptInfo)
+
+            biometricPromptThread.postDelayed({
+                biometricPrompt.cancelAuthentication()
+                biometricPromptThread.removeCallbacksAndMessages(null)
+                keystoreProgress.visibility = View.INVISIBLE
+                val timeoutDialogBuilder = MaterialAlertDialogBuilder(this@StartHere)
+                timeoutDialogBuilder.setTitle("Authentication error")
+                timeoutDialogBuilder.setMessage("Authentication timed out because you waited too long.\n\nPlease try again.")
+                timeoutDialogBuilder.setNegativeButton("Retry") { _, _ ->
+                    loggedInBiometrics()
+                }
+
+                try {
+                    val timeoutDialog: AlertDialog = timeoutDialogBuilder.create()
+                    timeoutDialog.setCancelable(true)
+                    timeoutDialog.show()
+                } catch (_: WindowManager.BadTokenException) { }
+
+            }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
+
+
+        } catch (noLockSet: NoSuchMethodError) {
+            biometricPromptThread.removeCallbacksAndMessages(null)
+            noLockSet.printStackTrace()
+            keystoreProgress.visibility = View.INVISIBLE
+            val builder = MaterialAlertDialogBuilder(this@StartHere)
+            builder.setTitle("No biometric hardware")
+            builder.setMessage("Your biometric sensors (fingerprint, face ID or iris scanner) could not be accessed. Please add biometrics from your phone's settings to continue.\n\nTry restarting your phone if you have already enrolled biometrics.")
+            builder.setNegativeButton("Exit") { _, _ ->
+                this@StartHere.finishAffinity()
+            }
+            val errorDialog: AlertDialog = builder.create()
+            errorDialog.setCancelable(true)
+            errorDialog.show()
+
+            Log.e("Keyspace", "Please set a screen lock.")
+            noLockSet.stackTrace
+
+        } catch (incorrectCredentials: Exception) {
+            biometricPromptThread.removeCallbacksAndMessages(null)
+            incorrectCredentials.printStackTrace()
+            keystoreProgress.visibility = View.INVISIBLE
+            val builder = MaterialAlertDialogBuilder(this@StartHere)
+            builder.setTitle("Authentication failed")
+            builder.setMessage("Your identity couldn't be verified. Please try again after a while.")
+            builder.setNegativeButton("Exit") { _, _ ->
+                this@StartHere.finishAffinity()
+            }
+            val errorDialog: AlertDialog = builder.create()
+            errorDialog.setCancelable(true)
+            errorDialog.show()
+
+            Log.e("Keyspace", "Your identity could not be verified.")
+            incorrectCredentials.stackTrace
+
+        }
 
     }
 
