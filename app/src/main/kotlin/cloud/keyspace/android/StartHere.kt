@@ -1,11 +1,11 @@
 package cloud.keyspace.android
 
-import android.accounts.AccountsException
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.admin.DevicePolicyManager.ACTION_SET_NEW_PASSWORD
-import android.content.Context.VIBRATOR_SERVICE
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -32,7 +32,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.inputmethod.EditorInfoCompat
@@ -54,12 +53,10 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.goterl.lazysodium.utils.HexMessageEncoder
 import com.keyspace.keyspacemobile.NetworkUtilities
 import com.nulabinc.zxcvbn.Zxcvbn
 import com.scottyab.rootbeer.RootBeer
 import kotlinx.coroutines.*
-import org.json.JSONException
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executor
@@ -442,20 +439,19 @@ class StartHere : AppCompatActivity() {
 
                     try {
                         generateCryptoObjects()
-                        delay (500)
 
                         keygenToSend()
-                        delay(1000)
-
-                        sendToReceive()
-                        delay(1000)
+                        delay(500)
 
                         CoroutineScope(Dispatchers.IO).launch {
                             kotlin.runCatching {
                                 val vaultData = network.grabLatestVaultFromBackend (signedToken)
                                 withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                    sendToReceive()
+
                                     io.writeVault(vaultData)
 
+                                    delay(500)
                                     receiveToKeystore()
                                     storeToKeyring()
                                     delay (1000)
@@ -469,13 +465,11 @@ class StartHere : AppCompatActivity() {
                                 when (it) {
                                     is NetworkUtilities.IncorrectCredentialsException -> {
                                         withContext(Dispatchers.Main) {
-                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
                                             showIncorrectCredentialsDialog()
                                         }
                                     }
                                     is NetworkError -> {
                                         withContext(Dispatchers.Main) {
-                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
                                             showNetworkErrorDialog()
                                         }
                                     }
@@ -505,7 +499,6 @@ class StartHere : AppCompatActivity() {
 
                     try {
                         generateCryptoObjects()
-                        delay (500)
 
                         keygenToSend()
                         CoroutineScope(Dispatchers.IO).launch {
@@ -537,13 +530,11 @@ class StartHere : AppCompatActivity() {
                                 when (it) {
                                     is NetworkUtilities.AccountExistsException -> {
                                         withContext(Dispatchers.Main) {
-                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
                                             showDuplicateAccountDialog()
                                         }
                                     }
                                     is NetworkError -> {
                                         withContext(Dispatchers.Main) {
-                                            for (i in 1..5) requireActivity().supportFragmentManager.popBackStackImmediate()
                                             showNetworkErrorDialog()
                                         }
                                     }
@@ -567,10 +558,8 @@ class StartHere : AppCompatActivity() {
                 .setTitle("Incorrect credentials")
                 .setIcon(R.drawable.ic_baseline_error_24)
                 .setMessage("Please check your username, passphrase or recovery phrase and try again.")
-                .setPositiveButton("Quit app") { dialog, _ ->
-                    dialog.dismiss()
-                    requireActivity().finishAffinity()
-                    requireActivity().finish()
+                .setPositiveButton("Start over") { dialog, _ ->
+                    quitApp(requireActivity(), true)
                 }
 
             val alert = dialogBuilder.create()
@@ -585,10 +574,8 @@ class StartHere : AppCompatActivity() {
                 .setTitle("Account exists")
                 .setIcon(R.drawable.ic_baseline_error_24)
                 .setMessage("An account with the email \"$email\" already exists. Please sign in using that email instead.")
-                .setPositiveButton("Quit app") { dialog, _ ->
-                    dialog.dismiss()
-                    requireActivity().finishAffinity()
-                    requireActivity().finish()
+                .setPositiveButton("Start over") { dialog, _ ->
+                    quitApp(requireActivity(), true)
                 }
 
             val alert = dialogBuilder.create()
@@ -603,10 +590,11 @@ class StartHere : AppCompatActivity() {
                 .setTitle("Connection error")
                 .setIcon(R.drawable.ic_baseline_error_24)
                 .setMessage("Couldn't connect to Keyspace backend. Please check your connection and try again.")
-                .setPositiveButton("Quit app") { dialog, _ ->
-                    dialog.dismiss()
-                    requireActivity().finishAffinity()
-                    requireActivity().finish()
+                .setPositiveButton("Start over") { dialog, _ ->
+                    quitApp(requireActivity(), true)
+                }
+                .setNegativeButton("Quit app") { dialog, _ ->
+                    quitApp(requireActivity(), false)
                 }
 
             val alert = dialogBuilder.create()
@@ -622,9 +610,7 @@ class StartHere : AppCompatActivity() {
                 .setIcon(R.drawable.ic_baseline_error_24)
                 .setMessage("A cryptographic error occurred. Reach out to the Keyspace team.")
                 .setPositiveButton("Quit app") { dialog, _ ->
-                    dialog.dismiss()
-                    requireActivity().finishAffinity()
-                    requireActivity().finish()
+                    quitApp(requireActivity(), false)
                 }
 
             val alert = dialogBuilder.create()
@@ -1822,6 +1808,15 @@ class StartHere : AppCompatActivity() {
         }
     }
 
+}
+
+private fun quitApp (context: Context, restart: Boolean) {
+    (context as Activity).finish()
+    if (restart) {
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        context.startActivity(intent)
+    }
 }
 
 fun loadFragment(fragment: Fragment) {

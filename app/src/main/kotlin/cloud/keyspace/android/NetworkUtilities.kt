@@ -323,9 +323,13 @@ class NetworkUtilities (
                     }
                 },  { error ->
                     error.printStackTrace()
-                    when (error.networkResponse.statusCode) {
-                        500 -> continuation.cancel (IncorrectCredentialsException())
-                        else -> continuation.cancel (NetworkError())
+                    try {
+                        when (error.networkResponse.statusCode) {
+                            500 -> continuation.cancel (IncorrectCredentialsException())
+                            else -> continuation.cancel (NetworkError())
+                        }
+                    } catch (_: NullPointerException) {
+                        continuation.cancel (NetworkError())
                     }
                     Log.e("Keyspace", "Keyspace: Couldn't access this resource. Is it online and is your device connected to the internet?")
                 }) {
