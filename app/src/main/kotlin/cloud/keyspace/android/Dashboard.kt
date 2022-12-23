@@ -2842,58 +2842,41 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             connectionStatusDot.visibility = View.GONE
 
                             lateinit var signedToken: String
+
                             try {
                                 signedToken = network.generateSignedToken()
                             }  catch (_: Exception) {
                                  cancel()
                             }
 
-                            val serverVault = network.grabLatestVaultFromBackend (signedToken, configData.getString("userEmail", null)!!)
+                            val serverVault = network.grabLatestVaultFromBackend (signedToken)
 
-                            when (serverVault.second) {
-                                network.RESPONSE_VAULT_CORRUPT -> {
-                                    cancel()
-                                    errorDialog (
-                                        "Vault corrupt",
-                                        "Your vault appears to be corrupt. This shouldn't be possible. Please contact Keyspace support for assistance.",
-                                        getDrawable(R.drawable.ic_baseline_error_24)!!
-                                    )
-                                }
-                                network.NETWORK_ERROR -> { cancel() }
-                                else -> {
+                            connectionStatusDot.visibility = View.GONE
 
-                                    connectionStatusDot.visibility = View.GONE
-
-                                    if (io.vaultsDiffer(vault, serverVault.first!!)) {
-
-                                        io.writeVault(serverVault.first!!)
-                                        vault = serverVault.first!!
-
-                                        when {
-
-                                            (lastFragment == io.TYPE_LOGIN) -> {
-                                                renderLoginsFragment()
-                                                bottomNavbar.selectedItemId = R.id.logins
-                                            }
-
-                                            (lastFragment == io.TYPE_NOTE) -> {
-                                                renderNotesFragment()
-                                                bottomNavbar.selectedItemId = R.id.notes
-                                            }
-
-                                            (lastFragment == io.TYPE_CARD) -> {
-                                                renderCardsFragment()
-                                                bottomNavbar.selectedItemId = R.id.payments
-                                            }
-
-                                        }
+                            if (io.vaultsDiffer(vault, serverVault)) {
+                                io.writeVault(serverVault)
+                                vault = serverVault
+                                when {
+                                    (lastFragment == io.TYPE_LOGIN) -> {
+                                        renderLoginsFragment()
+                                        bottomNavbar.selectedItemId = R.id.logins
                                     }
-
+                                    (lastFragment == io.TYPE_NOTE) -> {
+                                        renderNotesFragment()
+                                        bottomNavbar.selectedItemId = R.id.notes
+                                    }
+                                    (lastFragment == io.TYPE_CARD) -> {
+                                        renderCardsFragment()
+                                        bottomNavbar.selectedItemId = R.id.payments
+                                    }
                                 }
                             }
+
                         }
 
                     } catch (noInternet: NetworkError) {
+                        cancel()
+                    } catch (noInternet: NullPointerException) {
                         cancel()
                     }
                 }

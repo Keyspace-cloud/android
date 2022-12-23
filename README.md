@@ -50,7 +50,9 @@ Keyspace uses end-to-end encryption to secure all user data (Logins, Notes, Card
 
 ### Signature based authentication scheme
 
-Most password managers transmit a hash of users master password for authentication purposes. [Bitwarden - See page 9](https://bitwarden.com/images/resources/security-white-paper-download.pdf) Keyspace uses a challenge-response based authentication scheme to eliminate users master password hashes being stored on the backend. The client simply signs cryptographic challenge and sends it to the backend. Password hashes never cross the wire.
+_Read more: [Bitwarden Security White Paper (page 9)](https://bitwarden.com/images/resources/security-white-paper-download.pdf)_
+
+Most password managers transmit a hash of users master password for authentication purposes. Keyspace uses a challenge-response based authentication scheme to eliminate users master password hashes being stored on the backend. The client simply signs cryptographic challenge and sends it to the backend. Password hashes never cross the wire.
 
 ### Deterministic Key derivation
 

@@ -1,10 +1,11 @@
 package cloud.keyspace.android
 
-import android.accounts.AccountsException
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.admin.DevicePolicyManager.ACTION_SET_NEW_PASSWORD
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -42,6 +43,8 @@ import androidx.fragment.app.commit
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import cash.z.ecc.android.bip39.Mnemonics
+import com.android.volley.NetworkError
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -50,12 +53,10 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.goterl.lazysodium.utils.HexMessageEncoder
 import com.keyspace.keyspacemobile.NetworkUtilities
 import com.nulabinc.zxcvbn.Zxcvbn
 import com.scottyab.rootbeer.RootBeer
 import kotlinx.coroutines.*
-import org.json.JSONException
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executor
@@ -65,6 +66,8 @@ private lateinit var _supportFragmentManager: FragmentManager
 
 private val MODE_CREATE_ACCOUNT = "createAccount"
 private val MODE_SIGN_IN = "signIn"
+
+private lateinit var mapper: ObjectMapper
 
 class StartHere : AppCompatActivity() {
     private lateinit var fadeAnimation: Animation
@@ -84,6 +87,8 @@ class StartHere : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         _supportFragmentManager = supportFragmentManager
+
+        mapper = jacksonObjectMapper()
 
         crypto = CryptoUtilities(applicationContext, this)
         misc = MiscUtilities(applicationContext)
@@ -168,6 +173,7 @@ class StartHere : AppCompatActivity() {
         lateinit var titleBiometrics: TextView
         lateinit var descriptionBiometrics: TextView
         lateinit var authenticateButton: MaterialButton
+        lateinit var backButton: ImageView
 
         val email = email
         val passphrase = passphrase
@@ -185,13 +191,14 @@ class StartHere : AppCompatActivity() {
         ): View? { // Inflate the layout for this fragment
             authenticationScreenFragmentView = inflater.inflate(R.layout.onboarding_authentication_blurb, container, false)
             requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
             loadContent()
 
             authenticateButton.setOnClickListener {
                 displayScreenLock()
             }
+
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
 
             return authenticationScreenFragmentView
 
@@ -207,6 +214,7 @@ class StartHere : AppCompatActivity() {
             descriptionBiometrics = authenticationScreenFragmentView!!.findViewById(R.id.descriptionBiometrics)
             titleBiometrics = authenticationScreenFragmentView!!.findViewById(R.id.titleBiometrics)
             authenticateButton = authenticationScreenFragmentView!!.findViewById(R.id.authenticateButton)
+            backButton = authenticationScreenFragmentView!!.findViewById(R.id.backButton)
 
             if (!misc.biometricsExist()) {
                 authenticationIcon.setImageDrawable(requireContext().getDrawable(R.drawable.ic_baseline_phonelink_lock_24))
@@ -346,7 +354,6 @@ class StartHere : AppCompatActivity() {
         lateinit var symmetricKey: ByteArray
         lateinit var publicKey: ByteArray
         lateinit var privateKey: ByteArray
-        lateinit var token: ByteArray
         lateinit var keyring: CryptoUtilities.Keyring
 
         lateinit var signedToken: String
@@ -374,20 +381,7 @@ class StartHere : AppCompatActivity() {
                 else if (mode == MODE_SIGN_IN) signIn()
 
             } catch (unknownError: Exception) {
-                val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
-                dialogBuilder
-                    .setCancelable(false)
-                    .setTitle("Cryptography error")
-                    .setIcon(R.drawable.ic_baseline_error_24)
-                    .setMessage("A cryptographic error occurred. Contact Keyspace support immediately.")
-                    .setPositiveButton("Quit app") { dialog, _ ->
-                        dialog.dismiss()
-                        requireActivity().finishAffinity()
-                        requireActivity().finish()
-                    }
-
-                val alert = dialogBuilder.create()
-                alert.show()
+                showCryptographyErrorDialog()
             }
 
             return loadingScreenFragmentView
@@ -420,9 +414,14 @@ class StartHere : AppCompatActivity() {
             publicKey = ed25519.publicKey
             privateKey = ed25519.privateKey
 
-            keyring = CryptoUtilities.Keyring (symmetricKey, privateKey, publicKey)
+            keyring = CryptoUtilities.Keyring (
+                XCHACHA_POLY1305_KEY = symmetricKey,
+                ED25519_PUBLIC_KEY = publicKey,
+                ED25519_PRIVATE_KEY = privateKey
+            )
 
-            network = NetworkUtilities(requireContext(),
+            network = NetworkUtilities(
+                requireContext(),
                 requireActivity() as AppCompatActivity,
                 keyring
             )
@@ -431,140 +430,58 @@ class StartHere : AppCompatActivity() {
 
         private fun signIn () {
             CoroutineScope(Dispatchers.IO).launch {
+                val keyauthResponse = network.sendKeyauthRequest()
+                val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(keyauthResponse)
+                val signedToken = crypto.sign(message, privateKey)
+
                 withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                    delay (500)
+                    setKeygen()
 
-                    val mapper = jacksonObjectMapper()
-                    val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(network.sendKeyauthRequest())
-                    val signedToken = crypto.sign(message, privateKey)
+                    try {
+                        generateCryptoObjects()
 
-                    Handler().postDelayed({
-                        setKeygen()
+                        keygenToSend()
+                        delay(500)
 
-                        try {
-                            generateCryptoObjects()
-                            Handler().postDelayed({
-                                keygenToSend()
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                                        try{
+                        CoroutineScope(Dispatchers.IO).launch {
+                            kotlin.runCatching {
+                                val vaultData = network.grabLatestVaultFromBackend (signedToken)
+                                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                    sendToReceive()
 
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                    io.writeVault(vaultData)
 
-                                                    grabVault(signedToken)
+                                    delay(500)
+                                    receiveToKeystore()
+                                    storeToKeyring()
+                                    delay (1000)
 
-                                                    Handler().postDelayed({
-                                                        sendToReceive()
-                                                        CoroutineScope(Dispatchers.IO).launch {
-                                                            withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                    keystoreToTick()
+                                    delay (3000)
 
-                                                                kotlin.runCatching {
-
-                                                                    val vaultData = network.grabLatestVaultFromBackend (signedToken, email)
-                                                                    if (vaultData.first != null) io.writeVault(vaultData.first!!) else io.getVault()
-
-                                                                    token = HexMessageEncoder().decode(signedToken)
-
-                                                                    Handler().postDelayed({ receiveToKeystore()
-                                                                        storeToKeyring()
-                                                                        Handler().postDelayed({ keystoreToTick()
-                                                                            Handler().postDelayed({
-                                                                                startPermissions()
-                                                                            }, 3000)
-                                                                        }, 1500)
-                                                                    }, 1500)
-
-                                                                }.onFailure { }
-
-                                                            }
-                                                        }
-                                                    }, 1500)
-
-
-                                                }
-                                            }
-
-
-                                        } catch (corruptSignature: Exception) {
-
-                                            when (corruptSignature) {
-                                                is InvalidPropertiesFormatException, is UninitializedPropertyAccessException -> {
-                                                    val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
-
-                                                    alertDialog.setTitle("Incorrect credentials")
-                                                    alertDialog.setIcon(requireContext().getDrawable(R.drawable.ic_baseline_error_24))
-                                                    alertDialog.setMessage("Please check your username, passphrase or recovery phrase and try again.")
-
-                                                    _supportFragmentManager.popBackStackImmediate()
-
-                                                    alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Go back") { dialog, _ ->
-                                                        dialog.dismiss()
-                                                    }
-
-                                                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Quit app") { dialog, _ ->
-                                                        dialog.dismiss()
-                                                        requireActivity().finishAffinity()
-                                                    }
-
-                                                    alertDialog.show()
-                                                }
-                                                is AccountsException -> {
-                                                    val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
-
-                                                    alertDialog.setTitle("Account exists")
-                                                    alertDialog.setIcon(requireContext().getDrawable(R.drawable.ic_baseline_error_24))
-                                                    alertDialog.setMessage("An account with the email \"$email\" already exists. Please sign in using that email instead.")
-
-                                                    _supportFragmentManager.popBackStackImmediate()
-
-                                                    /*
-                                                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Sign in instead") { dialog, _ ->
-                                                        dialog.dismiss()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                    }*/
-
-                                                    alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Start over") { dialog, _ ->
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                        _supportFragmentManager.popBackStackImmediate()
-                                                    }
-
-                                                    alertDialog.show()
-                                                }
-                                            }
-
+                                    startPermissions()
+                                }
+                            }.onFailure {
+                                when (it) {
+                                    is NetworkUtilities.IncorrectCredentialsException -> {
+                                        withContext(Dispatchers.Main) {
+                                            showIncorrectCredentialsDialog()
                                         }
                                     }
+                                    is NetworkError -> {
+                                        withContext(Dispatchers.Main) {
+                                            showNetworkErrorDialog()
+                                        }
+                                    }
+                                    else -> throw it
                                 }
-
-                            },
-                                250)
-                        } catch (unknownError: Exception) {
-                            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
-                            dialogBuilder
-                                .setCancelable(false)
-                                .setTitle("Cryptography error")
-                                .setIcon(R.drawable.ic_baseline_error_24)
-                                .setMessage("A cryptographic error occurred. Contact Keyspace support immediately.")
-                                .setPositiveButton("Quit app") { dialog, _ ->
-                                    dialog.dismiss()
-                                    requireActivity().finishAffinity()
-                                    requireActivity().finish()
-                                }
-
-                            val alert = dialogBuilder.create()
-                            alert.show()
+                            }
                         }
 
-
-                    },
-                        250)
-
+                    } catch (unknownError: Exception) {
+                        showCryptographyErrorDialog ()
+                    }
 
                 }
             }
@@ -573,120 +490,132 @@ class StartHere : AppCompatActivity() {
         @SuppressLint("UseRequireInsteadOfGet")
         private fun createAccount () {
             CoroutineScope(Dispatchers.IO).launch {
+                val keyauthResponse = network.sendKeyauthRequest()
+                val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(keyauthResponse)
+                val signedToken = crypto.sign(message, privateKey)
+
                 withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                    delay (500)
+                    setKeygen()
 
-                        val mapper = jacksonObjectMapper()
-                        val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(network.sendKeyauthRequest())
-                        val signedToken = crypto.sign(message, privateKey)
+                    try {
+                        generateCryptoObjects()
 
-                        Handler().postDelayed({
-                            setKeygen()
+                        keygenToSend()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            kotlin.runCatching {
+                                val createAccountResponse: NetworkUtilities.SignupResponse = network.sendSignupRequest(
+                                    NetworkUtilities.SignupParameters(
+                                        email = email,
+                                        public_key = publicKey.toHexString(),
+                                        signed_token = signedToken
+                                    )
+                                )!!
 
-                            try {
-                                generateCryptoObjects()
-                                Handler().postDelayed({
-                                    keygenToSend()
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                                            try{
-                                                val createAccountResponse: NetworkUtilities.SignupResponse = network.sendSignupRequest(
-                                                    NetworkUtilities.SignupParameters(
-                                                        email = email,
-                                                        public_key = publicKey.toHexString(),
-                                                        signed_token = signedToken
-                                                    )
-                                                )!!
+                                if (createAccountResponse.status != network.RESPONSE_SUCCESS) throw NetworkUtilities.AccountExistsException() else {
+                                    withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                        delay(1000)
 
-                                                if (createAccountResponse.status != network.RESPONSE_SUCCESS) throw InvalidPropertiesFormatException("") else {
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                        receiveToKeystore()
+                                        storeToKeyring()
+                                        delay (1000)
 
-                                                            Handler().postDelayed({
-                                                                sendToReceive()
-                                                                CoroutineScope(Dispatchers.IO).launch {
-                                                                    withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                        keystoreToTick()
+                                        delay (3000)
 
-                                                                        kotlin.runCatching {
+                                        startPermissions()
+                                    }
+                                }
 
-                                                                            grabVault(signedToken)
-
-                                                                            token = HexMessageEncoder().decode(signedToken)
-
-                                                                            Handler().postDelayed({
-                                                                                receiveToKeystore()
-                                                                                storeToKeyring()
-                                                                                Handler().postDelayed({
-                                                                                    keystoreToTick()
-                                                                                    Handler().postDelayed({
-                                                                                        startPermissions()
-                                                                                    }, 3000)
-                                                                                }, 1500)
-                                                                            }, 1500)
-
-                                                                        }.onFailure { }
-
-                                                                    }
-                                                                }
-                                                            }, 1500)
-
-
-                                                        }
-                                                    }
-                                                }
-
-                                            } catch (corruptSignature: InvalidPropertiesFormatException) {
-
-                                                corruptSignature.printStackTrace()
-
-                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
-                                                alertDialog.setTitle("Account exists")
-                                                alertDialog.setIcon(requireContext().getDrawable(R.drawable.ic_baseline_error_24))
-                                                alertDialog.setMessage("An account with the email \"$email\" already exists. Please sign in using that email instead.")
-
-                                                _supportFragmentManager.popBackStackImmediate()
-
-                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Sign in instead") { dialog, _ ->
-                                                    dialog.dismiss()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                }
-
-                                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Start over") { dialog, _ ->
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                    _supportFragmentManager.popBackStackImmediate()
-                                                }
-
-                                                alertDialog.show()
-
-                                            }
+                            }.onFailure {
+                                when (it) {
+                                    is NetworkUtilities.AccountExistsException -> {
+                                        withContext(Dispatchers.Main) {
+                                            showDuplicateAccountDialog()
                                         }
                                     }
-
-                                }, 500)
-                            } catch (unknownError: Exception) {
-                                val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
-                                dialogBuilder
-                                    .setCancelable(false)
-                                    .setTitle("Cryptography error")
-                                    .setIcon(R.drawable.ic_baseline_error_24)
-                                    .setMessage("A cryptographic error occurred. Contact Keyspace support immediately.")
-                                    .setPositiveButton("Quit app") { dialog, _ ->
-                                        dialog.dismiss()
-                                        requireActivity().finishAffinity()
-                                        requireActivity().finish()
+                                    is NetworkError -> {
+                                        withContext(Dispatchers.Main) {
+                                            showNetworkErrorDialog()
+                                        }
                                     }
-
-                                val alert = dialogBuilder.create()
-                                alert.show()
+                                    else -> throw it
+                                }
                             }
-                        }, 500)
+                        }
+
+                    } catch (unknownError: Exception) {
+                        showCryptographyErrorDialog ()
+                    }
+
                 }
             }
+        }
+
+        private fun showIncorrectCredentialsDialog () {
+            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+            dialogBuilder
+                .setCancelable(false)
+                .setTitle("Incorrect credentials")
+                .setIcon(R.drawable.ic_baseline_error_24)
+                .setMessage("Please check your username, passphrase or recovery phrase and try again.")
+                .setPositiveButton("Start over") { dialog, _ ->
+                    quitApp(requireActivity(), true)
+                }
+
+            val alert = dialogBuilder.create()
+            alert.show()
+
+        }
+
+        private fun showDuplicateAccountDialog () {
+            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+            dialogBuilder
+                .setCancelable(false)
+                .setTitle("Account exists")
+                .setIcon(R.drawable.ic_baseline_error_24)
+                .setMessage("An account with the email \"$email\" already exists. Please sign in using that email instead.")
+                .setPositiveButton("Start over") { dialog, _ ->
+                    quitApp(requireActivity(), true)
+                }
+
+            val alert = dialogBuilder.create()
+            alert.show()
+
+        }
+
+        private fun showNetworkErrorDialog () {
+            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+            dialogBuilder
+                .setCancelable(false)
+                .setTitle("Connection error")
+                .setIcon(R.drawable.ic_baseline_error_24)
+                .setMessage("Couldn't connect to Keyspace backend. Please check your connection and try again.")
+                .setPositiveButton("Start over") { dialog, _ ->
+                    quitApp(requireActivity(), true)
+                }
+                .setNegativeButton("Quit app") { dialog, _ ->
+                    quitApp(requireActivity(), false)
+                }
+
+            val alert = dialogBuilder.create()
+            alert.show()
+
+        }
+
+        private fun showCryptographyErrorDialog () {
+            val dialogBuilder = MaterialAlertDialogBuilder(requireActivity())
+            dialogBuilder
+                .setCancelable(false)
+                .setTitle("Cryptography error")
+                .setIcon(R.drawable.ic_baseline_error_24)
+                .setMessage("A cryptographic error occurred. Reach out to the Keyspace team.")
+                .setPositiveButton("Quit app") { dialog, _ ->
+                    quitApp(requireActivity(), false)
+                }
+
+            val alert = dialogBuilder.create()
+            alert.show()
         }
 
         private fun startPermissions() {
@@ -716,45 +645,6 @@ class StartHere : AppCompatActivity() {
             System.gc()
         }
 
-        private suspend fun grabVault(signedToken: String): Boolean {
-            try {
-                val vaultData = network.grabLatestVaultFromBackend (signedToken, email)
-
-                when {
-                    vaultData.first == null -> displayVaultError()
-                    vaultData.second == network.RESPONSE_VAULT_CORRUPT -> {
-                        displayVaultError()
-                        activity?.finish()
-                    }
-                    vaultData.second == network.NETWORK_ERROR -> {
-                        displayVaultError()
-                        activity?.finish()
-                    }
-                    else -> {
-                        val vault = vaultData.first!!
-                        io.writeVault(vault)
-                        return true
-                    }
-                }} catch (noData: JSONException) {
-                return false
-            }
-
-            return false
-        }
-
-        private fun displayVaultError() {
-            val alertDialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity()).create()
-            alertDialog.setTitle("Sync error")
-            alertDialog.setCancelable(false)
-            alertDialog.setIcon(R.drawable.ic_baseline_sync_24)
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Quit app") { dialog, _ ->
-                dialog.dismiss()
-                requireActivity().finishAffinity()
-            }
-            alertDialog.setMessage("An error occurred while downloading your vault. Please contact the Keyspace team immediately.")
-            alertDialog.show()
-        }
-
         private fun animTest() {
             Handler().postDelayed({
                 setKeygen()
@@ -769,20 +659,6 @@ class StartHere : AppCompatActivity() {
                     }, 1500)
                 }, 400)
             }, 400)
-        }
-
-        private fun logger() {
-            Log.d("KeyspaceONBOARDING", "WORDS: ${String(spacedWords)}")
-            Log.d("KeyspaceONBOARDING", "EMAIL: ${email}")
-            Log.d("KeyspaceONBOARDING", "PASSPHRASE: ${String(passphrase)}")
-            Log.d("KeyspaceONBOARDING", "WORDS SHA256: ${sha256.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "SEED FROM WORDS: ${bip39Seed.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "ASYMM HARDENED SEED: ${asymmetricHardenedSeed.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "SYMM HARDENED SEED: ${symmetricHardenedSeed.toHexString()}")
-            Log.d("KeyspaceONBOARDING", "PUBLIC KEY: ${publicKey.toHexString()}")
-            Log.d ("KeyspaceONBOARDING", "PRIVATE KEY: ${privateKey.toHexString()}")
-            Log.d ("KeyspaceONBOARDING", "SYMMETRIC KEY: ${symmetricKey.toHexString()}")
-            //Log.d ("KeyspaceSIGNUP", "MESSAGE SIGNED W PRIV KEY: ${signedToken}")
         }
 
         @SuppressLint("UseCompatLoadingForDrawables")
@@ -823,7 +699,7 @@ class StartHere : AppCompatActivity() {
 
         private fun keygenToSend() {
             Handler().postDelayed({
-                iconography.animate().scaleX(0.95f).scaleY(0.95f)
+                iconography.animate().scaleX(1.5f).scaleY(1.5f)
                 iconography.setImageDrawable(animatedLogoToSend)
                 loadingText.setText ("Uploading")
                 loadingSubtitle.setText ("Sending your account details")
@@ -832,6 +708,7 @@ class StartHere : AppCompatActivity() {
 
         private fun sendToReceive() {
             Handler().postDelayed({
+                iconography.animate().scaleX(1.5f).scaleY(1.5f)
                 iconography.setImageDrawable(sendToReceive)
                 loadingText.setText ("Downloading")
                 loadingSubtitle.setText ("Fetching your Keyspace vault")
@@ -840,7 +717,7 @@ class StartHere : AppCompatActivity() {
 
         private fun receiveToKeystore() {
             Handler().postDelayed({
-                iconography.animate().scaleX(0.75f).scaleY(0.75f)
+                iconography.animate().scaleX(1.25f).scaleY(1.25f)
                 loadingText.setText ("Storing keys")
 
                 var strongBoxExists = try {
@@ -862,7 +739,7 @@ class StartHere : AppCompatActivity() {
 
         private fun keystoreToTick() {
             Handler().postDelayed({
-                iconography.animate().scaleX(0.65f).scaleY(0.65f)
+                iconography.animate().scaleX(0.85f).scaleY(0.85f)
                 iconography.startAnimation(loadAnimation(requireContext(), R.anim.zoom_spin))
                 iconography.setImageDrawable(requireContext().getDrawable(R.drawable.ic_baseline_check_24))
                 loadingText.setText ("Signed in")
@@ -904,7 +781,7 @@ class StartHere : AppCompatActivity() {
             iAgree = wordsBlurbFragmentView!!.findViewById(R.id.iAgree)
             recoveryPhraseBlurbContinue = wordsBlurbFragmentView!!.findViewById(R.id.recoveryPhraseBlurbContinue)
             backButton = wordsBlurbFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate(); timerObject.cancel(); timerObject.purge() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed(); timerObject.cancel(); timerObject.purge() }
         }
 
         private fun loadOnboardingBlurb() {
@@ -969,7 +846,6 @@ class StartHere : AppCompatActivity() {
         ): View? { // Inflate the layout for this fragment
             tapWordsFragmentView = inflater.inflate(R.layout.onboarding_tap_words, container, false)
             requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
             loadContent()
             loadUI()
@@ -988,7 +864,7 @@ class StartHere : AppCompatActivity() {
             tapWordsChips.isSingleSelection = true
             createAccountButton = tapWordsFragmentView!!.findViewById(R.id.createAccountButton)
             backButton = tapWordsFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { loadFragment(WordsBlurbFragment(email, passphrase)) }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
         private fun loadUI() {
@@ -1058,7 +934,7 @@ class StartHere : AppCompatActivity() {
 
             createAccountButton.isEnabled = false
             createAccountButton.setOnClickListener {
-                loadFragment(AuthenticationFragment(email, passphrase, spacedWords, mode = MODE_CREATE_ACCOUNT))
+                loadFragment(StartHere.AuthenticationFragment(email, passphrase, spacedWords, mode = MODE_CREATE_ACCOUNT))
             }
 
         }
@@ -1104,7 +980,7 @@ class StartHere : AppCompatActivity() {
             wordChips = wordsFragmentView!!.findViewById(R.id.showWordsChips)
             nextButton = wordsFragmentView!!.findViewById(R.id.nextButtonOnShowScreen)
             backButton = wordsFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate(); timerObject.cancel(); timerObject.purge() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed(); timerObject.cancel(); timerObject.purge() }
         }
 
         private fun loadChips() {
@@ -1216,7 +1092,7 @@ class StartHere : AppCompatActivity() {
             enterWordsLayout.isSingleSelection = true
             signInButton = enterWordsFragmentView!!.findViewById(R.id.signInButton)
             backButton = enterWordsFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
         private fun loadUI() {
@@ -1339,7 +1215,7 @@ class StartHere : AppCompatActivity() {
             signInButton = passphraseFragmentView!!.findViewById(R.id.passphraseSignin)
             createNewButton = passphraseFragmentView!!.findViewById(R.id.passphraseCreateNew)
             backButton = passphraseFragmentView!!.findViewById(R.id.backButton)
-            backButton.setOnClickListener { _supportFragmentManager.popBackStackImmediate() }
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
         private fun loadForSigningIn() {
@@ -1408,7 +1284,7 @@ class StartHere : AppCompatActivity() {
                                 "This is a great passphrase!"
                             }
                             withContext(Dispatchers.Main) {
-                                    passphraseStrength.text = feedback
+                                passphraseStrength.text = feedback
                             }
                         }
                         if (passphrase.toString().length >= 8) {
@@ -1694,177 +1570,177 @@ class StartHere : AppCompatActivity() {
         keystoreProgress.visibility = View.VISIBLE
 
         val biometricPromptThread = Handler(Looper.getMainLooper())
-            val executor: Executor = ContextCompat.getMainExecutor(this@StartHere) // execute on different thread awaiting response
+        val executor: Executor = ContextCompat.getMainExecutor(this@StartHere) // execute on different thread awaiting response
 
-            try {
-                val biometricManager = BiometricManager.from(this@StartHere)
-                val canAuthenticate =
-                    biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        try {
+            val biometricManager = BiometricManager.from(this@StartHere)
+            val canAuthenticate =
+                biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
 
-                if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-                    Log.d("Keyspace", "Device lock found")
-                } else {
-                    Log.d("Keyspace", "Device lock not set")
-                    throw NoSuchMethodError()
-                }
+            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+                Log.d("Keyspace", "Device lock found")
+            } else {
+                Log.d("Keyspace", "Device lock not set")
+                throw NoSuchMethodError()
+            }
 
-                biometricPromptThread.removeCallbacksAndMessages(null)
+            biometricPromptThread.removeCallbacksAndMessages(null)
 
-                authenticateTitle.setText("Unlock Keyspace")
-                if (misc.biometricsExist()) {
-                    authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_fingerprint_24))
-                    authenticateDescription.setText(getString(R.string.blurbDescriptionBiometrics))
-                }
-                else {
-                    authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_phonelink_lock_24))
-                    authenticateDescription.setText(getString(R.string.blurbDescriptionDeviceLock))
-                }
+            authenticateTitle.setText("Unlock Keyspace")
+            if (misc.biometricsExist()) {
+                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_fingerprint_24))
+                authenticateDescription.setText(getString(R.string.blurbDescriptionBiometrics))
+            }
+            else {
+                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_phonelink_lock_24))
+                authenticateDescription.setText(getString(R.string.blurbDescriptionDeviceLock))
+            }
 
-                val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
+            val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
 
-                        authenticateButton.visibility = View.INVISIBLE
-                        authenticateButton.isEnabled = false
+                    authenticateButton.visibility = View.INVISIBLE
+                    authenticateButton.isEnabled = false
 
-                        authenticateDescription.setText("Authentication token")
+                    authenticateDescription.setText("Authentication token")
 
-                        Handler().postDelayed({
+                    Handler().postDelayed({
                         authenticateDescription.setText("Ed25519 public key")
                         Handler().postDelayed({ authenticateDescription.setText("Ed25519 private key")
                             Handler().postDelayed({ authenticateDescription.setText("XChaCha20-Poly1305 symmetric key") }, 50) }, 100) }, 100)
 
-                        val keyringThread = Thread { keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!! }
-                        keyringThread.start()
+                    val keyringThread = Thread { keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!! }
+                    keyringThread.start()
 
-                        if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox exists
-                            authenticateTitle.setText("Reading Strongbox")
-                        } else if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if hardware keystore exists
-                            authenticateTitle.setText("Reading HAL Keystore")
-                        } else authenticateTitle.setText("Reading Keystore")
+                    if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox exists
+                        authenticateTitle.setText("Reading Strongbox")
+                    } else if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if hardware keystore exists
+                        authenticateTitle.setText("Reading HAL Keystore")
+                    } else authenticateTitle.setText("Reading Keystore")
 
-                        if (misc.biometricsExist()) authenticationIcon.setImageDrawable(fingerprintToUnlock)
-                        else authenticationIcon.setImageDrawable(keyguardToUnlock)
+                    if (misc.biometricsExist()) authenticationIcon.setImageDrawable(fingerprintToUnlock)
+                    else authenticationIcon.setImageDrawable(keyguardToUnlock)
 
-                        fingerprintToUnlock!!.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                            override fun onAnimationEnd(drawable: Drawable) {
-                                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_check_24))
-                                keyringThread.join()
+                    fingerprintToUnlock!!.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                        override fun onAnimationEnd(drawable: Drawable) {
+                            authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_check_24))
+                            keyringThread.join()
 
-                                zoomSpin.setAnimationListener(object : AnimationListener {
+                            zoomSpin.setAnimationListener(object : AnimationListener {
 
-                                    override fun onAnimationStart(animation: Animation) {
-                                        authenticateTitle.setText("All done!")
-                                        authenticateDescription.setText("daaaammn if you can read this you have eagle eyes... \uD83E\uDD85")
-                                    }
+                                override fun onAnimationStart(animation: Animation) {
+                                    authenticateTitle.setText("All done!")
+                                    authenticateDescription.setText("daaaammn if you can read this you have eagle eyes... \uD83E\uDD85")
+                                }
 
-                                    override fun onAnimationRepeat(animation: Animation) {  }
+                                override fun onAnimationRepeat(animation: Animation) {  }
 
-                                    @SuppressLint("UseCompatLoadingForDrawables")
-                                    override fun onAnimationEnd(animation: Animation) {
-                                        keystoreProgress.visibility = View.INVISIBLE
-                                        startDashboard()
-                                    }
+                                @SuppressLint("UseCompatLoadingForDrawables")
+                                override fun onAnimationEnd(animation: Animation) {
+                                    keystoreProgress.visibility = View.INVISIBLE
+                                    startDashboard()
+                                }
 
-                                })
+                            })
 
-                                authenticationIcon.startAnimation(zoomSpin)
+                            authenticationIcon.startAnimation(zoomSpin)
 
-                            }
-                        })
+                        }
+                    })
 
-                        fingerprintToUnlock.start()
+                    fingerprintToUnlock.start()
 
-                        Log.d("Keyspace", "Authentication successful")
-                    }
-
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
-                        biometricPromptThread.removeCallbacksAndMessages(null)
-                        authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
-                        authenticateTitle.setText("Authentication failed")
-                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
-                        findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
-                        keystoreProgress.visibility = View.INVISIBLE
-                        Log.d("Keyspace", "Authentication canceled")
-                    }
-
-                    override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
-                        biometricPromptThread.removeCallbacksAndMessages(null)
-                        authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
-                        authenticateTitle.setText("Authentication failed")
-                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
-                        findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
-                        keystoreProgress.visibility = View.INVISIBLE
-                        Log.d("Keyspace", "Incorrect credentials supplied")
-                    }
+                    Log.d("Keyspace", "Authentication successful")
                 }
 
-                val biometricPrompt = BiometricPrompt(this@StartHere, executor, authenticationCallback)
-
-                val builder = BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(resources.getString(R.string.app_name))
-                    .setSubtitle(resources.getString(R.string.biometrics_generic_subtitle))
-                    .setDescription(resources.getString(R.string.biometrics_modify_item_description))
-                builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                builder.setConfirmationRequired(true)
-
-                val promptInfo = builder.build()
-                biometricPrompt.authenticate(promptInfo)
-
-                biometricPromptThread.postDelayed({
-                    biometricPrompt.cancelAuthentication()
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
                     biometricPromptThread.removeCallbacksAndMessages(null)
+                    authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
+                    authenticateTitle.setText("Authentication failed")
+                    (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                    findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
                     keystoreProgress.visibility = View.INVISIBLE
-                    val timeoutDialogBuilder = MaterialAlertDialogBuilder(this@StartHere)
-                    timeoutDialogBuilder.setTitle("Authentication error")
-                    timeoutDialogBuilder.setMessage("Authentication timed out because you waited too long.\n\nPlease try again.")
-                    timeoutDialogBuilder.setNegativeButton("Retry") { _, _ ->
-                       loggedInBiometrics()
-                    }
-
-                    try {
-                        val timeoutDialog: AlertDialog = timeoutDialogBuilder.create()
-                        timeoutDialog.setCancelable(true)
-                        timeoutDialog.show()
-                    } catch (_: WindowManager.BadTokenException) { }
-
-                }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
-
-
-            } catch (noLockSet: NoSuchMethodError) {
-                biometricPromptThread.removeCallbacksAndMessages(null)
-                noLockSet.printStackTrace()
-                keystoreProgress.visibility = View.INVISIBLE
-                val builder = MaterialAlertDialogBuilder(this@StartHere)
-                builder.setTitle("No biometric hardware")
-                builder.setMessage("Your biometric sensors (fingerprint, face ID or iris scanner) could not be accessed. Please add biometrics from your phone's settings to continue.\n\nTry restarting your phone if you have already enrolled biometrics.")
-                builder.setNegativeButton("Exit") { _, _ ->
-                    this@StartHere.finishAffinity()
+                    Log.d("Keyspace", "Authentication canceled")
                 }
-                val errorDialog: AlertDialog = builder.create()
-                errorDialog.setCancelable(true)
-                errorDialog.show()
 
-                Log.e("Keyspace", "Please set a screen lock.")
-                noLockSet.stackTrace
-
-            } catch (incorrectCredentials: Exception) {
-                biometricPromptThread.removeCallbacksAndMessages(null)
-                incorrectCredentials.printStackTrace()
-                keystoreProgress.visibility = View.INVISIBLE
-                val builder = MaterialAlertDialogBuilder(this@StartHere)
-                builder.setTitle("Authentication failed")
-                builder.setMessage("Your identity couldn't be verified. Please try again after a while.")
-                builder.setNegativeButton("Exit") { _, _ ->
-                    this@StartHere.finishAffinity()
+                override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
+                    biometricPromptThread.removeCallbacksAndMessages(null)
+                    authenticationIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_close_24))
+                    authenticateTitle.setText("Authentication failed")
+                    (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                    findViewById<LinearLayout>(R.id.fingerprint_icon_layout).startAnimation(loadAnimation(applicationContext, R.anim.wiggle))
+                    keystoreProgress.visibility = View.INVISIBLE
+                    Log.d("Keyspace", "Incorrect credentials supplied")
                 }
-                val errorDialog: AlertDialog = builder.create()
-                errorDialog.setCancelable(true)
-                errorDialog.show()
-
-                Log.e("Keyspace", "Your identity could not be verified.")
-                incorrectCredentials.stackTrace
-
             }
+
+            val biometricPrompt = BiometricPrompt(this@StartHere, executor, authenticationCallback)
+
+            val builder = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(resources.getString(R.string.app_name))
+                .setSubtitle(resources.getString(R.string.biometrics_generic_subtitle))
+                .setDescription(resources.getString(R.string.biometrics_modify_item_description))
+            builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+            builder.setConfirmationRequired(true)
+
+            val promptInfo = builder.build()
+            biometricPrompt.authenticate(promptInfo)
+
+            biometricPromptThread.postDelayed({
+                biometricPrompt.cancelAuthentication()
+                biometricPromptThread.removeCallbacksAndMessages(null)
+                keystoreProgress.visibility = View.INVISIBLE
+                val timeoutDialogBuilder = MaterialAlertDialogBuilder(this@StartHere)
+                timeoutDialogBuilder.setTitle("Authentication error")
+                timeoutDialogBuilder.setMessage("Authentication timed out because you waited too long.\n\nPlease try again.")
+                timeoutDialogBuilder.setNegativeButton("Retry") { _, _ ->
+                    loggedInBiometrics()
+                }
+
+                try {
+                    val timeoutDialog: AlertDialog = timeoutDialogBuilder.create()
+                    timeoutDialog.setCancelable(true)
+                    timeoutDialog.show()
+                } catch (_: WindowManager.BadTokenException) { }
+
+            }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
+
+
+        } catch (noLockSet: NoSuchMethodError) {
+            biometricPromptThread.removeCallbacksAndMessages(null)
+            noLockSet.printStackTrace()
+            keystoreProgress.visibility = View.INVISIBLE
+            val builder = MaterialAlertDialogBuilder(this@StartHere)
+            builder.setTitle("No biometric hardware")
+            builder.setMessage("Your biometric sensors (fingerprint, face ID or iris scanner) could not be accessed. Please add biometrics from your phone's settings to continue.\n\nTry restarting your phone if you have already enrolled biometrics.")
+            builder.setNegativeButton("Exit") { _, _ ->
+                this@StartHere.finishAffinity()
+            }
+            val errorDialog: AlertDialog = builder.create()
+            errorDialog.setCancelable(true)
+            errorDialog.show()
+
+            Log.e("Keyspace", "Please set a screen lock.")
+            noLockSet.stackTrace
+
+        } catch (incorrectCredentials: Exception) {
+            biometricPromptThread.removeCallbacksAndMessages(null)
+            incorrectCredentials.printStackTrace()
+            keystoreProgress.visibility = View.INVISIBLE
+            val builder = MaterialAlertDialogBuilder(this@StartHere)
+            builder.setTitle("Authentication failed")
+            builder.setMessage("Your identity couldn't be verified. Please try again after a while.")
+            builder.setNegativeButton("Exit") { _, _ ->
+                this@StartHere.finishAffinity()
+            }
+            val errorDialog: AlertDialog = builder.create()
+            errorDialog.setCancelable(true)
+            errorDialog.show()
+
+            Log.e("Keyspace", "Your identity could not be verified.")
+            incorrectCredentials.stackTrace
+
+        }
 
     }
 
@@ -1933,6 +1809,15 @@ class StartHere : AppCompatActivity() {
         }
     }
 
+}
+
+private fun quitApp (context: Context, restart: Boolean) {
+    (context as Activity).finish()
+    if (restart) {
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        context.startActivity(intent)
+    }
 }
 
 fun loadFragment(fragment: Fragment) {
