@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="5dp"
-            android:text="Long press a tag to edit it"
+            android:text="Tap to select or long press to edit"
             android:textStyle="normal"
             android:visibility="visible" />
 
@@ -58,15 +58,6 @@
             android:layout_gravity="start"
             android:layout_weight="1"
             android:text="Go back" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/saveTagButton"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_weight="1"
-            android:text="Add" />
 
     </LinearLayout>
 

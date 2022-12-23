@@ -9,7 +9,9 @@ import android.os.Looper
 import android.os.Message
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -18,17 +20,28 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.keyspace.keyspacemobile.NetworkUtilities
+import java.time.Instant
+import java.util.UUID
 
 
 class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, val keyring: CryptoUtilities.Keyring) {
 
-    val io: IOUtilities
-    val vault: IOUtilities.Vault
-    var decryptedTags: MutableList<IOUtilities.Tag> = mutableListOf()
+    private val io: IOUtilities
+    private val network: NetworkUtilities
+
+    private val vault: IOUtilities.Vault
+    private var decryptedTags: MutableList<IOUtilities.Tag> = mutableListOf()
 
     init {
 
         io = IOUtilities (
+            applicationContext = context,
+            appCompatActivity = appCompatActivity,
+            keyring = keyring
+        )
+
+        network = NetworkUtilities (
             applicationContext = context,
             appCompatActivity = appCompatActivity,
             keyring = keyring
@@ -41,19 +54,11 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
 
     }
 
-    fun showPicker (): String? {
-
-        val handler: Handler = @SuppressLint("HandlerLeak")
-        object : Handler() {
-            override fun handleMessage(msg: Message) {
-                throw RuntimeException()
-            }
-        }
-
-        var tagId: String? = null
+    fun showPicker () {
 
         val inflater = appCompatActivity.layoutInflater
         val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
+        lateinit var tagDialog: AlertDialog
         val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
         dialogBuilder
             .setView(dialogView)
@@ -63,15 +68,66 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
         val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
         val tapBlurb = dialogView.findViewById<View>(R.id.tapBlurb) as TextView
 
-        val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as Chip
-
-        val saveTagButton = dialogView.findViewById<View>(R.id.saveTagButton) as MaterialButton
         val backButton = dialogView.findViewById<View>(R.id.backButton) as MaterialButton
 
         var tagColor: String? = null
 
         tagCollection.isSelectionRequired = true
         tagCollection.isSingleSelection = true
+
+        val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as Chip
+
+        addTagButton.setOnClickListener {
+            val editTagDialogView: View = inflater.inflate (R.layout.edit_tag, null)
+            val editTagDialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
+            editTagDialogBuilder
+                .setView(editTagDialogView)
+                .setCancelable(true)
+                .setTitle("Edit tag")
+
+            val editTag = editTagDialogView.findViewById<View>(R.id.editTag) as EditText
+            val editTagBackButton = editTagDialogView.findViewById<View>(R.id.backButton) as MaterialButton
+            val saveTagButton = editTagDialogView.findViewById<View>(R.id.saveTagButton) as MaterialButton
+            val addColorButton = editTagDialogView.findViewById<View>(R.id.addColorButton) as MaterialButton
+
+            val addTagDialog: AlertDialog = editTagDialogBuilder.show()
+
+            backButton.setOnClickListener {
+                tagDialog.dismiss()
+            }
+
+            editTagBackButton.setOnClickListener {
+                addTagDialog.dismiss()
+            }
+
+            saveTagButton.setOnClickListener {
+
+                val name = editTag.text.toString()
+
+                val tagId = UUID.randomUUID().toString()
+                network.writeQueueTask (tagId, mode = network.MODE_DELETE)
+                vault.tag?.add (
+                    IOUtilities.Tag (
+                        id = tagId,
+                        name = name,
+                        color = "",
+                        dateCreated = Instant.now().epochSecond,
+                        type = ""
+                    )
+                )
+                io.writeVault(vault)
+
+                Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
+
+                tagDialog = dialogBuilder.show()
+
+                backButton.setOnClickListener {
+                    tagDialog.dismiss()
+                }
+
+            }
+
+        }
 
         if (decryptedTags.isEmpty()) tapBlurb.text = "No tags. Tap the add button below to add one." else {
             for (tag in decryptedTags) {
@@ -86,8 +142,6 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
                 tagChip.isEnabled = true
                 tagChip.chipIcon = AppCompatResources.getDrawable(context, R.drawable.ic_baseline_circle_24)
 
-                tagId = tag.id
-
                 tagCollection.addView(tagChip)
 
                 tagChip.setCloseIconResource(R.drawable.ic_baseline_close_24)
@@ -95,28 +149,23 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
 
                     val builder = MaterialAlertDialogBuilder(appCompatActivity)
                     builder.setTitle("Delete tag")
-                    builder.setMessage("Would you like to delete \"${tag.name}\"?")
+                    builder.setMessage("Would you like to delete \"${tag.name}\"? This will untag all items containing this tag.")
                     builder.setPositiveButton("Delete"){ _, _ ->
 
-                        /*for (existingTag in tag) {
+                        network.writeQueueTask (tag.id, mode = network.MODE_DELETE)
+                        vault.tag?.forEach { if (it.id == tag.id) vault.tag.remove(it) }
+                        io.writeVault(vault)
 
-                            val decryptedTag = io.decryptTag (tag)!!
+                        tagCollection.removeView(tagChip)
 
-                            if (tagChip.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
+                        (tagChip.parent as? ViewGroup)?.removeView(tagChip)
 
-                                tagCollection.removeView(tagChip)
-                                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
-                                vault.tag.remove(existingTag)
-                                io.writeVault(vault)
+                        Toast.makeText(context, "Deleted ${tag.name}", Toast.LENGTH_LONG).show()
 
-                                Toast.makeText(applicationContext, "Deleted ${decryptedTag.name}", Toast.LENGTH_LONG).show()
-
-                                network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                                break
-                            }
-                        }*/
+                        tagDialog.dismiss()
 
                     }
+
                     builder.setNegativeButton("Go back"){ _, _ -> }
                     val alertDialog: AlertDialog = builder.create()
                     alertDialog.setCancelable(false)
@@ -128,21 +177,10 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
                 tagCollection.addView(tagChip)
 
             }
+
+            tagDialog = dialogBuilder.show()
+
         }
-
-        val tagDialog: AlertDialog = dialogBuilder.show()
-
-        saveTagButton.setOnClickListener {
-            handler.sendMessage(handler.obtainMessage())
-        }
-
-        backButton.setOnClickListener {
-            tagDialog.dismiss()
-        }
-
-        try { Looper.loop() } catch (_: RuntimeException) { }
-
-        return tagId
 
     }
 
