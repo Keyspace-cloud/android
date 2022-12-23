@@ -1,0 +1,358 @@
+package cloud.keyspace.android
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.ViewCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
+
+class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, val keyring: CryptoUtilities.Keyring) {
+
+    val io: IOUtilities
+    val vault: IOUtilities.Vault
+    var decryptedTags: MutableList<IOUtilities.Tag> = mutableListOf()
+
+    init {
+
+        io = IOUtilities (
+            applicationContext = context,
+            appCompatActivity = appCompatActivity,
+            keyring = keyring
+        )
+
+        vault = io.getVault()
+        io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
+
+        // Log.d("ASAS", decryptedTags.toString())
+
+    }
+
+    fun showPicker (): String? {
+
+        val handler: Handler = @SuppressLint("HandlerLeak")
+        object : Handler() {
+            override fun handleMessage(msg: Message) {
+                throw RuntimeException()
+            }
+        }
+
+        var tagId: String? = null
+
+        val inflater = appCompatActivity.layoutInflater
+        val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
+        val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
+        dialogBuilder
+            .setView(dialogView)
+            .setCancelable(true)
+            .setTitle("Pick tag")
+
+        val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
+        val tapBlurb = dialogView.findViewById<View>(R.id.tapBlurb) as TextView
+
+        val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as Chip
+
+        val saveTagButton = dialogView.findViewById<View>(R.id.saveTagButton) as MaterialButton
+        val backButton = dialogView.findViewById<View>(R.id.backButton) as MaterialButton
+
+        var tagColor: String? = null
+
+        tagCollection.isSelectionRequired = true
+        tagCollection.isSingleSelection = true
+
+        if (decryptedTags.isEmpty()) tapBlurb.text = "No tags. Tap the add button below to add one." else {
+            for (tag in decryptedTags) {
+                var tagChip = Chip(appCompatActivity)
+                tagChip.id = ViewCompat.generateViewId()
+                tagChip.text = tag.name
+                tagColor = if (!tag.color.isNullOrBlank()) tag.color else null
+                try { tagChip.chipIconTint = ColorStateList.valueOf(Color.parseColor(tagColor)) } catch (_: Exception) { }
+                tagChip.isCloseIconVisible = true
+                tagChip.isChipIconVisible = true
+                tagChip.isCheckable = true
+                tagChip.isEnabled = true
+                tagChip.chipIcon = AppCompatResources.getDrawable(context, R.drawable.ic_baseline_circle_24)
+
+                tagId = tag.id
+
+                tagCollection.addView(tagChip)
+
+                tagChip.setCloseIconResource(R.drawable.ic_baseline_close_24)
+                tagChip.setOnCloseIconClickListener {
+
+                    val builder = MaterialAlertDialogBuilder(appCompatActivity)
+                    builder.setTitle("Delete tag")
+                    builder.setMessage("Would you like to delete \"${tag.name}\"?")
+                    builder.setPositiveButton("Delete"){ _, _ ->
+
+                        /*for (existingTag in tag) {
+
+                            val decryptedTag = io.decryptTag (tag)!!
+
+                            if (tagChip.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
+
+                                tagCollection.removeView(tagChip)
+                                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
+                                vault.tag.remove(existingTag)
+                                io.writeVault(vault)
+
+                                Toast.makeText(applicationContext, "Deleted ${decryptedTag.name}", Toast.LENGTH_LONG).show()
+
+                                network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
+                                break
+                            }
+                        }*/
+
+                    }
+                    builder.setNegativeButton("Go back"){ _, _ -> }
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+
+                }
+
+                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
+                tagCollection.addView(tagChip)
+
+            }
+        }
+
+        val tagDialog: AlertDialog = dialogBuilder.show()
+
+        saveTagButton.setOnClickListener {
+            handler.sendMessage(handler.obtainMessage())
+        }
+
+        backButton.setOnClickListener {
+            tagDialog.dismiss()
+        }
+
+        try { Looper.loop() } catch (_: RuntimeException) { }
+
+        return tagId
+
+    }
+
+    private fun initializeTag (vault: IOUtilities.Vault): Boolean {
+        /*val inflater = layoutInflater
+        val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
+        val dialogBuilder = MaterialAlertDialogBuilder(this)
+        dialogBuilder
+            .setView(dialogView)
+            .setCancelable(true)
+
+        val tagDialog: AlertDialog = dialogBuilder.show()
+
+        val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
+        val tagNameInputLayout = dialogView.findViewById<View>(R.id.tagNameInputLayout) as TextInputLayout
+        val tagName = dialogView.findViewById<View>(R.id.tagNameInput) as TextInputEditText
+        val tagColorCircle = dialogView.findViewById<View>(R.id.tagColor) as ImageView
+        val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as MaterialButton
+        val tagColorButton = dialogView.findViewById<View>(R.id.tagColorButton) as MaterialButton
+        val backButton = dialogView.findViewById<View>(R.id.backButton) as TextView
+        var tagColor: String? = null
+
+        tagCollection.isSelectionRequired = true
+        tagCollection.isSingleSelection = true
+
+        if (vault.tag?.size!! > 0) {
+            for (tag in vault.tag) {
+                val decryptedTag = io.decryptTag (tag)!!
+                var tagChip = Chip(this@AddNote)
+                tagChip.id = ViewCompat.generateViewId()
+                tagChip.text = decryptedTag.name
+                tagChip.chipCornerRadius = 50f
+                tagChip.chipMinHeight = 90f
+                tagChip.textSize = 20f
+                tagColor = if (!decryptedTag.color.isNullOrBlank()) decryptedTag.color else null
+                try {tagChip.chipIconTint = ColorStateList.valueOf(Color.parseColor(tagColor))} catch (_: Exception) {}
+                tagChip.isCloseIconVisible = true
+                tagChip.isChipIconVisible = true
+                tagChip.chipIcon = getDrawable(R.drawable.ic_baseline_circle_24)
+                tagChip.setOnClickListener {
+                    tagName.setText(decryptedTag.name)
+                    try { tagColorCircle.imageTintList = ColorStateList.valueOf(Color.parseColor(tagColor)) } catch (noSuchTag: IllegalArgumentException) { tagColorCircle.imageTintList = tagName.textColors }
+                }
+
+                tagCollection.addView(tagChip)
+
+                tagChip.setCloseIconResource(R.drawable.ic_baseline_close_24)
+                tagChip.setOnCloseIconClickListener {
+
+                    val builder = MaterialAlertDialogBuilder(this@AddNote)
+                    builder.setTitle("Delete tag")
+                    builder.setMessage("Would you like to delete \"${decryptedTag.name}\"?")
+                    builder.setPositiveButton("Delete"){ _, _ ->
+
+                        for (existingTag in vault.tag) {
+
+                            val decryptedTag = io.decryptTag (tag)!!
+
+                            if (tagChip.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
+
+                                tagCollection.removeView(tagChip)
+                                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
+                                vault.tag.remove(existingTag)
+                                io.writeVault(vault)
+
+                                Toast.makeText(applicationContext, "Deleted ${decryptedTag.name}", Toast.LENGTH_LONG).show()
+
+                                network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
+                                break
+                            }
+                        }
+
+                    }
+                    builder.setNegativeButton("Go back"){ _, _ -> }
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+
+                }
+
+                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
+                tagCollection.addView(tagChip)
+
+            }
+        } else {
+            tagCollection.visibility = View.GONE
+        }
+
+        if (!tagId.isNullOrBlank()) {
+            try {
+                tagName.setText(io.decryptTag(io.getTag(tagId!!, vault)!!)?.name)
+                tagColor = io.decryptTag(io.getTag(tagId!!, vault)!!)?.color
+                try { tagColorCircle.imageTintList = ColorStateList.valueOf(Color.parseColor(tagColor))  } catch (noSuchTag: IllegalArgumentException) { tagColorCircle.imageTintList = tagName.textColors }
+            } catch (noSuchTag: NullPointerException) {
+                try {
+                    val data = IOUtilities.Note (
+                        id = note.id,
+                        organizationId = null,
+                        type = note.type,
+                        notes = note.notes,
+                        color = note.color,
+                        favorite = note.favorite,
+                        tagId = null,
+                        dateCreated = note.dateCreated,
+                        dateModified = note.dateModified,
+                        frequencyAccessed = note.frequencyAccessed
+                    )
+
+                    vault.note?.remove(io.getNote(itemId!!, vault))
+                    vault.note?.add (io.encryptNote(data))
+                    io.writeVault(vault)
+                } catch (noSuchItem: UninitializedPropertyAccessException) {
+
+                }
+
+            }
+        }
+
+        tagColorButton.setOnClickListener {
+            MaterialColorPickerDialog.Builder(this@AddNote)
+                .setColors(resources.getStringArray(R.array.vault_item_colors))
+                .setTickColorPerCard(true)
+                .setDefaultColor(tagColor.toString())
+                .setColorListener(object : ColorListener {
+                    @SuppressLint("UseCompatTextViewDrawableApis")
+                    override fun onColorSelected(color: Int, colorHex: String) {
+                        tagColor = colorHex
+                        tagColorCircle.imageTintList = ColorStateList.valueOf(color)
+                    }
+                })
+                .show()
+        }
+
+        if (!tagName.text.isNullOrEmpty()) tagNameInputLayout.isEndIconVisible = true
+        tagNameInputLayout.setEndIconOnClickListener {
+            tagColorCircle.imageTintList = tagName.textColors
+
+            val builder = MaterialAlertDialogBuilder(this@AddNote)
+            builder.setTitle("Delete tag")
+            builder.setMessage("Would you like to delete \"${tagName.text.toString()}\"?")
+            builder.setPositiveButton("Delete"){ _, _ ->
+
+                for (existingTag in vault.tag) {
+
+                    val decryptedTag = io.decryptTag (existingTag)!!
+
+                    for (index in 0 until tagCollection.childCount) {
+                        try { val chip = tagCollection.getChildAt(index) as Chip
+                            if (chip.text.toString().trim().lowercase().contains(tagName.text.toString().trim().lowercase())) {
+                                (chip.parent as? ViewGroup)?.removeView(chip)
+                                break
+                            } } catch (_: NullPointerException) {} catch (_: ClassCastException) {}
+                    }
+
+                    if (tagName.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
+
+                        tagName.text?.clear()
+                        vault.tag.remove(existingTag)
+                        io.writeVault(vault)
+
+                        Toast.makeText(applicationContext, "Deleted ${decryptedTag.name}", Toast.LENGTH_LONG).show()
+
+                        network.writeQueueTask (existingTag.id, mode = network.MODE_DELETE)
+                        break
+                    }
+                }
+
+            }
+            builder.setNegativeButton("Go back"){ _, _ -> }
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.setCancelable(false)
+            alertDialog.show()
+        }
+
+        addTagButton.setOnClickListener {  // save data
+            if (tagName.text.toString().length < 2) {
+                tagName.error = "Invalid tag name"
+            } else {
+                for (tag in vault.tag)  {
+                    val decryptedTag = io.decryptTag (tag)!!
+                    if (tagName.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
+                        tagId = decryptedTag.id
+                        tagName.setText(decryptedTag.name)
+                        break
+                    } else tagId = null
+                }
+
+                val tag = io.encryptTag(IOUtilities.Tag(
+                    id = tagId ?: UUID.randomUUID().toString(),
+                    name = tagName.text.toString(),
+                    type = io.TYPE_TAG,
+                    dateCreated = Instant.now().epochSecond,
+                    color = tagColor.toString()
+                ))!!
+
+                vault.tag.add (tag)
+
+                io.writeVault(vault)
+                Toast.makeText(applicationContext, "Added tag!", Toast.LENGTH_LONG).show()
+                network.writeQueueTask (tag, mode = network.MODE_POST)
+
+                tagDialog.dismiss()
+            }
+        }
+
+        backButton.setOnClickListener {
+            tagDialog.dismiss()
+        }
+        */
+        return true
+    }
+
+}
