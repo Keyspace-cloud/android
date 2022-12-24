@@ -161,10 +161,9 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
                         .show()
                 } else {
                     val name = editTag.text.toString()
-
                     val tagId = UUID.randomUUID().toString()
-                    //network.writeQueueTask (tagId, mode = network.MODE_POST)
-                    vault.tag?.add (
+
+                    val encryptedTag = io.encryptTag(
                         IOUtilities.Tag (
                             id = tagId,
                             name = name,
@@ -173,7 +172,13 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
                             type = io.TYPE_TAG
                         )
                     )
-                    //io.writeVault(vault)
+
+                    network.writeQueueTask (encryptedTag!!, mode = network.MODE_POST)
+                    vault.tag?.add (
+                        encryptedTag
+                    )
+
+                    io.writeVault(vault)
 
                     Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
 
@@ -184,9 +189,6 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
 
                     tagDialog = dialogBuilder.show()
                 }
-
-
-
 
             }
 
