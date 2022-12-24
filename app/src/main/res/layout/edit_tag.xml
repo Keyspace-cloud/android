@@ -34,7 +34,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/SiteIcon"
+                    android:id="@+id/tagColor"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center"

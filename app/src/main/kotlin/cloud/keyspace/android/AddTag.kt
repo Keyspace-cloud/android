@@ -1,28 +1,30 @@
 package cloud.keyspace.android
 
-import android.annotation.SuppressLint
+import android.app.ProgressDialog.show
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
+import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.keyspace.keyspacemobile.NetworkUtilities
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 
 class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, val keyring: CryptoUtilities.Keyring) {
@@ -58,12 +60,14 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
 
         val inflater = appCompatActivity.layoutInflater
         val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
-        lateinit var tagDialog: AlertDialog
+
         val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
         dialogBuilder
             .setView(dialogView)
             .setCancelable(true)
             .setTitle("Pick tag")
+
+        var tagDialog: AlertDialog = dialogBuilder.show()
 
         val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
         val tapBlurb = dialogView.findViewById<View>(R.id.tapBlurb) as TextView
@@ -77,59 +81,118 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
 
         val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as Chip
 
+        backButton.setOnClickListener {
+            tagDialog.dismiss()
+        }
+
         addTagButton.setOnClickListener {
+
+            val colorArray = context.resources.getStringArray(R.array.vault_item_colors)
+            var color = colorArray.random()
+
             val editTagDialogView: View = inflater.inflate (R.layout.edit_tag, null)
             val editTagDialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
             editTagDialogBuilder
                 .setView(editTagDialogView)
-                .setCancelable(true)
+                .setCancelable(false)
                 .setTitle("Edit tag")
 
             val editTag = editTagDialogView.findViewById<View>(R.id.editTag) as EditText
             val editTagBackButton = editTagDialogView.findViewById<View>(R.id.backButton) as MaterialButton
             val saveTagButton = editTagDialogView.findViewById<View>(R.id.saveTagButton) as MaterialButton
             val addColorButton = editTagDialogView.findViewById<View>(R.id.addColorButton) as MaterialButton
+            val tagColorIcon = editTagDialogView.findViewById<View>(R.id.tagColor) as ImageView
 
-            val addTagDialog: AlertDialog = editTagDialogBuilder.show()
+            val editTagDialog: AlertDialog = editTagDialogBuilder.show()
 
-            backButton.setOnClickListener {
-                tagDialog.dismiss()
+            editTag.requestFocus()
+            editTagDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+
+            tagColorIcon.imageTintList = ColorStateList.valueOf(Color.parseColor(color))
+
+            addColorButton.setOnClickListener {
+                MaterialColorPickerDialog.Builder(appCompatActivity)
+                    .setColors(colorArray)
+                    .setTickColorPerCard(true)
+                    .setDefaultColor(color)
+                    .setColorListener(object : ColorListener {
+                        override fun onColorSelected(colorInt: Int, colorHex: String) {
+                            color = colorHex
+                            tagColorIcon.imageTintList = ColorStateList.valueOf(Color.parseColor(color))
+                        }
+                    })
+                    .setPositiveButton("Select color")
+                    .setNegativeButton("Go back")
+                    .show()
             }
 
             editTagBackButton.setOnClickListener {
-                addTagDialog.dismiss()
+                if (editTag.text.toString().replace(" ", "").isNotBlank()) {
+                    val discardDialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
+                    discardDialogBuilder
+                        .setTitle("")
+                        .setMessage("Discard changes and go back?")
+                        .setPositiveButton("Discard changes"){ _, _ ->
+                            val vGroup: ViewGroup = dialogView.parent as ViewGroup
+                            vGroup.removeView(dialogView)
+                            tagDialog.dismiss()
+                            tagDialog = dialogBuilder.show()
+                            editTagDialog.dismiss()
+                        }
+                        .setNegativeButton("Continue editing"){ _, _ -> }
+                        .show()
+                } else {
+                    val vGroup: ViewGroup = dialogView.parent as ViewGroup
+                    vGroup.removeView(dialogView)
+                    tagDialog.dismiss()
+                    tagDialog = dialogBuilder.show()
+                    editTagDialog.dismiss()
+                }
             }
 
             saveTagButton.setOnClickListener {
 
-                val name = editTag.text.toString()
+                if (editTag.text.toString().replace(" ", "").isBlank()) {
+                    val discardDialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
+                    discardDialogBuilder
+                        .setTitle("Empty tag")
+                        .setMessage("Tag name cannot be blank")
+                        .setNegativeButton("Go back"){ _, _ -> }
+                        .show()
+                } else {
+                    val name = editTag.text.toString()
 
-                val tagId = UUID.randomUUID().toString()
-                network.writeQueueTask (tagId, mode = network.MODE_DELETE)
-                vault.tag?.add (
-                    IOUtilities.Tag (
-                        id = tagId,
-                        name = name,
-                        color = "",
-                        dateCreated = Instant.now().epochSecond,
-                        type = ""
+                    val tagId = UUID.randomUUID().toString()
+                    //network.writeQueueTask (tagId, mode = network.MODE_POST)
+                    vault.tag?.add (
+                        IOUtilities.Tag (
+                            id = tagId,
+                            name = name,
+                            color = color,
+                            dateCreated = Instant.now().epochSecond,
+                            type = io.TYPE_TAG
+                        )
                     )
-                )
-                io.writeVault(vault)
+                    //io.writeVault(vault)
 
-                Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
 
-                tagDialog = dialogBuilder.show()
-
-                backButton.setOnClickListener {
+                    val vGroup: ViewGroup = dialogView.parent as ViewGroup
+                    vGroup.removeView(dialogView)
                     tagDialog.dismiss()
+                    editTagDialog.dismiss()
+
+                    tagDialog = dialogBuilder.show()
                 }
+
+
+
 
             }
 
         }
 
-        if (decryptedTags.isEmpty()) tapBlurb.text = "No tags. Tap the add button below to add one." else {
+        if (decryptedTags.isEmpty()) tapBlurb.text = "Tap the add button below to add a tag." else {
             for (tag in decryptedTags) {
                 var tagChip = Chip(appCompatActivity)
                 tagChip.id = ViewCompat.generateViewId()
@@ -177,8 +240,6 @@ class AddTag (val context: Context, val appCompatActivity: AppCompatActivity, va
                 tagCollection.addView(tagChip)
 
             }
-
-            tagDialog = dialogBuilder.show()
 
         }
 
