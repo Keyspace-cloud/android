@@ -2886,7 +2886,23 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         fun syncVault () {
             try {
-                CoroutineScope(Dispatchers.IO).launch { network.completeQueueTasks(network.generateSignedToken()) }
+                CoroutineScope(Dispatchers.IO).launch {
+                    kotlin.runCatching {
+                        withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                            network.completeQueueTasks(network.generateSignedToken())
+                        }
+                    }.onFailure {
+                        when (it) {
+                            is NetworkUtilities.IncorrectCredentialsException -> {
+                                withContext(Dispatchers.Main) {
+                                    showIncorrectCredentialsDialog()
+                                }
+                            }
+                            else -> throw it
+                        }
+                    }
+                }
+
                 grabVault()
             } catch (_: Exception) { }
         }
@@ -2929,7 +2945,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         return true
     }
 
-    fun killApp () {
+    private fun killApp () {
         if (configData.getBoolean("lockApp", true)) {
             finish()
             finishAffinity()
@@ -2952,28 +2968,20 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         }
     }
 
-    fun errorDialog (title: String, message: String, icon: Drawable) {
-        val builder = MaterialAlertDialogBuilder(this@Dashboard)
-        builder.setTitle(title)
-        builder.setMessage(message)
-        builder.setIcon(icon)
-        builder.setNegativeButton("Go back"){ _, _ -> }
-        builder.setNegativeButton("Contact support"){ _, _ ->
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "plain/text"
-            intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.support_email)))
-            intent.putExtra(Intent.EXTRA_SUBJECT, title)
-            intent.putExtra(Intent.EXTRA_TEXT, """
-                The Keyspace Android app gives me the following error:
-                "$title"
-                Please look into this.
-                """.trimIndent())
-            startActivity(Intent.createChooser(intent, ""))
-        }
+    private fun showIncorrectCredentialsDialog () {
+        val dialogBuilder = MaterialAlertDialogBuilder(this@Dashboard)
+        dialogBuilder
+            .setCancelable(false)
+            .setTitle("Key mismatch")
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage("Your Keyring may be corrupt. Please sign out and sign in again.")
+            .setPositiveButton("Sign out") { dialog, _ ->
+                signOut()
+            }
 
-        val alertDialog: AlertDialog = builder.create()
-        alertDialog.setCancelable(false)
-        alertDialog.show()
+        val alert = dialogBuilder.create()
+        alert.show()
+
     }
 
 }
