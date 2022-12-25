@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
+import kotlin.coroutines.resumeWithException
 
 
 /**
@@ -309,16 +310,15 @@ class NetworkUtilities (
                         e.printStackTrace()
                     }
                 }) { error ->
-                error.printStackTrace()
-                continuation.cancel (NetworkError())
-                Log.e("Keyspace", "Keyspace: Couldn't access this resource. Is it online and is your device connected to the internet?")
-            }
-
+                    error.printStackTrace()
+                    continuation.cancel (NetworkError())
+                    Log.e("Keyspace", "Keyspace: Couldn't access this resource. Is it online and is your device connected to the internet?")
+                }
             queue.add(jsonObjectRequest)
         }
     }
 
-    class IncorrectCredentialsException : Exception()
+    class IncorrectCredentialsException : AuthFailureError()
 
     /**
      * Make a synchronous GET request with an authorization header using Volley and Kotlin coroutines. The response from this function can be used on a UI thread.
@@ -344,13 +344,13 @@ class NetworkUtilities (
                     error.printStackTrace()
                     try {
                         when (error.networkResponse.statusCode) {
-                            500 -> continuation.cancel (IncorrectCredentialsException())
+                            500 -> continuation.resumeWithException (IncorrectCredentialsException())
                             else -> continuation.cancel (NetworkError())
                         }
                     } catch (_: NullPointerException) {
+                        Log.e("Keyspace", "Couldn't access this resource. Is it online and is your device connected to the internet?")
                         continuation.cancel (NetworkError())
                     }
-                    Log.e("Keyspace", "Keyspace: Couldn't access this resource. Is it online and is your device connected to the internet?")
                 }) {
                 @Throws(AuthFailureError::class)
                 override fun getHeaders(): Map<String, String> {
@@ -360,6 +360,7 @@ class NetworkUtilities (
                     params["signed-token"] = signedToken
                     return params
                 }
+
             }
 
             queue.add(jsonObjectRequest)

@@ -2645,13 +2645,22 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         signOutButton.setOnClickListener {
             dialog.dismiss()
             val dialogBuilder = MaterialAlertDialogBuilder(this)
-            dialogBuilder.setTitle("Sign out")
-            dialogBuilder.setIcon(R.drawable.ic_baseline_exit_to_app_24)
-            dialogBuilder.setMessage("Would you like to sign out of your login?")
-                .setCancelable(true).setPositiveButton("Sign out") { dialog, _ ->
-                    signOut()
+                .setTitle("Sign out")
+                .setIcon(R.drawable.ic_baseline_exit_to_app_24)
+                .setMessage("Would you like to sign out of Keyspace?")
+                .setCancelable(true)
+                .setPositiveButton("Sign out") { _, _ ->
+                    if (network.getDeleteTaskCount() + network.getEditTaskCount() + network.getSaveTaskCount() != 0) {
+                        MaterialAlertDialogBuilder(this)
+                            .setTitle("Sync pending")
+                            .setIcon(R.drawable.ic_baseline_exit_to_app_24)
+                            .setMessage("Some items haven't been uplodaded to the backend. Sign out anyway?")
+                            .setCancelable(true)
+                            .setPositiveButton("Sign out anyway") { _, _ -> signOut() }
+                            .setNegativeButton("Go back") { dialog, _ -> dialog.cancel() }
+                    } else { signOut() }
                 }
-                .setCancelable(true).setNegativeButton("Go back") { dialog, _ ->
+                .setNegativeButton("Go back") { dialog, _ ->
                     dialog.cancel()
                 }
             val alert = dialogBuilder.create()
@@ -2885,10 +2894,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         }
 
         fun syncVault () {
+
+            val exceptionHandler = CoroutineExceptionHandler { _, _ -> }
+
             try {
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
                     kotlin.runCatching {
-                        withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                        withContext(Dispatchers.Main) {
                             network.completeQueueTasks(network.generateSignedToken())
                         }
                     }.onFailure {
