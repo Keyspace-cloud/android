@@ -208,6 +208,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
         val noneButton = dialogView.findViewById<View>(R.id.noneButton) as Chip
 
         addTagButton.setOnClickListener {
+            tagDialog!!.dismiss()
             editTag (null)
         }
 
