@@ -29,7 +29,7 @@ body:
       placeholder: Identify any unresolved issues.
     validations:
       required: false
-      - type: textarea
+  - type: textarea
     id: implementation_pr
     attributes:
       label: "Implementation PR"
