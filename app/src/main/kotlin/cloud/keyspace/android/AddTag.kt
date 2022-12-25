@@ -134,7 +134,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
         if (tagToEdit != null) {
             tagId = tagToEdit.id
             editTag.setText(tagToEdit.name)
-            try { tagColorIcon.imageTintList = ColorStateList.valueOf(Color.parseColor(tagToEdit.color)) } catch (_:NullPointerException) { }
+            try { tagColorIcon.imageTintList = ColorStateList.valueOf(Color.parseColor(tagToEdit.color)) } catch (_: Exception) { color = null }
         } else tagColorIcon.imageTintList = ColorStateList.valueOf(Color.parseColor(color))
 
         saveTagButton.setOnClickListener {
