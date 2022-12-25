@@ -160,11 +160,23 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                         type = io.TYPE_TAG
                     )
                 )
+                if (tagToEdit != null) {
+                    network.writeQueueTask (encryptedTag!!, mode = network.MODE_PUT)
+                    for (tagToDelete in vault.tag!!) {
+                        if (tagToDelete.id == tagId) {
+                            vault.tag?.remove (tagToDelete)
+                            break
+                        }
+                    }
+                    vault.tag?.add (encryptedTag)
 
-                network.writeQueueTask (encryptedTag!!, mode = network.MODE_POST)
-                vault.tag?.add (encryptedTag)
+                    io.writeVault(vault)
+                } else {
+                    network.writeQueueTask (encryptedTag!!, mode = network.MODE_POST)
+                    vault.tag?.add (encryptedTag)
 
-                io.writeVault(vault)
+                    io.writeVault(vault)
+                }
 
                 vault = io.getVault()
                 decryptedTags.clear()
