@@ -67,7 +67,8 @@ class CryptoUtilities(
     val KEYRING_NAME = MasterKey.DEFAULT_MASTER_KEY_ALIAS
 
     private var XCHACHA_POLY1305_NONCE_BYTES = 24
-    var DEFAULT_AUTHENTICATION_DELAY = 5
+    // Keystore timeout
+    var DEFAULT_AUTHENTICATION_DELAY = 30
 
     fun ByteArray.toHexString(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
