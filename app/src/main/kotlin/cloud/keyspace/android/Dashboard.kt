@@ -2934,6 +2934,12 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             finish()
             finishAffinity()
 
+            vaultSyncTimer.cancel()
+            vaultSyncTimer.purge()
+
+            mfaCodesTimer.cancel()
+            mfaCodesTimer.purge()
+
             // force wipe keyring
             keyring.XCHACHA_POLY1305_KEY?.fill(0)
             keyring.ED25519_PUBLIC_KEY?.fill(0)
@@ -2941,12 +2947,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             // force gc to clear keyring
             System.gc()
-
-            mfaCodesTimer.cancel()
-            mfaCodesTimer.purge()
-
-            vaultSyncTimer.cancel()
-            vaultSyncTimer.purge()
 
             killBottomSheet()
         }
