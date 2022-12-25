@@ -79,20 +79,22 @@
 
         <ImageView
             android:id="@+id/add_icon"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/no_data_placeholder" />
+            app:srcCompat="@drawable/illustration_no_vault_data" />
 
         <TextView
             android:id="@+id/hint"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="25dp"
             android:layout_marginBottom="14dp"
             android:gravity="center"
             android:singleLine="false"
-            android:text="It's lonely in here..."
-            android:textSize="15sp"
+            android:text="There's nothing in here"
+            android:textSize="18sp"
             android:textStyle="italic" />
 
     </LinearLayout>
