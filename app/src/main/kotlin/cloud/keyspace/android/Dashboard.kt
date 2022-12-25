@@ -2800,6 +2800,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         crypto.wipeAllKeys()
         configData.edit().clear().commit()
         io.wipeAllKeyspaceFSFiles()
+        network.wipeAllQueues()
         val intent = Intent(applicationContext, StartHere::class.java)
         startActivity(intent)
     }

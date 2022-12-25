@@ -228,6 +228,25 @@ class NetworkUtilities (
 
     }
 
+    fun wipeAllQueues (): Boolean {
+        val editQueueFile = File(applicationContext.cacheDir, editQueueFilename!!)
+        editQueueFile.writeText("")
+        editQueueFile.delete()
+        editQueueFile.deleteRecursively()
+
+        val saveQueueFile = File(applicationContext.cacheDir, saveQueueFilename!!)
+        saveQueueFile.writeText("")
+        saveQueueFile.delete()
+        saveQueueFile.deleteRecursively()
+
+        val deleteQueueFile = File(applicationContext.cacheDir, deleteQueueFilename!!)
+        deleteQueueFile.writeText("")
+        deleteQueueFile.delete()
+        deleteQueueFile.deleteRecursively()
+
+        return true
+    }
+
     suspend fun generateSignedToken(): String {
         val mapper = jacksonObjectMapper()
         val message = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(sendKeyauthRequest())
