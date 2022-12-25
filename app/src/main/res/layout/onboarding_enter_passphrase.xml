@@ -133,7 +133,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/passphraseCreateNew"
+                        android:id="@+id/passphraseNextButton"
                         style="@style/Widget.Material3.Button.ElevatedButton.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -144,19 +144,6 @@
                         android:text="Next"
                         app:icon="@drawable/ic_baseline_navigate_next_24"
                         app:iconGravity="textEnd"
-                        android:textSize="18sp"
-                        android:visibility="visible" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/passphraseSignin"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="5dp"
-                        android:paddingHorizontal="20dp"
-                        android:paddingVertical="12dp"
-                        android:text="Sign in to existing account"
                         android:textSize="18sp"
                         android:visibility="visible" />
 
