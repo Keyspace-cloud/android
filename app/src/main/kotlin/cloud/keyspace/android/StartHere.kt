@@ -293,7 +293,7 @@ class StartHere : AppCompatActivity() {
                     } catch (activityDead: WindowManager.BadTokenException) {
                     }
 
-                }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
+                }, (300).toLong() * 1000)
 
 
             } catch (noLockSet: NoSuchMethodError) {
