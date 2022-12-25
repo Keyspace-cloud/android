@@ -3,10 +3,6 @@ package cloud.keyspace.android
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.drawable.AnimatedVectorDrawable
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,14 +22,9 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.keyspace.keyspacemobile.NetworkUtilities
-import com.permissionx.guolindev.PermissionX.init
-import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
 import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
-import kotlin.concurrent.thread
-import kotlin.math.abs
 
 
 class AddTag (private val tagId: String?, val context: Context, val appCompatActivity: AppCompatActivity, val keyring: CryptoUtilities.Keyring) {
@@ -48,7 +39,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
     private val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
 
     private val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
-    private lateinit var tagDialog: AlertDialog
+    lateinit var tagDialog: AlertDialog
 
     var finalizedTagId: String? = null
 
@@ -122,7 +113,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                     .setPositiveButton("Discard changes"){ _, _ ->
                         val vGroup: ViewGroup = dialogView.parent as ViewGroup
                         vGroup.removeView(dialogView)
-                        tagDialog.dismiss()
+                        tagDialog!!.dismiss()
                         tagDialog = dialogBuilder.show()
                         editTagDialog.dismiss()
                     }
@@ -131,7 +122,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
             } else {
                 val vGroup: ViewGroup = dialogView.parent as ViewGroup
                 vGroup.removeView(dialogView)
-                tagDialog.dismiss()
+                tagDialog!!.dismiss()
                 tagDialog = dialogBuilder.show()
                 editTagDialog.dismiss()
             }
@@ -180,9 +171,8 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
                 val vGroup: ViewGroup = dialogView.parent as ViewGroup
                 vGroup.removeView(dialogView)
-                tagDialog.dismiss()
+                tagDialog!!.dismiss()
                 editTagDialog.dismiss()
-                tagDialog = dialogBuilder.show()
 
             }
 
@@ -196,6 +186,15 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
             .setCancelable(true)
             .setTitle("Pick tag")
             .setNegativeButton("Go back"){ _, _ -> }
+
+        dialogBuilder.create()
+
+        if (dialogView.parent != null) {
+            val vGroup: ViewGroup = dialogView.parent as ViewGroup
+            vGroup.removeView(dialogView)
+        }
+
+        tagDialog = dialogBuilder.show()
 
         val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
         val tapBlurb = dialogView.findViewById<View>(R.id.tapBlurb) as TextView
@@ -215,7 +214,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
         noneButton.setOnClickListener {
             // Todo return null
             finalizedTagId = null
-            tagDialog.dismiss()
+            tagDialog!!.dismiss()
         }
 
         if (tagId.isNullOrBlank()) noneButton.isChecked = true
@@ -275,9 +274,6 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                 tagChip.setOnClickListener {
                     // Todo return tag id
                     finalizedTagId = tag.id
-
-                    val vGroup: ViewGroup = dialogView.parent as ViewGroup
-                    vGroup.removeView(dialogView)
                     tagDialog.dismiss()
                 }
 
@@ -292,8 +288,6 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
             }
 
         }
-
-        try { tagDialog = dialogBuilder.show() } catch (_: IllegalStateException) { }
 
     }
 
