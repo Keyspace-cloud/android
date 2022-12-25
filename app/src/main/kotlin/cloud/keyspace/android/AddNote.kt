@@ -548,7 +548,7 @@ class AddNote : AppCompatActivity() {
 
         tagButton = findViewById (R.id.tag)
         tagButton.setOnClickListener {
-            val tagPicker = AddTag (applicationContext, this@AddNote, keyring)
+            val tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
             tagPicker.showPicker()
         }
 

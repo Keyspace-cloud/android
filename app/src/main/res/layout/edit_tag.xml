@@ -35,10 +35,11 @@
 
                 <ImageView
                     android:id="@+id/tagColor"
-                    android:layout_width="50dp"
+                    android:layout_width="35dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
-                    android:padding="15dp"
+                    android:padding="10dp"
+                    android:layout_marginStart="5dp"
                     app:srcCompat="@drawable/ic_baseline_circle_24"
                     app:tint="?android:attr/textColorPrimary" />
 
@@ -47,7 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="15dp"
+                    android:layout_marginEnd="20dp"
                     android:ems="10"
                     android:hint="Enter tag name"
                     android:inputType="textEmailAddress"

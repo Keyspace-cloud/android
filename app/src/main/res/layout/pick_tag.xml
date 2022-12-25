@@ -28,16 +28,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="false"
-            app:selectionRequired="false"
-            app:singleSelection="false">
+            app:selectionRequired="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/addTagButton"
                 style="@style/Widget.Material3.Chip.Assist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checkable="false"
+                android:checked="false"
                 android:text="Add tag"
                 app:chipIcon="@drawable/ic_baseline_add_24"
+                app:closeIconEnabled="false" />
+
+            <View
+                android:id="@+id/line"
+                android:layout_width="0.75dp"
+                android:layout_height="48dp"
+                android:background="#8B8B8B"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/noneButton"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="None"
                 app:closeIconEnabled="false" />
 
         </com.google.android.material.chip.ChipGroup>
