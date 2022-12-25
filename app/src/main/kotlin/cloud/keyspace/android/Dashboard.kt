@@ -2895,10 +2895,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         fun syncVault () {
 
-            val exceptionHandler = CoroutineExceptionHandler { _, _ -> }
-
             try {
-                CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
+                CoroutineScope(Dispatchers.IO).launch {
                     kotlin.runCatching {
                         withContext(Dispatchers.Main) {
                             network.completeQueueTasks(network.generateSignedToken())
