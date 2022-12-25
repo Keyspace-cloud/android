@@ -195,11 +195,10 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
             .setView(dialogView)
             .setCancelable(true)
             .setTitle("Pick tag")
+            .setNegativeButton("Go back"){ _, _ -> }
 
         val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
         val tapBlurb = dialogView.findViewById<View>(R.id.tapBlurb) as TextView
-
-        val backButton = dialogView.findViewById<View>(R.id.backButton) as MaterialButton
 
         var tagColor: String?
 
@@ -208,10 +207,6 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
         val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as Chip
         val noneButton = dialogView.findViewById<View>(R.id.noneButton) as Chip
-
-        backButton.setOnClickListener {
-            tagDialog.dismiss()
-        }
 
         addTagButton.setOnClickListener {
             editTag (null)
