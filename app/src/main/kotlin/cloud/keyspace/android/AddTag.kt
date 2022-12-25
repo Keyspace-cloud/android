@@ -3,7 +3,6 @@ package cloud.keyspace.android
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.os.Build.VERSION_CODES.P
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.ViewCompat
-import androidx.core.view.children
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -62,7 +60,6 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
         vault = io.getVault()
         decryptedTags.clear()
-        io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
 
     }
 
@@ -196,6 +193,8 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
     fun showPicker () {
 
+        io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
+
         dialogBuilder
             .setView(dialogView)
             .setCancelable(true)
@@ -304,6 +303,17 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
             }
 
+        }
+
+        tagDialog.setOnDismissListener {
+            Log.d ("asdf", tagCollection.childCount.toString())
+            for (i in 3 until tagCollection.childCount) {
+                try {
+                    val chip = tagCollection.getChildAt(i) as Chip
+                    tagCollection.removeView(chip)
+                } catch (_: Exception) { }
+            }
+            decryptedTags.clear()
         }
 
     }
