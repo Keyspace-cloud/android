@@ -122,6 +122,7 @@ class AddLogin : AppCompatActivity() {
     var passwordCopied = false
 
     lateinit var tagButton: ImageView
+    private lateinit var tagPicker: AddTag
     var tagId: String? = null
 
     lateinit var favoriteButton: ImageView
@@ -227,7 +228,10 @@ class AddLogin : AppCompatActivity() {
         }
 
         tagButton = findViewById (R.id.tag)
-        tagButton.setOnClickListener {  }
+        tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
+        tagButton.setOnClickListener {
+            tagPicker.showPicker()
+        }
 
         favoriteButton = findViewById(R.id.favoriteButton)
         favoriteButton.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
@@ -756,6 +760,7 @@ class AddLogin : AppCompatActivity() {
         }
 
         tagId = login.tagId
+        tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
 
         siteNameInput.setText(login.name)
 
@@ -959,7 +964,7 @@ class AddLogin : AppCompatActivity() {
             name = siteNameInput.text.toString(),
             notes = notesInput.text.toString(),
             favorite = favorite,
-            tagId = tagId,
+            tagId = tagPicker.getSelectedTagId() ?: tagId,
             loginData = IOUtilities.LoginData(
                 username = userNameInput.text.toString(),
                 password = passwordInput.text.toString(),

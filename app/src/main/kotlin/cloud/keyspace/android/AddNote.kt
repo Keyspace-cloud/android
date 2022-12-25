@@ -63,7 +63,8 @@ class AddNote : AppCompatActivity() {
     lateinit var noteViewerScrollView: MarkdownEditText
 
     lateinit var tagButton: ImageView
-    var tagId: String? = null
+    private lateinit var tagPicker: AddTag
+    private var tagId: String? = null
 
     var favorite: Boolean = false
     lateinit var favoriteButton: ImageView
@@ -126,19 +127,6 @@ class AddNote : AppCompatActivity() {
             loadNote (note)
 
             frequencyAccessed = note.frequencyAccessed!!
-
-            val data = IOUtilities.Note(
-                id = note.id,
-                organizationId = null,
-                type = note.type,
-                notes = note.notes,
-                color = note.color,
-                favorite = note.favorite,
-                tagId = null,
-                dateCreated = note.dateCreated,
-                dateModified = note.dateModified,
-                frequencyAccessed = frequencyAccessed + 1
-            )
         }
 
     }
@@ -547,8 +535,8 @@ class AddNote : AppCompatActivity() {
         }
 
         tagButton = findViewById (R.id.tag)
+        tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
         tagButton.setOnClickListener {
-            val tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
             tagPicker.showPicker()
         }
 
@@ -602,6 +590,7 @@ class AddNote : AppCompatActivity() {
         }
 
         tagId = note.tagId
+        tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
 
         dateAndTime.visibility = View.VISIBLE
 
@@ -641,14 +630,14 @@ class AddNote : AppCompatActivity() {
             vault.note?.remove(io.getNote(itemId!!, vault))
         }
 
-        val data = IOUtilities.Note(
+        val data = IOUtilities.Note (
             id = itemId ?: UUID.randomUUID().toString(),
             organizationId = null,
             type = io.TYPE_NOTE,
             notes = noteViewer.text.toString(),
             color = noteColor,
             favorite = favorite,
-            tagId = tagId,
+            tagId = tagPicker.getSelectedTagId() ?: tagId,
             dateCreated = dateCreated,
             dateModified = timestamp,
             frequencyAccessed = frequencyAccessed

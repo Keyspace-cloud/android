@@ -49,6 +49,7 @@ class AddCard : AppCompatActivity() {
     lateinit var network: NetworkUtilities
 
     lateinit var tagButton: ImageView
+    private lateinit var tagPicker: AddTag
     var tagId: String? = null
 
     var favorite: Boolean = false
@@ -177,7 +178,10 @@ class AddCard : AppCompatActivity() {
         }
 
         tagButton = findViewById (R.id.tag)
-        tagButton.setOnClickListener {  }
+        tagPicker = AddTag (tagId, applicationContext, this@AddCard, keyring)
+        tagButton.setOnClickListener {
+            tagPicker.showPicker()
+        }
 
         favoriteButton = findViewById(R.id.favoriteButton)
         favoriteButton.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
@@ -367,7 +371,7 @@ class AddCard : AppCompatActivity() {
                 name = nameInput.text.toString(),
                 color = cardColor,
                 favorite = favorite,
-                tagId = tagId,
+                tagId = tagPicker.getSelectedTagId() ?: tagId,
                 dateCreated = dateCreated,
                 dateModified = Instant.now().epochSecond,
                 frequencyAccessed = frequencyAccessed + 1,
@@ -411,6 +415,7 @@ class AddCard : AppCompatActivity() {
         }
 
         tagId = card.tagId
+        tagPicker = AddTag (tagId, applicationContext, this@AddCard, keyring)
 
         nameInput.setText(card.name)
 

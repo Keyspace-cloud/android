@@ -22,11 +22,11 @@
             android:background="?android:attr/selectableItemBackground"
             android:orientation="vertical"
             app:cardCornerRadius="15dp"
-            app:cardElevation="3dp"
+            app:cardElevation="0dp"
 
             app:cardPreventCornerOverlap="true"
             app:cardUseCompatPadding="true"
-            app:strokeWidth="0.75dp">
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -40,8 +40,7 @@
                     android:layout_gravity="center"
                     android:padding="10dp"
                     android:layout_marginStart="5dp"
-                    app:srcCompat="@drawable/ic_baseline_circle_24"
-                    app:tint="?android:attr/textColorPrimary" />
+                    app:srcCompat="@drawable/ic_baseline_circle_24" />
 
                 <EditText
                     android:id="@+id/editTag"

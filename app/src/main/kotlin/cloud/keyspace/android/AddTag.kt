@@ -3,9 +3,12 @@ package cloud.keyspace.android
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
@@ -16,7 +19,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.ViewCompat
-import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -24,8 +26,14 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.keyspace.keyspacemobile.NetworkUtilities
+import com.permissionx.guolindev.PermissionX.init
+import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
+import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
+import kotlin.concurrent.thread
+import kotlin.math.abs
 
 
 class AddTag (private val tagId: String?, val context: Context, val appCompatActivity: AppCompatActivity, val keyring: CryptoUtilities.Keyring) {
@@ -41,6 +49,8 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
     private val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
     private lateinit var tagDialog: AlertDialog
+
+    var finalizedTagId: String? = null
 
     init {
 
@@ -144,9 +154,10 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                     .show()
 
             } else {
+
                 val name = editTag.text.toString()
 
-                val encryptedTag = io.encryptTag(
+                val encryptedTag = io.encryptTag (
                     IOUtilities.Tag (
                         id = tagId,
                         name = name,
@@ -206,11 +217,17 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
             editTag (null)
         }
 
+        noneButton.setOnClickListener {
+            // Todo return null
+            finalizedTagId = null
+            tagDialog.dismiss()
+        }
+
         if (tagId.isNullOrBlank()) noneButton.isChecked = true
 
         if (decryptedTags.isEmpty()) tapBlurb.text = "Tap the add button below to add a tag." else {
             for (tag in decryptedTags) {
-                var tagChip = Chip(appCompatActivity)
+                val tagChip = Chip(appCompatActivity)
                 tagChip.id = ViewCompat.generateViewId()
                 tagChip.text = tag.name
                 tagColor = if (!tag.color.isNullOrBlank()) tag.color else null
@@ -252,7 +269,6 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                             tagCollection.removeView(tagChip)
                             (tagChip.parent as? ViewGroup)?.removeView(tagChip)
                             Toast.makeText(context, "Deleted ${tag.name}", Toast.LENGTH_LONG).show()
-                            // Todo return delete
                         }
 
                     builder.setNegativeButton("Go back"){ _, _ -> }
@@ -263,6 +279,10 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
                 tagChip.setOnClickListener {
                     // Todo return tag id
+                    finalizedTagId = tag.id
+
+                    val vGroup: ViewGroup = dialogView.parent as ViewGroup
+                    vGroup.removeView(dialogView)
                     tagDialog.dismiss()
                 }
 
@@ -278,10 +298,12 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
         }
 
+        try { tagDialog = dialogBuilder.show() } catch (_: IllegalStateException) { }
 
+    }
 
-        tagDialog = dialogBuilder.show()
-
+    fun getSelectedTagId (): String? {
+        return finalizedTagId
     }
 
 }
