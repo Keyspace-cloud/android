@@ -1229,6 +1229,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     if (login.tagId == tag.id) {
                         loginTag.visibility = View.VISIBLE
                         loginTag.text = decryptedTag?.name
+                        Log.d("KSTAG", decryptedTag?.name.toString())
 
                         try {
                             if (!decryptedTag!!.color.isNullOrEmpty()) {
