@@ -51,6 +51,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.goterl.lazysodium.utils.HexMessageEncoder
 import com.keyspace.keyspacemobile.NetworkUtilities
 import com.neovisionaries.ws.client.*
@@ -841,8 +842,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             val usernameText: TextView = itemView.findViewById(R.id.usernameText)
 
-            val mfaLayout: LinearLayout = itemView.findViewById(R.id.mfa)
-            val mfaProgress: CircularProgressIndicator = itemView.findViewById(R.id.mfaProgress)
+            val mfaProgress: LinearProgressIndicator = itemView.findViewById(R.id.mfaProgress)
             val mfaText: TextView = itemView.findViewById(R.id.mfaText)
 
             val miscText: TextView = itemView.findViewById(R.id.MiscText)
@@ -973,10 +973,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         }, 0, 1000) // 1000 milliseconds = 1 second
                     }
                 } catch (_: IllegalStateException) {}
-            } else loginCard.mfaLayout.visibility = View.GONE
+            } else {
+                loginCard.mfaText.visibility = View.GONE
+                loginCard.mfaProgress.visibility = View.GONE
+            }
 
             // tap on totp / mfa / 2fa
-            loginCard.mfaLayout.setOnClickListener {
+            loginCard.mfaText.setOnClickListener {
                 val clip = ClipData.newPlainText("Keyspace", otpCode)
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(applicationContext, "Code copied!", Toast.LENGTH_LONG).show()
@@ -1252,6 +1255,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 keyring = keyring,
                 itemId = login.id
             )
+            miniLoginDialog.dismiss()
         }
 
         if (login.loginData?.totp?.backupCodes != null) {
