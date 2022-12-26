@@ -69,6 +69,7 @@ class AddLogin : AppCompatActivity() {
     lateinit var siteNameLayout: TextInputLayout
     lateinit var siteNameInput: TextInputEditText
     lateinit var siteNameInputIcon: ImageView
+    lateinit var siteNameIconPicker: ImageView
 
     lateinit var userNameInputLayout: TextInputLayout
     lateinit var userNameInput: TextInputEditText
@@ -257,13 +258,18 @@ class AddLogin : AppCompatActivity() {
             iconFilePicker()
         }
 
+        siteNameIconPicker = findViewById (R.id.pickIcon)
+        siteNameIconPicker.setOnClickListener {
+            iconFilePicker()
+        }
+
         siteNameInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) { }
             override fun beforeTextChanged(siteName: CharSequence, start: Int, count: Int, after: Int) { }
             override fun onTextChanged(siteName: CharSequence, start: Int, before: Int, count: Int) {
                 thread {
                     val siteLogo = misc.getSiteIcon(siteName.toString(), siteNameInput.currentTextColor)
-                    if (siteLogo != null && iconFileName == null) {
+                    if (siteLogo != null/* && iconFileName == null*/) {
                         iconFileName = siteName.toString()
                         runOnUiThread {
                             siteNameInputIcon.setImageDrawable(siteLogo)
