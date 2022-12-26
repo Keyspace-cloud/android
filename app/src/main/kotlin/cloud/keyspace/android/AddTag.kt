@@ -16,6 +16,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
+import androidx.core.view.size
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -24,6 +26,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.keyspace.keyspacemobile.NetworkUtilities
 import kotlinx.coroutines.*
+import kotlinx.coroutines.NonCancellable.children
 import java.time.Instant
 import java.util.*
 
@@ -37,9 +40,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
     private var decryptedTags: MutableList<IOUtilities.Tag> = mutableListOf()
 
     private var inflater: LayoutInflater = appCompatActivity.layoutInflater
-    private val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
 
-    private val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
     lateinit var tagDialog: AlertDialog
 
     var finalizedTagId: String? = null
@@ -111,20 +112,14 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                     .setTitle("")
                     .setMessage("Discard changes and go back?")
                     .setPositiveButton("Discard changes"){ _, _ ->
-                        val vGroup: ViewGroup = dialogView.parent as ViewGroup
-                        vGroup.removeView(dialogView)
-                        tagDialog!!.dismiss()
-                        tagDialog = dialogBuilder.show()
                         editTagDialog.dismiss()
+                        tagDialog!!.show()
                     }
                     .setNegativeButton("Continue editing"){ _, _ -> }
                     .show()
             } else {
-                val vGroup: ViewGroup = dialogView.parent as ViewGroup
-                vGroup.removeView(dialogView)
-                tagDialog!!.dismiss()
-                tagDialog = dialogBuilder.show()
                 editTagDialog.dismiss()
+                tagDialog!!.show()
             }
         }
 
@@ -181,17 +176,17 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
                 Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
 
-                val vGroup: ViewGroup = dialogView.parent as ViewGroup
-                vGroup.removeView(dialogView)
                 tagDialog!!.dismiss()
-                editTagDialog.dismiss()
-
             }
 
         }
     }
 
     fun showPicker () {
+
+        val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
+
+        val dialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
 
         io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
 
@@ -248,74 +243,74 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                 tagChip.isEnabled = true
 
                 if (!tagId.isNullOrBlank()) {
-                    if (tagId == tag.id) {
-                        noneButton.isChecked = false
-                        tagChip.isChecked = true
+                        if (tagId == tag.id) {
+                            noneButton.isChecked = false
+                            tagChip.isChecked = true
+                        }
                     }
-                }
 
                 tagChip.chipIcon = AppCompatResources.getDrawable(context, R.drawable.ic_baseline_circle_24)
 
                 tagChip.setCloseIconResource(R.drawable.ic_baseline_close_24)
                 tagChip.setOnCloseIconClickListener {
 
-                    val builder = MaterialAlertDialogBuilder(appCompatActivity)
-                        .setTitle("Delete tag")
-                        .setCancelable(true)
-                        .setMessage("Would you like to delete \"${tag.name}\"? This will untag all items containing this tag.")
-                        .setPositiveButton("Delete"){ _, _ ->
-                            network.writeQueueTask (tag.id, mode = network.MODE_DELETE)
+                        val builder = MaterialAlertDialogBuilder(appCompatActivity)
+                            .setTitle("Delete tag")
+                            .setCancelable(true)
+                            .setMessage("Would you like to delete \"${tag.name}\"? This will untag all items containing this tag.")
+                            .setPositiveButton("Delete"){ _, _ ->
+                                network.writeQueueTask (tag.id, mode = network.MODE_DELETE)
 
-                            for (tagToDelete in vault.tag!!) {
-                                if (tagToDelete.id == tag.id) {
-                                    try {
-                                        vault.tag!!.remove(tagToDelete)
-                                    } catch (_: NullPointerException) { }
-                                    break
+                                for (tagToDelete in vault.tag!!) {
+                                    if (tagToDelete.id == tag.id) {
+                                        try {
+                                            vault.tag!!.remove(tagToDelete)
+                                        } catch (_: NullPointerException) { }
+                                        break
+                                    }
                                 }
+
+                                io.writeVault(vault)
+                                tagCollection.removeView(tagChip)
+                                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
+                                Toast.makeText(context, "Deleted ${tag.name}", Toast.LENGTH_LONG).show()
                             }
 
-                            io.writeVault(vault)
-                            tagCollection.removeView(tagChip)
-                            (tagChip.parent as? ViewGroup)?.removeView(tagChip)
-                            Toast.makeText(context, "Deleted ${tag.name}", Toast.LENGTH_LONG).show()
-                        }
+                        builder.setNegativeButton("Go back"){ _, _ -> }
+                        val alertDialog: AlertDialog = builder.create()
+                        alertDialog.show()
 
-                    builder.setNegativeButton("Go back"){ _, _ -> }
-                    val alertDialog: AlertDialog = builder.create()
-                    alertDialog.show()
-
-                }
+                    }
 
                 tagChip.setOnClickListener {
-                    // Todo return tag id
-                    finalizedTagId = tag.id
-                    tagDialog.dismiss()
-                }
+                        // Todo return tag id
+                        finalizedTagId = tag.id
+                        tagDialog.dismiss()
+                    }
 
                 tagChip.setOnLongClickListener {
-                    editTag (tag)
-                    true
+                        editTag (tag)
+                        true
+                    }
+
+                // Prevents creation of duplicate views by checking if a chip containing the tag's text alreay exists. If it doesn't, the chip is created.
+                var trimmedChips: MutableList<*> = tagCollection.children.toMutableList()
+                trimmedChips.removeAt(0)
+                trimmedChips.removeAt(1)
+
+                val chips = mutableListOf<Chip>()
+                for (chip in trimmedChips) try { chips.add(chip as Chip) } catch (_: java.lang.ClassCastException) { }
+
+                val chipNames = mutableListOf<String>()
+                for (chip in chips) chipNames.add(chip.text.toString())
+
+                if (!chipNames.contains(tag.name)) {
+                    (tagChip.parent as? ViewGroup)?.removeView(tagChip)
+                    tagCollection.addView(tagChip)
                 }
 
-                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
-                tagCollection.addView(tagChip)
-
             }
-
         }
-
-        tagDialog.setOnDismissListener {
-            Log.d ("asdf", tagCollection.childCount.toString())
-            for (i in 3 until tagCollection.childCount) {
-                try {
-                    val chip = tagCollection.getChildAt(i) as Chip
-                    tagCollection.removeView(chip)
-                } catch (_: Exception) { }
-            }
-            decryptedTags.clear()
-        }
-
     }
 
     fun getSelectedTagId (): String? {
