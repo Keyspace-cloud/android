@@ -152,6 +152,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                         type = io.TYPE_TAG
                     )
                 )
+
                 if (tagToEdit != null) {
                     network.writeQueueTask (encryptedTag!!, mode = network.MODE_PUT)
                     for (tagToDelete in vault.tag!!) {
@@ -253,34 +254,32 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
                 tagChip.setCloseIconResource(R.drawable.ic_baseline_close_24)
                 tagChip.setOnCloseIconClickListener {
+                    val builder = MaterialAlertDialogBuilder(appCompatActivity)
+                        .setTitle("Delete tag")
+                        .setCancelable(true)
+                        .setMessage("Would you like to delete \"${tag.name}\"? This will untag all items containing this tag.")
+                        .setPositiveButton("Delete") { _, _ ->
+                            network.writeQueueTask (tag.id, mode = network.MODE_DELETE)
+                            for (tagToDelete in vault.tag!!) {
+                                if (tagToDelete.id == tag.id) {
+                                    try {
+                                        vault.tag!!.remove(tagToDelete)
+                                        io.writeVault(vault)
+                                        vault = io.getVault()
+                                        decryptedTags.clear()
+                                        io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
 
-                        val builder = MaterialAlertDialogBuilder(appCompatActivity)
-                            .setTitle("Delete tag")
-                            .setCancelable(true)
-                            .setMessage("Would you like to delete \"${tag.name}\"? This will untag all items containing this tag.")
-                            .setPositiveButton("Delete"){ _, _ ->
-                                network.writeQueueTask (tag.id, mode = network.MODE_DELETE)
-
-                                for (tagToDelete in vault.tag!!) {
-                                    if (tagToDelete.id == tag.id) {
-                                        try {
-                                            vault.tag!!.remove(tagToDelete)
-                                        } catch (_: NullPointerException) { }
-                                        break
-                                    }
+                                        tagCollection.removeView(tagChip)
+                                        Toast.makeText(context, "Deleted ${tag.name}", Toast.LENGTH_LONG).show()
+                                    } catch (_: NullPointerException) { }
+                                    break
                                 }
-
-                                io.writeVault(vault)
-                                tagCollection.removeView(tagChip)
-                                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
-                                Toast.makeText(context, "Deleted ${tag.name}", Toast.LENGTH_LONG).show()
                             }
-
-                        builder.setNegativeButton("Go back"){ _, _ -> }
+                        }
+                        .setNegativeButton("Go back"){ _, _ -> }
                         val alertDialog: AlertDialog = builder.create()
                         alertDialog.show()
-
-                    }
+                }
 
                 tagChip.setOnClickListener {
                         // Todo return tag id
