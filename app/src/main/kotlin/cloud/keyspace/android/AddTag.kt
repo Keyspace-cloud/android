@@ -36,6 +36,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
     private val io: IOUtilities
     private val network: NetworkUtilities
+    private val misc: MiscUtilities
 
     private var vault: IOUtilities.Vault
     private var decryptedTags: MutableList<IOUtilities.Tag> = mutableListOf()
@@ -59,6 +60,8 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
             appCompatActivity = appCompatActivity,
             keyring = keyring
         )
+
+        misc = MiscUtilities(context)
 
         vault = io.getVault()
         decryptedTags.clear()
@@ -136,12 +139,22 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
         }
 
         saveTagButton.setOnClickListener {
+            val tagNames = mutableListOf<String>()
+            decryptedTags.forEach { tagNames.add(it.name.lowercase().replace(" ", "")) }
 
             if (editTag.text.toString().replace(" ", "").isBlank()) {
                 val discardDialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
                 discardDialogBuilder
                     .setTitle("Empty tag")
                     .setMessage("Tag name cannot be blank")
+                    .setNegativeButton("Go back"){ _, _ -> }
+                    .show()
+
+            } else if (tagNames.contains(editTag.text.toString().lowercase().replace(" ", ""))) {
+                val duplicateTagDialogBuilder = MaterialAlertDialogBuilder(appCompatActivity)
+                duplicateTagDialogBuilder
+                    .setTitle("Duplicate tag")
+                    .setMessage("A tag with this name already exists. Please try a different name.")
                     .setNegativeButton("Go back"){ _, _ -> }
                     .show()
 
@@ -250,11 +263,11 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                 if (tag.id == tagId) tagChip.isChecked = true
 
                 if (!tagId.isNullOrBlank()) {
-                        if (tagId == tag.id) {
-                            noneButton.isChecked = false
-                            tagChip.isChecked = true
-                        }
+                    if (tagId == tag.id) {
+                        noneButton.isChecked = false
+                        tagChip.isChecked = true
                     }
+                }
 
                 tagChip.chipIcon = AppCompatResources.getDrawable(context, R.drawable.ic_baseline_circle_24)
 
