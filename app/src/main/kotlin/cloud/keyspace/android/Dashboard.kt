@@ -191,7 +191,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         // To make it quick
         val loadingScreen = ShowLoadingScreen()
-        loadingScreen.showScreen(lastFragment!!)
+        loadingScreen.showScreen (lastFragment)
         misc = MiscUtilities (applicationContext)
         keyspaceAccountPicture = findViewById(R.id.keyspaceAccountPicture)
         keyspaceAccountPicture.setImageDrawable(misc.generateProfilePicture(configData.getString("userEmail", null)!!))
@@ -236,7 +236,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     }
 
-        inner class ShowLoadingScreen {
+    inner class ShowLoadingScreen {
 
         var builder: MaterialAlertDialogBuilder = MaterialAlertDialogBuilder(this@Dashboard)
         private lateinit var dialog: AlertDialog
