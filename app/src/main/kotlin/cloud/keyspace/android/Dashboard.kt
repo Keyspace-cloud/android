@@ -107,7 +107,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private lateinit var input: InputMethodManager
     private lateinit var searchBar: EditText
     private lateinit var searchButton: ImageView
-    //private lateinit var syncStatusText: TextView
     private lateinit var root: CoordinatorLayout
 
     private lateinit var loginsRecycler: SwipeableRecyclerView
@@ -134,6 +133,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     lateinit var keyring: CryptoUtilities.Keyring
 
     lateinit var vault: IOUtilities.Vault
+    lateinit var tags: MutableList<IOUtilities.Tag>
     lateinit var logins: MutableList<IOUtilities.Login>
     lateinit var notes: MutableList<IOUtilities.Note>
     lateinit var cards: MutableList<IOUtilities.Card>
@@ -201,6 +201,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         thread {
             vault = io.getVault()
             vault = io.vaultSorter(vault, sortBy)
+
+            tags = mutableListOf()
+            vault.tag?.forEach { tags.add(io.decryptTag(it)!!) }
 
             logins = mutableListOf()
             notes = mutableListOf()
@@ -627,15 +630,12 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     searchTermsList.add(login)
                                 }
 
-                                if (vault.tag?.size!! > 0) {  // tag search
-                                    for (tag in vault.tag!!) {
-                                        val decryptedTag = io.decryptTag(tag)
-
-                                        if (searchTerms.toString().lowercase(Locale.getDefault()) in decryptedTag?.name?.lowercase(Locale.getDefault())!!) {
-                                            if (login.tagId == decryptedTag.id) searchTermsList.add (login)
-                                        }
+                                for (tag in tags!!) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag?.name?.lowercase(Locale.getDefault())!!) {
+                                        if (login.tagId == tag.id) searchTermsList.add (login)
                                     }
                                 }
+
                             }
 
                             try {
@@ -667,12 +667,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     searchTermsList.add(note)
                                 }
 
-                                if (vault.tag?.size!! > 0) {  // tag search
-                                    for (tag in vault.tag!!) {
-                                        val decryptedTag = io.decryptTag(tag)
-                                        if (searchTerms.toString().lowercase(Locale.getDefault()) in decryptedTag?.name?.lowercase(Locale.getDefault())!!) {
-                                            if (note.tagId == decryptedTag.id) searchTermsList.add (note)
-                                        }
+                                for (tag in tags) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                        if (note.tagId == tag.id) searchTermsList.add (note)
                                     }
                                 }
                             }
@@ -707,12 +704,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     searchTermsList.add(card)
                                 }
 
-                                if (vault.tag?.size!! > 0) {  // tag search
-                                    for (tag in vault.tag!!) {
-                                        val decryptedTag = io.decryptTag(tag)
-                                        if (searchTerms.toString().lowercase(Locale.getDefault()) in decryptedTag?.name?.lowercase(Locale.getDefault())!!) {
-                                            if (card.tagId == decryptedTag.id) searchTermsList.add (card)
-                                        }
+                                for (tag in tags) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                        if (card.tagId == tag.id) searchTermsList.add (card)
                                     }
                                 }
                             }
@@ -884,29 +878,20 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             loginCard.siteName.text = login.name
 
-            val tags =  vault.tag
-
             loginCard.tagText.visibility = View.GONE
             if (tags?.size!! > 0) {
-                thread {
-                    for (tag in tags) {
-                        val decryptedTag = io.decryptTag(tag)
-                        if (login.tagId == tag.id) {
-                            runOnUiThread {
-                                loginCard.tagText.visibility = View.VISIBLE
-                                loginCard.tagText.text = decryptedTag?.name
+                for (tag in tags) {
+                    if (login.tagId == tag.id) {
+                        loginCard.tagText.visibility = View.VISIBLE
+                        loginCard.tagText.text = tag.name
+                        try {
+                            if (!tag.color.isNullOrEmpty()) {
+                                DrawableCompat.setTint (circle, Color.parseColor(tag.color))
+                                DrawableCompat.setTintMode (circle, PorterDuff.Mode.SRC_IN)
+                                loginCard.tagText.setCompoundDrawablesWithIntrinsicBounds (null, null, circle, null)
                             }
-                            try {
-                                if (!decryptedTag!!.color.isNullOrEmpty()) {
-                                    runOnUiThread {
-                                        DrawableCompat.setTint (circle, Color.parseColor(decryptedTag.color))
-                                        DrawableCompat.setTintMode (circle, PorterDuff.Mode.SRC_IN)
-                                        loginCard.tagText.setCompoundDrawablesWithIntrinsicBounds (null, null, circle, null)
-                                    }
-                                }
-                            } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) {}
-                            break
-                        }
+                        } catch (_: StringIndexOutOfBoundsException) { } catch (_: IllegalArgumentException) { }
+                        break
                     }
                 }
             }
@@ -1222,29 +1207,24 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         } else dateCreated.visibility = View.GONE
 
-        if (!login.tagId.isNullOrEmpty()) {
-            if (vault.tag?.size!! > 0) {
-                for (tag in vault.tag!!) {
-                    val decryptedTag = io.decryptTag(tag)
-                    if (login.tagId == tag.id) {
-                        if (decryptedTag?.name.isNullOrEmpty()) loginTag.visibility = View.GONE
-                        loginTag.visibility = View.VISIBLE
-                        loginTag.text = decryptedTag?.name
-
-                        try {
-                            if (!decryptedTag!!.color.isNullOrEmpty()) {
-                                val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
-                                DrawableCompat.setTint(tagIcon, Color.parseColor(decryptedTag!!.color))
-                                DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
-                                loginTag.setCompoundDrawablesWithIntrinsicBounds(tagIcon, null, null, null)
-                            }
-                        } catch (noColor: StringIndexOutOfBoundsException) {} catch (noColor: IllegalArgumentException) {}
-
-                        break
-                    }
+        loginTag.visibility = View.GONE
+        if (tags.size > 0) {
+            for (tag in tags) {
+                if (login.tagId == tag.id) {
+                    loginTag.visibility = View.VISIBLE
+                    loginTag.text = tag.name
+                    try {
+                        if (!tag.color.isNullOrEmpty()) {
+                            val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
+                            DrawableCompat.setTint (tagIcon, Color.parseColor(tag.color))
+                            DrawableCompat.setTintMode (tagIcon, PorterDuff.Mode.SRC_IN)
+                            loginTag.setCompoundDrawablesWithIntrinsicBounds (tagIcon, null, null, null)
+                        }
+                    } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) { }
+                    break
                 }
             }
-        } else loginTag.visibility = View.GONE
+        }
 
         editButton.setOnClickListener {
             crypto.secureStartActivity (
@@ -1504,31 +1484,25 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-            val tags =  vault.tag
             noteCard.tagText.visibility = View.GONE
             if (tags?.size!! > 0) {
                 for (tag in tags) {
-                    val decryptedTag = io.decryptTag(tag)
                     if (note.tagId == tag.id) {
                         noteCard.tagText.visibility = View.VISIBLE
-                        noteCard.tagText.text = decryptedTag?.name
-
+                        noteCard.tagText.text = tag.name
                         try {
-                            if (!decryptedTag!!.color.isNullOrEmpty()) {
+                            if (!tag.color.isNullOrEmpty()) {
                                 val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
-                                DrawableCompat.setTint(tagIcon, Color.parseColor(decryptedTag!!.color))
+                                DrawableCompat.setTint(tagIcon, Color.parseColor(tag.color))
                                 DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
                                 noteCard.tagText.setCompoundDrawablesWithIntrinsicBounds(null, null, tagIcon, null)
                             }
-                        } catch (noColor: StringIndexOutOfBoundsException) {} catch (noColor: IllegalArgumentException) {}
-
+                        } catch (noColor: StringIndexOutOfBoundsException) { } catch (noColor: IllegalArgumentException) { }
                         break
                     }
                 }
             }
-
         }
-
     }
 
    /*
@@ -1792,7 +1766,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         fun bindData (cardCard: ViewHolder) {
             val card = cards[cardCard.adapterPosition]
 
-            val tags =  vault.tag
             cardCard.tagText.visibility = View.GONE
 
             thread {
@@ -1897,20 +1870,18 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             }
 
             cardCard.tagText.visibility = View.GONE
-            thread {
-                if (tags?.size!! > 0) {
-                    for (tag in tags) {
-                        val decryptedTag = io.decryptTag(tag)
-                        if (card.tagId == tag.id) {
-                            runOnUiThread {
-                                cardCard.tagText.visibility = View.VISIBLE
-                                cardCard.tagText.text = decryptedTag?.name
-                                try {
-                                    if (!decryptedTag!!.color.isNullOrEmpty()) cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.parseColor(decryptedTag.color))
-                                } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) {}
-                            }
-                            break
+
+            if (tags?.size!! > 0) {
+                for (tag in tags) {
+                    if (card.tagId == tag.id) {
+                        runOnUiThread {
+                            cardCard.tagText.visibility = View.VISIBLE
+                            cardCard.tagText.text = tag?.name
+                            try {
+                                if (!tag!!.color.isNullOrEmpty()) cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.parseColor(tag.color))
+                            } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) {}
                         }
+                        break
                     }
                 }
             }
