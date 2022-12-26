@@ -53,6 +53,46 @@
                 android:orientation="vertical"
                 android:paddingVertical="7.5dp">
 
+                <LinearLayout
+                    android:id="@+id/mfa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:alwaysDrawnWithCache="false"
+                    android:animationCache="false"
+                    android:drawingCacheQuality="low"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView
+                        android:id="@+id/mfaText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:alwaysDrawnWithCache="false"
+                        android:animationCache="false"
+                        android:drawingCacheQuality="low"
+                        android:gravity="center|start"
+                        android:letterSpacing="0.05"
+                        android:text="123 456"
+                        android:textSize="32sp"
+                        android:textStyle="normal" />
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/mfaProgress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:foregroundGravity="center"
+                        android:max="30"
+                        android:paddingHorizontal="4dp"
+                        android:progress="22"
+                        app:indicatorColor="#8B8B8B"
+                        app:indicatorSize="22dp"
+                        app:trackColor="@android:color/transparent"
+                        app:trackThickness="3dp" />
+
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/SiteName"
                     android:layout_width="wrap_content"
@@ -93,46 +133,6 @@
                     android:textSize="16dp"
                     android:visibility="visible"
                     app:drawableStartCompat="@drawable/ic_baseline_account_circle_24" />
-
-                <LinearLayout
-                    android:id="@+id/mfa"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="6dp"
-                    android:layout_weight="1"
-                    android:alwaysDrawnWithCache="false"
-                    android:animationCache="false"
-                    android:drawingCacheQuality="low"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/mfaProgress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:foregroundGravity="center"
-                        android:max="30"
-                        android:paddingHorizontal="4dp"
-                        android:progress="22"
-                        app:indicatorColor="#8B8B8B"
-                        app:indicatorSize="22dp"
-                        app:trackColor="@android:color/transparent"
-                        app:trackThickness="3dp" />
-
-                    <TextView
-                        android:id="@+id/mfaText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:alwaysDrawnWithCache="false"
-                        android:animationCache="false"
-                        android:drawingCacheQuality="low"
-                        android:fontFamily="@font/droid_sans_mono"
-                        android:gravity="center|start"
-                        android:letterSpacing="0.1"
-                        android:text="123 456"
-                        android:textSize="24sp"
-                        android:textStyle="normal|bold" />
-                </LinearLayout>
 
             </LinearLayout>
 
