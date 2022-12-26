@@ -1,25 +1,26 @@
 package cloud.keyspace.android
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.text.TextUtils.replace
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AnimationUtils.loadAnimation
-import android.widget.*
+import android.widget.HorizontalScrollView
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -28,7 +29,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.keyspace.keyspacemobile.*
+import com.keyspace.keyspacemobile.NetworkUtilities
 import com.yahiaangelo.markdownedittext.MarkdownEditText
 import com.yydcdut.markdown.MarkdownConfiguration
 import com.yydcdut.markdown.MarkdownProcessor
@@ -39,14 +40,9 @@ import com.yydcdut.markdown.syntax.text.TextFactory
 import com.yydcdut.markdown.theme.Theme
 import com.yydcdut.markdown.theme.ThemeDefault
 import com.yydcdut.markdown.theme.ThemeDesert
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.util.*
 import kotlin.properties.Delegates
-
 
 class AddNote : AppCompatActivity() {
 
@@ -268,7 +264,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "[${selectedText}]()"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length + 2)
             } else {
-                val markdown = "\n[text](url)"
+                val markdown = "[text](url)"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
                 } catch (_: Exception) {
@@ -285,7 +281,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "_${selectedText}_"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
             } else {
-                val markdown = "\n_text_"
+                val markdown = "_text_"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
                 } catch (_: Exception) {
@@ -298,44 +294,18 @@ class AddNote : AppCompatActivity() {
             val start = noteViewer.selectionStart.coerceAtLeast(0)
             val end = noteViewer.selectionEnd.coerceAtLeast(0)
             val selectedText = noteViewer.text.toString().substring(start, end)
-            if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                if (selectedText.contains("\n")) {
-                    noteViewer.setText("\n\n- [x] ${selectedText.replace("\n", "\n- [x] ")}")
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                } else {
-                    noteViewer.setText(selectedText.replace(selectedText, "- [x] $selectedText"))
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                }
-            } else {
-                val markdown = "\n- [x] "
-                try {
-                    noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "- [x] ", 0, "- [x] ".length)
-                } catch (_: Exception) {
-                    noteViewer.text.append(markdown)
-                }
-            }
+            if (selectedText.isNotEmpty()) noteViewer.setText(noteViewer.text.toString().replace(selectedText, utils.stringToCheckedString(selectedText)))
+            else noteViewer.append(utils.stringToCheckedString(selectedText))
+            noteViewer.setSelection(noteViewer.text.toString().length)
         }
 
         findViewById<ImageView>(R.id.uncheckedButton).setOnClickListener {
             val start = noteViewer.selectionStart.coerceAtLeast(0)
             val end = noteViewer.selectionEnd.coerceAtLeast(0)
             val selectedText = noteViewer.text.toString().substring(start, end)
-            if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                if (selectedText.contains("\n")) {
-                    noteViewer.setText("\n\n- [ ] ${selectedText.replace("\n", "\n- [ ] ")}")
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                } else {
-                    noteViewer.setText(selectedText.replace(selectedText, "- [x] $selectedText"))
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                }
-            } else {
-                val markdown = "\n- [ ] "
-                try {
-                    noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "- [ ] ", 0, "- [ ] ".length)
-                } catch (_: Exception) {
-                    noteViewer.text.append(markdown)
-                }
-            }
+            if (selectedText.isNotEmpty()) noteViewer.setText(noteViewer.text.toString().replace(selectedText, utils.stringToUncheckedString(selectedText)))
+            else noteViewer.append(utils.stringToUncheckedString(selectedText))
+            noteViewer.setSelection(noteViewer.text.toString().length)
         }
 
         findViewById<ImageView>(R.id.imageButton).setOnClickListener {
@@ -346,7 +316,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "![${selectedText}]()"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length + 2)
             } else {
-                val markdown = "\n![caption](url)"
+                val markdown = "![caption](url)"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
                 } catch (_: Exception) {
@@ -397,7 +367,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "~~$selectedText~~"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
             } else {
-                val markdown = "\n~~text~~"
+                val markdown = "~~text~~"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
                 } catch (_: Exception) {
@@ -414,7 +384,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "\n```\n$selectedText\n```"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
             } else {
-                val markdown = "\n```\ntext\n```"
+                val markdown = "```\ntext\n```"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "```\ntext\n```", 0, "```\ntext\n```".length)
                 } catch (_: Exception) {
@@ -431,7 +401,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "**$selectedText**"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
             } else {
-                val markdown = "\n**text**"
+                val markdown = "**text**"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
                 } catch (_: Exception) {
@@ -448,7 +418,7 @@ class AddNote : AppCompatActivity() {
                 noteViewer.setText(noteViewer.text.toString().replace(selectedText, "# $selectedText"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
             } else {
-                val markdown = "\n# "
+                val markdown = "# "
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "# ", 0, "# ".length)
                 } catch (_: Exception) {
