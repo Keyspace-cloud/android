@@ -1227,9 +1227,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 for (tag in vault.tag!!) {
                     val decryptedTag = io.decryptTag(tag)
                     if (login.tagId == tag.id) {
+                        if (decryptedTag?.name.isNullOrEmpty()) loginTag.visibility = View.GONE
                         loginTag.visibility = View.VISIBLE
                         loginTag.text = decryptedTag?.name
-                        Log.d("KSTAG", decryptedTag?.name.toString())
 
                         try {
                             if (!decryptedTag!!.color.isNullOrEmpty()) {
