@@ -255,22 +255,9 @@ class AddNote : AppCompatActivity() {
             val start = noteViewer.selectionStart.coerceAtLeast(0)
             val end = noteViewer.selectionEnd.coerceAtLeast(0)
             val selectedText = noteViewer.text.toString().substring(start, end)
-            if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                if (selectedText.contains("\n")) {
-                    noteViewer.setText("\n\n- ${selectedText.replace("\n", "\n- ")}")
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                } else {
-                    noteViewer.setText(selectedText.replace(selectedText, "- $selectedText"))
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                }
-            } else {
-                val markdown = "\n- "
-                try {
-                    noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "- ", 0, "- ".length)
-                } catch (_: Exception) {
-                    noteViewer.text.append(markdown)
-                }
-            }
+            if (selectedText.isNotEmpty()) noteViewer.setText(noteViewer.text.toString().replace(selectedText, utils.stringToBulletedString(selectedText)))
+            else noteViewer.append(utils.stringToBulletedString(selectedText))
+            noteViewer.setSelection(noteViewer.text.toString().length)
         }
 
         findViewById<ImageView>(R.id.linkButton).setOnClickListener {

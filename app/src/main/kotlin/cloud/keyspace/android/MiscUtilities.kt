@@ -594,7 +594,31 @@ class MiscUtilities (applicationContext: Context) {
             string = "\n1. one\n2. two\n3. three\n"
         }
         return string
-}
+    }
+
+    fun stringToBulletedString (string: String): String {
+        var string = string
+        if (string.replace(" ", "").isNotEmpty()) {
+            string = if (string.contains("\n")) {
+                val stringCharacters = mutableListOf<Char>()
+                stringCharacters.add('-')
+                stringCharacters.add(' ')
+                for (c in string) {
+                    stringCharacters.add(c)
+                    if (c == '\n') {
+                        stringCharacters.add('-')
+                        stringCharacters.add(' ')
+                    }
+                }
+                String(stringCharacters.toCharArray())
+            } else {
+                "\n- $string"
+            }
+        } else {
+            string = "\n- one\n- two\n- three\n"
+        }
+        return string
+    }
 
 // UI stuff
 open class OnSwipeTouchListener(c: Context?) : View.OnTouchListener {
