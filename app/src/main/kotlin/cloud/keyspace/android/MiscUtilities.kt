@@ -685,11 +685,13 @@ class MiscUtilities (applicationContext: Context) {
         if (string.replace(" ", "").isNotEmpty()) {
             string = if (string.contains("\n")) {
                 val stringCharacters = mutableListOf<Char>()
+                stringCharacters.add('\n')
                 stringCharacters.add('#')
                 stringCharacters.add(' ')
                 for (c in string) {
                     stringCharacters.add(c)
                     if (c == '\n') {
+                        stringCharacters.add('\n')
                         stringCharacters.add('#')
                         stringCharacters.add(' ')
                     }
