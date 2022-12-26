@@ -436,10 +436,10 @@ class AddNote : AppCompatActivity() {
             val end = noteViewer.selectionEnd.coerceAtLeast(0)
             val selectedText = noteViewer.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteViewer.setText(noteViewer.text.toString().replace(selectedText, "~$selectedText~"))
+                noteViewer.setText(noteViewer.text.toString().replace(selectedText, "~~$selectedText~~"))
                 noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
             } else {
-                val markdown = "\n~text~"
+                val markdown = "\n~~text~~"
                 try {
                     noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
                 } catch (_: Exception) {
