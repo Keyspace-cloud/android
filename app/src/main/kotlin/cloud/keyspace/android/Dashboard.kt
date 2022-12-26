@@ -2690,13 +2690,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             if (editQueue > 0) {
                 queueStatus.visibility = View.VISIBLE
                 queueProgress.visibility = View.VISIBLE
-                queueSubtitle.text = "Saving $editQueue edit(s)"
+                queueSubtitle.text = "Syncing $editQueue edit(s)"
             }
 
             if (saveQueue > 0) {
                 queueStatus.visibility = View.VISIBLE
                 queueProgress.visibility = View.VISIBLE
-                queueSubtitle.text = "Saving $saveQueue item(s)"
+                queueSubtitle.text = "Syncing $saveQueue item(s)"
             }
 
             if (saveQueue == 0 && editQueue == 0 && deleteQueue == 0) {
@@ -2724,7 +2724,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             if (saveQueue > 0) {
                 queueProgress.visibility = View.GONE
-                queueSubtitle.text = "Will save $saveQueue item(s) when online"
+                queueSubtitle.text = "Will sync $saveQueue item(s) when online"
             }
 
         }
