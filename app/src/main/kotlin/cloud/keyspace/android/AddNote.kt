@@ -246,38 +246,9 @@ class AddNote : AppCompatActivity() {
             val start = noteViewer.selectionStart.coerceAtLeast(0)
             val end = noteViewer.selectionEnd.coerceAtLeast(0)
             val selectedText = noteViewer.text.toString().substring(start, end)
-            if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                var lineBreakCounter = 1
-                if (selectedText.contains("\n")) {
-                    val string = mutableListOf<Char>()
-                    string.add(lineBreakCounter.toString().single())
-                    string.add('.')
-                    string.add(' ')
-                    lineBreakCounter += 1
-                    for (c in selectedText) {
-                        string.add(c)
-                        if (c == '\n') {
-                            string.add(lineBreakCounter.toString().single())
-                            string.add('.')
-                            string.add(' ')
-                            lineBreakCounter += 1
-                        }
-                    }
-                    noteViewer.setText(String(string.toCharArray()))
-                    noteViewer.setSelection(noteViewer.text.toString().length)
-                } else {
-                    noteViewer.setText(selectedText.replace(selectedText, "1. $selectedText"))
-                    noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
-                }
-
-            } else {
-                val markdown = "\n1. "
-                try {
-                    noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "1. ", 0, "1. ".length)
-                } catch (_: Exception) {
-                    noteViewer.text.append(markdown)
-                }
-            }
+            if (selectedText.isNotEmpty()) noteViewer.setText(noteViewer.text.toString().replace(selectedText, utils.stringToNumberedString(selectedText)))
+            else noteViewer.append(utils.stringToNumberedString(selectedText))
+            noteViewer.setSelection(noteViewer.text.toString().length)
         }
 
         findViewById<ImageView>(R.id.bulletListButton).setOnClickListener {

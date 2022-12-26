@@ -567,6 +567,33 @@ class MiscUtilities (applicationContext: Context) {
         return false
     }
 
+    fun stringToNumberedString (string: String): String {
+        var string = string
+        if (string.replace(" ", "").isNotEmpty()) {
+            var lineBreakCounter = 1
+            if (string.contains("\n")) {
+                val stringCharacters = mutableListOf<Char>()
+                stringCharacters.add(lineBreakCounter.toString().single())
+                stringCharacters.add('.')
+                stringCharacters.add(' ')
+                lineBreakCounter += 1
+                for (c in string) {
+                    stringCharacters.add(c)
+                    if (c == '\n') {
+                        stringCharacters.add(lineBreakCounter.toString().single())
+                        stringCharacters.add('.')
+                        stringCharacters.add(' ')
+                        lineBreakCounter += 1
+                    }
+                }
+                string = String(stringCharacters.toCharArray())
+            } else {
+                string = "\n1. $string"
+            }
+        } else {
+            string = "\n1. one\n2. two\n3. three\n"
+        }
+        return string
 }
 
 // UI stuff
@@ -642,4 +669,4 @@ open class OnSwipeTouchListener(c: Context?) : View.OnTouchListener {
     init {
         gestureDetector = GestureDetector(c, GestureListener())
     }
-}
+}}
