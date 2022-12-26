@@ -2930,11 +2930,19 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     }
 
     override fun onUserLeaveHint() {
+
+        vaultSyncTimer.cancel()
+        vaultSyncTimer.purge()
+
         Handler().postDelayed({ killApp() }, 500)
         super.onUserLeaveHint()
     }
 
     override fun onPause() {
+
+        vaultSyncTimer.cancel()
+        vaultSyncTimer.purge()
+
         Handler().postDelayed({ killApp() }, 500)
         super.onPause()
     }
@@ -2959,9 +2967,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         if (configData.getBoolean("lockApp", true)) {
             finish()
             finishAffinity()
-
-            vaultSyncTimer.cancel()
-            vaultSyncTimer.purge()
 
             mfaCodesTimer.cancel()
             mfaCodesTimer.purge()
