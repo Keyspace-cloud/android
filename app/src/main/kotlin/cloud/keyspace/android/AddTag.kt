@@ -171,6 +171,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                 vault = io.getVault()
                 decryptedTags.clear()
                 io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
+                finalizedTagId = tagId
 
                 Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
 
