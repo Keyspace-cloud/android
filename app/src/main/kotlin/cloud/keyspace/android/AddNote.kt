@@ -414,17 +414,9 @@ class AddNote : AppCompatActivity() {
             val start = noteViewer.selectionStart.coerceAtLeast(0)
             val end = noteViewer.selectionEnd.coerceAtLeast(0)
             val selectedText = noteViewer.text.toString().substring(start, end)
-            if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteViewer.setText(noteViewer.text.toString().replace(selectedText, "# $selectedText"))
-                noteViewer.setSelection(noteViewer.text.toString().indexOf(selectedText) + selectedText.length)
-            } else {
-                val markdown = "# "
-                try {
-                    noteViewer.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "# ", 0, "# ".length)
-                } catch (_: Exception) {
-                    noteViewer.text.append(markdown)
-                }
-            }
+            if (selectedText.isNotEmpty()) noteViewer.setText(noteViewer.text.toString().replace(selectedText, utils.stringToTitledStrings(selectedText)))
+            else noteViewer.append(utils.stringToTitledStrings(selectedText))
+            noteViewer.setSelection(noteViewer.text.toString().length)
         }
 
         doneButton = findViewById (R.id.done)
