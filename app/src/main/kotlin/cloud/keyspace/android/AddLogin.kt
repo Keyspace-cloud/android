@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
@@ -16,6 +18,7 @@ import android.text.format.DateFormat
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.AnimationUtils.loadAnimation
@@ -124,6 +127,7 @@ class AddLogin : AppCompatActivity() {
     lateinit var tagButton: ImageView
     private lateinit var tagPicker: AddTag
     var tagId: String? = null
+    val tagIdGrabber = Handler(Looper.getMainLooper())
 
     lateinit var favoriteButton: ImageView
     var favorite: Boolean = false
@@ -230,7 +234,13 @@ class AddLogin : AppCompatActivity() {
         tagButton = findViewById (R.id.tag)
         tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
         tagButton.setOnClickListener {
-            tagPicker.showPicker()
+            tagPicker.showPicker(tagId)
+            tagIdGrabber.post(object : Runnable {
+                override fun run() {
+                    tagId = tagPicker.getSelectedTagId()
+                    tagIdGrabber.postDelayed(this, 1000)
+                }
+            })
         }
 
         favoriteButton = findViewById(R.id.favoriteButton)
@@ -1014,6 +1024,7 @@ class AddLogin : AppCompatActivity() {
                 itemId = null
             )
             super.onBackPressed()
+            tagIdGrabber.removeCallbacksAndMessages(null)
         }
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
         alertDialog.show()

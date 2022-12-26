@@ -25,6 +25,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.keyspace.keyspacemobile.NetworkUtilities
+import com.permissionx.guolindev.PermissionX.init
 import kotlinx.coroutines.*
 import kotlinx.coroutines.NonCancellable.children
 import java.time.Instant
@@ -41,9 +42,9 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
 
     private var inflater: LayoutInflater = appCompatActivity.layoutInflater
 
-    lateinit var tagDialog: AlertDialog
+    private lateinit var tagDialog: AlertDialog
 
-    var finalizedTagId: String? = null
+    private var finalizedTagId: String? = tagId
 
     init {
 
@@ -161,9 +162,6 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                             break
                         }
                     }
-                    vault.tag?.add (encryptedTag)
-
-                    io.writeVault(vault)
                 } else {
                     network.writeQueueTask (encryptedTag!!, mode = network.MODE_POST)
                 }
@@ -183,7 +181,7 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
         }
     }
 
-    fun showPicker () {
+    fun showPicker (tagId: String?) {
 
         val dialogView: View = inflater.inflate (R.layout.pick_tag, null)
 
@@ -243,6 +241,8 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                 tagChip.isCheckable = true
                 tagChip.isEnabled = true
 
+                if (tag.id == tagId) tagChip.isChecked = true
+
                 if (!tagId.isNullOrBlank()) {
                         if (tagId == tag.id) {
                             noneButton.isChecked = false
@@ -276,24 +276,24 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                                 }
                             }
                         }
-                        .setNegativeButton("Go back"){ _, _ -> }
-                        val alertDialog: AlertDialog = builder.create()
-                        alertDialog.show()
+                        .setNegativeButton("Go back") { _, _ -> }
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.show()
                 }
 
                 tagChip.setOnClickListener {
-                        // Todo return tag id
-                        finalizedTagId = tag.id
-                        tagDialog.dismiss()
-                    }
+                    // Todo return tag id
+                    finalizedTagId = tag.id
+                    tagDialog.dismiss()
+                }
 
                 tagChip.setOnLongClickListener {
-                        editTag (tag)
-                        true
-                    }
+                    editTag (tag)
+                    true
+                }
 
-                // Prevents creation of duplicate views by checking if a chip containing the tag's text alreay exists. If it doesn't, the chip is created.
-                var trimmedChips: MutableList<*> = tagCollection.children.toMutableList()
+                // Prevents creation of duplicate views by checking if a chip containing the tag's text already exists. If it doesn't, the chip is created.
+                val trimmedChips: MutableList<*> = tagCollection.children.toMutableList()
                 trimmedChips.removeAt(0)
                 trimmedChips.removeAt(1)
 

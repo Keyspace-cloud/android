@@ -6,10 +6,13 @@ import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,6 +54,7 @@ class AddCard : AppCompatActivity() {
     lateinit var tagButton: ImageView
     private lateinit var tagPicker: AddTag
     var tagId: String? = null
+    val tagIdGrabber = Handler(Looper.getMainLooper())
 
     var favorite: Boolean = false
     private lateinit var favoriteButton: ImageView
@@ -180,7 +184,14 @@ class AddCard : AppCompatActivity() {
         tagButton = findViewById (R.id.tag)
         tagPicker = AddTag (tagId, applicationContext, this@AddCard, keyring)
         tagButton.setOnClickListener {
-            tagPicker.showPicker()
+            tagPicker.showPicker(tagId)
+            tagPicker.showPicker(tagId)
+            tagIdGrabber.post(object : Runnable {
+                override fun run() {
+                    tagId = tagPicker.getSelectedTagId()
+                    tagIdGrabber.postDelayed(this, 1000)
+                }
+            })
         }
 
         favoriteButton = findViewById(R.id.favoriteButton)
@@ -566,6 +577,7 @@ class AddCard : AppCompatActivity() {
                 itemId = null
             )
             super.onBackPressed()
+            tagIdGrabber.removeCallbacksAndMessages(null)
         }
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
         alertDialog.show()

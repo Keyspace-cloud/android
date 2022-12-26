@@ -7,6 +7,8 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils.replace
 import android.text.format.DateFormat
 import android.util.Log
@@ -65,6 +67,7 @@ class AddNote : AppCompatActivity() {
     lateinit var tagButton: ImageView
     private lateinit var tagPicker: AddTag
     private var tagId: String? = null
+    val tagIdGrabber = Handler(Looper.getMainLooper())
 
     var favorite: Boolean = false
     lateinit var favoriteButton: ImageView
@@ -536,8 +539,15 @@ class AddNote : AppCompatActivity() {
 
         tagButton = findViewById (R.id.tag)
         tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
+
         tagButton.setOnClickListener {
-            tagPicker.showPicker()
+            tagPicker.showPicker(tagId)
+            tagIdGrabber.post(object : Runnable {
+                override fun run() {
+                    tagId = tagPicker.getSelectedTagId()
+                    tagIdGrabber.postDelayed(this, 1000)
+                }
+            })
         }
 
         favoriteButton = findViewById(R.id.favoriteButton)
@@ -605,17 +615,17 @@ class AddNote : AppCompatActivity() {
         }
 
         if (!note.color.isNullOrEmpty()) {
-                noteColor = note.color
-                noteViewer.setBackgroundColor(Color.parseColor(noteColor))
-                val intColor: Int = noteColor!!.replace("#", "").toInt(16)
-                val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
-                if (g >= 200 || b >= 200) {
-                    noteViewer.setTextColor (Color.BLACK)
-                    noteViewer.setHintTextColor(Color.BLACK)
-                } else {
-                    noteViewer.setTextColor(Color.WHITE)
-                    noteViewer.setHintTextColor(Color.WHITE)
-                }
+            noteColor = note.color
+            noteViewer.setBackgroundColor(Color.parseColor(noteColor))
+            val intColor: Int = noteColor!!.replace("#", "").toInt(16)
+            val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+            if (g >= 200 || b >= 200) {
+                noteViewer.setTextColor (Color.BLACK)
+                noteViewer.setHintTextColor(Color.BLACK)
+            } else {
+                noteViewer.setTextColor(Color.WHITE)
+                noteViewer.setHintTextColor(Color.WHITE)
+            }
 
         }
 
@@ -672,6 +682,7 @@ class AddNote : AppCompatActivity() {
                 itemId = null
             )
             super.onBackPressed()
+            tagIdGrabber.removeCallbacksAndMessages(null)
         }
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
