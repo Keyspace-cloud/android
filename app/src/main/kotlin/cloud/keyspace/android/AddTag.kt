@@ -166,17 +166,17 @@ class AddTag (private val tagId: String?, val context: Context, val appCompatAct
                     io.writeVault(vault)
                 } else {
                     network.writeQueueTask (encryptedTag!!, mode = network.MODE_POST)
-                    vault.tag?.add (encryptedTag)
-
-                    io.writeVault(vault)
                 }
 
+                vault.tag?.add (encryptedTag)
+                io.writeVault(vault)
                 vault = io.getVault()
                 decryptedTags.clear()
                 io.getTags(vault).forEach { decryptedTags.add(io.decryptTag(it)!!) }
 
                 Toast.makeText(context, "Added $name", Toast.LENGTH_LONG).show()
 
+                editTagDialog.dismiss()
                 tagDialog!!.dismiss()
             }
 
