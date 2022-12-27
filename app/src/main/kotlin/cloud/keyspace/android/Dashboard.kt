@@ -3,6 +3,7 @@ package cloud.keyspace.android
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorInflater
+import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.annotation.SuppressLint
 import android.content.*
@@ -42,7 +43,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.NetworkError
 import com.budiyev.android.codescanner.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
@@ -57,7 +57,6 @@ import com.keyspace.keyspacemobile.NetworkUtilities
 import com.neovisionaries.ws.client.*
 import com.nulabinc.zxcvbn.Zxcvbn
 import com.permissionx.guolindev.PermissionX
-import com.pixplicity.sharp.Sharp
 import com.tsuryo.swipeablerv.SwipeLeftRightCallback
 import com.tsuryo.swipeablerv.SwipeableRecyclerView
 import com.yydcdut.markdown.MarkdownConfiguration
@@ -2269,8 +2268,16 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
                         Handler(Looper.getMainLooper()).postDelayed({ runOnUiThread {
                             swipeText.text = "Swipe down to collapse"
-                            fab.visibility = View.INVISIBLE
                             fab.isEnabled = false
+
+                            fab.animate().scaleX(1.0f).scaleY(1.0f).setListener(object : AnimatorListenerAdapter() {
+                                override fun onAnimationEnd(animation: Animator) {
+                                    super.onAnimationEnd(animation)
+                                    fab.animate().scaleX(0.0f).scaleY(0.0f)
+                                    fab.visibility = View.GONE
+                                }
+                            })
+
                             swipeIcon.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_keyboard_arrow_down_24))
                             swipeHint.setOnClickListener {
                                 swipeHint.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
@@ -2293,8 +2300,16 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         }
 
                         sheetBehavior.isDraggable = true
-                        fab.visibility = View.VISIBLE
                         fab.isEnabled = true
+
+                        fab.animate().scaleX(0.0f).scaleY(0.0f).setListener(object : AnimatorListenerAdapter() {
+                                override fun onAnimationEnd(animation: Animator) {
+                                    super.onAnimationEnd(animation)
+                                    fab.animate().scaleX(1.0f).scaleY(1.0f)
+                                    fab.visibility = View.VISIBLE
+                                }
+                            })
+
                         swipeIcon.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_keyboard_arrow_up_24))
 
                         swipeHint.setOnClickListener {
@@ -2306,8 +2321,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
 
                     BottomSheetBehavior.STATE_DRAGGING -> {
-
-                        fab.visibility = View.INVISIBLE
+                        fab.visibility = View.GONE
                         fab.isEnabled = false
                         swipeText.text = "Continue swiping..."
                         startCodeScanner()
