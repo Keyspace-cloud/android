@@ -10,6 +10,7 @@
     tools:context=".Dashboard" >
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/notes_scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -22,8 +23,9 @@
             android:animateLayoutChanges="false"
             android:smoothScrollbar="true"
 
-            android:paddingBottom="70dp"
-            android:paddingTop="8dp"
+            android:paddingBottom="90dp"
+            android:paddingTop="90dp"
+
             app:leftBgColor="@color/black"
             app:leftImage="@drawable/ic_baseline_notes_24"
             app:leftText="Copy Note"
@@ -36,7 +38,7 @@
             app:textSize="18sp"
             tools:ignore="SpeakableTextPresentCheck"
             tools:itemCount="5"
-            tools:listitem="@layout/login" />
+            tools:listitem="@layout/note" />
     </androidx.core.widget.NestedScrollView>
 
     </FrameLayout>

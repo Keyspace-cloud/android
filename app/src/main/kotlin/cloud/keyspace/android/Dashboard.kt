@@ -39,10 +39,12 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.NetworkError
 import com.budiyev.android.codescanner.*
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
@@ -104,15 +106,19 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private lateinit var swipeIcon: ImageView
     private lateinit var swipeHint: LinearLayout
 
+
+    private lateinit var topBar: AppBarLayout
     private lateinit var input: InputMethodManager
     private lateinit var searchBar: EditText
     private lateinit var searchButton: ImageView
-    //private lateinit var syncStatusText: TextView
     private lateinit var root: CoordinatorLayout
 
     private lateinit var loginsRecycler: SwipeableRecyclerView
+    private lateinit var loginsScrollView: NestedScrollView
     private lateinit var notesRecycler: SwipeableRecyclerView
+    private lateinit var notesScrollView: NestedScrollView
     private lateinit var cardsRecycler: RecyclerView
+    private lateinit var cardsScrollView: NestedScrollView
     var flipDistance: Float = 65535f
 
     private lateinit var filterButton: ImageView
@@ -236,7 +242,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     }
 
-        inner class ShowLoadingScreen {
+    inner class ShowLoadingScreen {
 
         var builder: MaterialAlertDialogBuilder = MaterialAlertDialogBuilder(this@Dashboard)
         private lateinit var dialog: AlertDialog
@@ -554,6 +560,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     var alreadyAnimated = false
     @SuppressLint("ClickableViewAccessibility")
     private fun renderTopBar (searchType: String) {
+        topBar = findViewById(R.id.topBar)
         searchButton = findViewById(R.id.searchButton)
         filterButton = findViewById(R.id.filterButton)
         accountInfoButton = findViewById(R.id.accountInfoButton)
@@ -1066,6 +1073,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         Toast.makeText(applicationContext, "Password copied!", Toast.LENGTH_LONG).show()
                     }
                     adapter.notifyItemChanged(position)
+                }
+            })
+
+            loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
+
+            loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                if (scrollY > oldScrollY + 12) {
+                    fab.hide()
+                    bottomSheet.visibility = View.GONE
+                    bottomSheet.animate().scaleY(0.0f)
+                    topBar.animate().translationY(-330f)
+                }
+
+                if (scrollY < oldScrollY - 12) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+
+                if (scrollY == 0) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
                 }
             })
 
@@ -2086,6 +2118,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
 
             })
+
+            notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
+
+            notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                if (scrollY > oldScrollY + 12) {
+                    fab.hide()
+                    bottomSheet.visibility = View.GONE
+                    bottomSheet.animate().scaleY(0.0f)
+                    topBar.animate().translationY(-330f)
+                }
+
+                if (scrollY < oldScrollY - 12) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+
+                if (scrollY == 0) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+            })
         }
 
     }
@@ -2133,6 +2190,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             adapter.notifyItemInserted(cards.size)
             cardsRecycler.isNestedScrollingEnabled = false
             cardsRecycler.scheduleLayoutAnimation()
+
+            cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
+
+            cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                if (scrollY > oldScrollY + 12) {
+                    fab.hide()
+                    bottomSheet.visibility = View.GONE
+                    bottomSheet.animate().scaleY(0.0f)
+                    topBar.animate().translationY(-330f)
+                }
+
+                if (scrollY < oldScrollY - 12) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+
+                if (scrollY == 0) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+            })
 
         }
 
@@ -2270,13 +2352,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             swipeText.text = "Swipe down to collapse"
                             fab.isEnabled = false
 
-                            fab.animate().scaleX(1.0f).scaleY(1.0f).setListener(object : AnimatorListenerAdapter() {
-                                override fun onAnimationEnd(animation: Animator) {
-                                    super.onAnimationEnd(animation)
-                                    fab.animate().scaleX(0.0f).scaleY(0.0f)
-                                    fab.visibility = View.GONE
-                                }
-                            })
+                            fab.hide()
 
                             swipeIcon.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_keyboard_arrow_down_24))
                             swipeHint.setOnClickListener {
@@ -2302,13 +2378,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         sheetBehavior.isDraggable = true
                         fab.isEnabled = true
 
-                        fab.animate().scaleX(0.0f).scaleY(0.0f).setListener(object : AnimatorListenerAdapter() {
-                                override fun onAnimationEnd(animation: Animator) {
-                                    super.onAnimationEnd(animation)
-                                    fab.animate().scaleX(1.0f).scaleY(1.0f)
-                                    fab.visibility = View.VISIBLE
-                                }
-                            })
+                        fab.show()
 
                         swipeIcon.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_keyboard_arrow_up_24))
 

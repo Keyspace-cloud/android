@@ -33,7 +33,7 @@
         app:layout_constraintHorizontal_bias="0.104"
         app:layout_constraintStart_toStartOf="@+id/content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.941"
+        app:layout_constraintVertical_bias="0.850"
         app:srcCompat="@drawable/chalk_arrow" />
 
     <TextView
@@ -61,7 +61,7 @@
         app:layout_constraintHorizontal_bias="0.907"
         app:layout_constraintStart_toStartOf="@+id/content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.890"
+        app:layout_constraintVertical_bias="0.795"
         app:srcCompat="@drawable/chalk_arrow" />
 
     <LinearLayout
