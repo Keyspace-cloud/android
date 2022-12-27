@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -62,7 +63,8 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.test:core-ktx:1.5.0'
-    implementation 'androidx.autofill:autofill:1.1.0'// SharedPrefs
+    implementation 'androidx.autofill:autofill:1.1.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
     testImplementation 'junit:junit:4.13.2' // Testing
     implementation 'androidx.biometric:biometric:1.2.0-alpha05' // Biometrics
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'

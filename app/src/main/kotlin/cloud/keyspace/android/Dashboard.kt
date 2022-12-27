@@ -1740,7 +1740,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
                 }
 
-                cardsCardLayout.setOnTouchListener(object : OnSwipeTouchListener(this@Dashboard) {
+                cardsCardLayout.setOnTouchListener(object : MiscUtilities.OnSwipeTouchListener(this@Dashboard) {
                     override fun onClick() {
                         cardFlip()
                         super.onClick()
