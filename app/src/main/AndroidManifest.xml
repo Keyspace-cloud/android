@@ -55,11 +55,18 @@
             android:windowSoftInputMode="adjustPan"></activity>
         <activity
             android:name=".AddNote"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.KeyspaceMobile.WithTopBar.NoBottomNavigationView"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter
+                android:label="Save as note">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Settings"
             android:launchMode="singleInstance"

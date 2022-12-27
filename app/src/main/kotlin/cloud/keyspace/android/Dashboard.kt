@@ -2226,7 +2226,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             doneBox = layoutInflater.inflate(R.layout.keyroute_done_screen, null)
             builder.setView(doneBox)
 
-            builder.setCancelable(true)
+            builder.setCancelable(false)
 
             killBottomSheet()
 
