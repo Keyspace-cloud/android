@@ -82,8 +82,7 @@ class CryptoUtilities(
     data class Keyring (
         val XCHACHA_POLY1305_KEY: ByteArray?,
         val ED25519_PUBLIC_KEY: ByteArray?,
-        val ED25519_PRIVATE_KEY: ByteArray?,
-        // val LOGIN_TOKEN: ByteArray?,
+        val ED25519_PRIVATE_KEY: ByteArray?
     )
 
     data class Bip39 (

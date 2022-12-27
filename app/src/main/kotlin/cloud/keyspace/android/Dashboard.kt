@@ -141,6 +141,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     lateinit var keyring: CryptoUtilities.Keyring
 
     lateinit var vault: IOUtilities.Vault
+    lateinit var tags: MutableList<IOUtilities.Tag>
     lateinit var logins: MutableList<IOUtilities.Login>
     lateinit var notes: MutableList<IOUtilities.Note>
     lateinit var cards: MutableList<IOUtilities.Card>
@@ -198,7 +199,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         // To make it quick
         val loadingScreen = ShowLoadingScreen()
-        loadingScreen.showScreen(lastFragment!!)
+        loadingScreen.showScreen (lastFragment)
         misc = MiscUtilities (applicationContext)
         keyspaceAccountPicture = findViewById(R.id.keyspaceAccountPicture)
         keyspaceAccountPicture.setImageDrawable(misc.generateProfilePicture(configData.getString("userEmail", null)!!))
@@ -208,6 +209,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         thread {
             vault = io.getVault()
             vault = io.vaultSorter(vault, sortBy)
+
+            tags = mutableListOf()
+            vault.tag?.forEach { tags.add(io.decryptTag(it)!!) }
 
             logins = mutableListOf()
             notes = mutableListOf()
@@ -635,15 +639,12 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     searchTermsList.add(login)
                                 }
 
-                                if (vault.tag?.size!! > 0) {  // tag search
-                                    for (tag in vault.tag!!) {
-                                        val decryptedTag = io.decryptTag(tag)
-
-                                        if (searchTerms.toString().lowercase(Locale.getDefault()) in decryptedTag?.name?.lowercase(Locale.getDefault())!!) {
-                                            if (login.tagId == decryptedTag.id) searchTermsList.add (login)
-                                        }
+                                for (tag in tags!!) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag?.name?.lowercase(Locale.getDefault())!!) {
+                                        if (login.tagId == tag.id) searchTermsList.add (login)
                                     }
                                 }
+
                             }
 
                             try {
@@ -675,12 +676,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     searchTermsList.add(note)
                                 }
 
-                                if (vault.tag?.size!! > 0) {  // tag search
-                                    for (tag in vault.tag!!) {
-                                        val decryptedTag = io.decryptTag(tag)
-                                        if (searchTerms.toString().lowercase(Locale.getDefault()) in decryptedTag?.name?.lowercase(Locale.getDefault())!!) {
-                                            if (note.tagId == decryptedTag.id) searchTermsList.add (note)
-                                        }
+                                for (tag in tags) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                        if (note.tagId == tag.id) searchTermsList.add (note)
                                     }
                                 }
                             }
@@ -715,12 +713,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     searchTermsList.add(card)
                                 }
 
-                                if (vault.tag?.size!! > 0) {  // tag search
-                                    for (tag in vault.tag!!) {
-                                        val decryptedTag = io.decryptTag(tag)
-                                        if (searchTerms.toString().lowercase(Locale.getDefault()) in decryptedTag?.name?.lowercase(Locale.getDefault())!!) {
-                                            if (card.tagId == decryptedTag.id) searchTermsList.add (card)
-                                        }
+                                for (tag in tags) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                        if (card.tagId == tag.id) searchTermsList.add (card)
                                     }
                                 }
                             }
@@ -891,29 +886,20 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             loginCard.siteName.text = login.name
 
-            val tags =  vault.tag
-
             loginCard.tagText.visibility = View.GONE
             if (tags?.size!! > 0) {
-                thread {
-                    for (tag in tags) {
-                        val decryptedTag = io.decryptTag(tag)
-                        if (login.tagId == tag.id) {
-                            runOnUiThread {
-                                loginCard.tagText.visibility = View.VISIBLE
-                                loginCard.tagText.text = decryptedTag?.name
+                for (tag in tags) {
+                    if (login.tagId == tag.id) {
+                        loginCard.tagText.visibility = View.VISIBLE
+                        loginCard.tagText.text = tag.name
+                        try {
+                            if (!tag.color.isNullOrEmpty()) {
+                                DrawableCompat.setTint (circle, Color.parseColor(tag.color))
+                                DrawableCompat.setTintMode (circle, PorterDuff.Mode.SRC_IN)
+                                loginCard.tagText.setCompoundDrawablesWithIntrinsicBounds (null, null, circle, null)
                             }
-                            try {
-                                if (!decryptedTag!!.color.isNullOrEmpty()) {
-                                    runOnUiThread {
-                                        DrawableCompat.setTint (circle, Color.parseColor(decryptedTag.color))
-                                        DrawableCompat.setTintMode (circle, PorterDuff.Mode.SRC_IN)
-                                        loginCard.tagText.setCompoundDrawablesWithIntrinsicBounds (null, null, circle, null)
-                                    }
-                                }
-                            } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) {}
-                            break
-                        }
+                        } catch (_: StringIndexOutOfBoundsException) { } catch (_: IllegalArgumentException) { }
+                        break
                     }
                 }
             }
@@ -1272,28 +1258,24 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         } else dateCreated.visibility = View.GONE
 
-        if (!login.tagId.isNullOrEmpty()) {
-            if (vault.tag?.size!! > 0) {
-                for (tag in vault.tag!!) {
-                    val decryptedTag = io.decryptTag(tag)
-                    if (login.tagId == tag.id) {
-                        loginTag.visibility = View.VISIBLE
-                        loginTag.text = decryptedTag?.name
-
-                        try {
-                            if (!decryptedTag!!.color.isNullOrEmpty()) {
-                                val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
-                                DrawableCompat.setTint(tagIcon, Color.parseColor(decryptedTag!!.color))
-                                DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
-                                loginTag.setCompoundDrawablesWithIntrinsicBounds(tagIcon, null, null, null)
-                            }
-                        } catch (noColor: StringIndexOutOfBoundsException) {} catch (noColor: IllegalArgumentException) {}
-
-                        break
-                    }
+        loginTag.visibility = View.GONE
+        if (tags.size > 0) {
+            for (tag in tags) {
+                if (login.tagId == tag.id) {
+                    loginTag.visibility = View.VISIBLE
+                    loginTag.text = tag.name
+                    try {
+                        if (!tag.color.isNullOrEmpty()) {
+                            val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
+                            DrawableCompat.setTint (tagIcon, Color.parseColor(tag.color))
+                            DrawableCompat.setTintMode (tagIcon, PorterDuff.Mode.SRC_IN)
+                            loginTag.setCompoundDrawablesWithIntrinsicBounds (tagIcon, null, null, null)
+                        }
+                    } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) { }
+                    break
                 }
             }
-        } else loginTag.visibility = View.GONE
+        }
 
         editButton.setOnClickListener {
             crypto.secureStartActivity (
@@ -1554,31 +1536,25 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-            val tags =  vault.tag
             noteCard.tagText.visibility = View.GONE
             if (tags?.size!! > 0) {
                 for (tag in tags) {
-                    val decryptedTag = io.decryptTag(tag)
                     if (note.tagId == tag.id) {
                         noteCard.tagText.visibility = View.VISIBLE
-                        noteCard.tagText.text = decryptedTag?.name
-
+                        noteCard.tagText.text = tag.name
                         try {
-                            if (!decryptedTag!!.color.isNullOrEmpty()) {
+                            if (!tag.color.isNullOrEmpty()) {
                                 val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
-                                DrawableCompat.setTint(tagIcon, Color.parseColor(decryptedTag!!.color))
+                                DrawableCompat.setTint(tagIcon, Color.parseColor(tag.color))
                                 DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
                                 noteCard.tagText.setCompoundDrawablesWithIntrinsicBounds(null, null, tagIcon, null)
                             }
-                        } catch (noColor: StringIndexOutOfBoundsException) {} catch (noColor: IllegalArgumentException) {}
-
+                        } catch (noColor: StringIndexOutOfBoundsException) { } catch (noColor: IllegalArgumentException) { }
                         break
                     }
                 }
             }
-
         }
-
     }
 
    /*
@@ -1816,7 +1792,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
                 }
 
-                cardsCardLayout.setOnTouchListener(object : OnSwipeTouchListener(this@Dashboard) {
+                cardsCardLayout.setOnTouchListener(object : MiscUtilities.OnSwipeTouchListener(this@Dashboard) {
                     override fun onClick() {
                         cardFlip()
                         super.onClick()
@@ -1842,7 +1818,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         fun bindData (cardCard: ViewHolder) {
             val card = cards[cardCard.adapterPosition]
 
-            val tags =  vault.tag
             cardCard.tagText.visibility = View.GONE
 
             thread {
@@ -1947,20 +1922,18 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             }
 
             cardCard.tagText.visibility = View.GONE
-            thread {
-                if (tags?.size!! > 0) {
-                    for (tag in tags) {
-                        val decryptedTag = io.decryptTag(tag)
-                        if (card.tagId == tag.id) {
-                            runOnUiThread {
-                                cardCard.tagText.visibility = View.VISIBLE
-                                cardCard.tagText.text = decryptedTag?.name
-                                try {
-                                    if (!decryptedTag!!.color.isNullOrEmpty()) cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.parseColor(decryptedTag.color))
-                                } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) {}
-                            }
-                            break
+
+            if (tags?.size!! > 0) {
+                for (tag in tags) {
+                    if (card.tagId == tag.id) {
+                        runOnUiThread {
+                            cardCard.tagText.visibility = View.VISIBLE
+                            cardCard.tagText.text = tag?.name
+                            try {
+                                if (!tag!!.color.isNullOrEmpty()) cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.parseColor(tag.color))
+                            } catch (_: StringIndexOutOfBoundsException) {} catch (_: IllegalArgumentException) {}
                         }
+                        break
                     }
                 }
             }
@@ -2750,13 +2723,22 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         signOutButton.setOnClickListener {
             dialog.dismiss()
             val dialogBuilder = MaterialAlertDialogBuilder(this)
-            dialogBuilder.setTitle("Sign out")
-            dialogBuilder.setIcon(R.drawable.ic_baseline_exit_to_app_24)
-            dialogBuilder.setMessage("Would you like to sign out of your login?")
-                .setCancelable(true).setPositiveButton("Sign out") { dialog, _ ->
-                    signOut()
+                .setTitle("Sign out")
+                .setIcon(R.drawable.ic_baseline_exit_to_app_24)
+                .setMessage("Would you like to sign out of Keyspace?")
+                .setCancelable(true)
+                .setPositiveButton("Sign out") { _, _ ->
+                    if (network.getDeleteTaskCount() + network.getEditTaskCount() + network.getSaveTaskCount() != 0) {
+                        MaterialAlertDialogBuilder(this)
+                            .setTitle("Sync pending")
+                            .setIcon(R.drawable.ic_baseline_exit_to_app_24)
+                            .setMessage("Some items haven't been uplodaded to the backend. Sign out anyway?")
+                            .setCancelable(true)
+                            .setPositiveButton("Sign out anyway") { _, _ -> signOut() }
+                            .setNegativeButton("Go back") { dialog, _ -> dialog.cancel() }
+                    } else { signOut() }
                 }
-                .setCancelable(true).setNegativeButton("Go back") { dialog, _ ->
+                .setNegativeButton("Go back") { dialog, _ ->
                     dialog.cancel()
                 }
             val alert = dialogBuilder.create()
@@ -2814,13 +2796,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             if (editQueue > 0) {
                 queueStatus.visibility = View.VISIBLE
                 queueProgress.visibility = View.VISIBLE
-                queueSubtitle.text = "Saving $editQueue edit(s)"
+                queueSubtitle.text = "Syncing $editQueue edit(s)"
             }
 
             if (saveQueue > 0) {
                 queueStatus.visibility = View.VISIBLE
                 queueProgress.visibility = View.VISIBLE
-                queueSubtitle.text = "Saving $saveQueue item(s)"
+                queueSubtitle.text = "Syncing $saveQueue item(s)"
             }
 
             if (saveQueue == 0 && editQueue == 0 && deleteQueue == 0) {
@@ -2848,7 +2830,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             if (saveQueue > 0) {
                 queueProgress.visibility = View.GONE
-                queueSubtitle.text = "Will save $saveQueue item(s) when online"
+                queueSubtitle.text = "Will sync $saveQueue item(s) when online"
             }
 
         }
@@ -2905,6 +2887,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         crypto.wipeAllKeys()
         configData.edit().clear().commit()
         io.wipeAllKeyspaceFSFiles()
+        network.wipeAllQueues()
         val intent = Intent(applicationContext, StartHere::class.java)
         startActivity(intent)
     }
@@ -2989,8 +2972,25 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         }
 
         fun syncVault () {
+
             try {
-                CoroutineScope(Dispatchers.IO).launch { network.completeQueueTasks(network.generateSignedToken()) }
+                CoroutineScope(Dispatchers.IO).launch {
+                    kotlin.runCatching {
+                        withContext(Dispatchers.Main) {
+                            network.completeQueueTasks(network.generateSignedToken())
+                        }
+                    }.onFailure {
+                        when (it) {
+                            is NetworkUtilities.IncorrectCredentialsException -> {
+                                withContext(Dispatchers.Main) {
+                                    showIncorrectCredentialsDialog()
+                                }
+                            }
+                            else -> throw it
+                        }
+                    }
+                }
+
                 grabVault()
             } catch (_: Exception) { }
         }
@@ -3008,11 +3008,19 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     }
 
     override fun onUserLeaveHint() {
+
+        vaultSyncTimer.cancel()
+        vaultSyncTimer.purge()
+
         Handler().postDelayed({ killApp() }, 500)
         super.onUserLeaveHint()
     }
 
     override fun onPause() {
+
+        vaultSyncTimer.cancel()
+        vaultSyncTimer.purge()
+
         Handler().postDelayed({ killApp() }, 500)
         super.onPause()
     }
@@ -3033,10 +3041,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         return true
     }
 
-    fun killApp () {
+    private fun killApp () {
         if (configData.getBoolean("lockApp", true)) {
             finish()
             finishAffinity()
+
+            mfaCodesTimer.cancel()
+            mfaCodesTimer.purge()
 
             // force wipe keyring
             keyring.XCHACHA_POLY1305_KEY?.fill(0)
@@ -3046,38 +3057,24 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             // force gc to clear keyring
             System.gc()
 
-            mfaCodesTimer.cancel()
-            mfaCodesTimer.purge()
-
-            vaultSyncTimer.cancel()
-            vaultSyncTimer.purge()
-
             killBottomSheet()
         }
     }
 
-    fun errorDialog (title: String, message: String, icon: Drawable) {
-        val builder = MaterialAlertDialogBuilder(this@Dashboard)
-        builder.setTitle(title)
-        builder.setMessage(message)
-        builder.setIcon(icon)
-        builder.setNegativeButton("Go back"){ _, _ -> }
-        builder.setNegativeButton("Contact support"){ _, _ ->
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "plain/text"
-            intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.support_email)))
-            intent.putExtra(Intent.EXTRA_SUBJECT, title)
-            intent.putExtra(Intent.EXTRA_TEXT, """
-                The Keyspace Android app gives me the following error:
-                "$title"
-                Please look into this.
-                """.trimIndent())
-            startActivity(Intent.createChooser(intent, ""))
-        }
+    private fun showIncorrectCredentialsDialog () {
+        val dialogBuilder = MaterialAlertDialogBuilder(this@Dashboard)
+        dialogBuilder
+            .setCancelable(false)
+            .setTitle("Key mismatch")
+            .setIcon(R.drawable.ic_baseline_error_24)
+            .setMessage("Your Keyring may be corrupt. Please sign out and sign in again.")
+            .setPositiveButton("Sign out") { dialog, _ ->
+                signOut()
+            }
 
-        val alertDialog: AlertDialog = builder.create()
-        alertDialog.setCancelable(false)
-        alertDialog.show()
+        val alert = dialogBuilder.create()
+        alert.show()
+
     }
 
 }
