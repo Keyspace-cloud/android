@@ -1993,6 +1993,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             var codesHidden = true
             hideCodes()
+            if (!card.pin.isNullOrBlank()) cardCard.pin.text = card.pin else cardCard.pinLayout.visibility = View.GONE
             cardCard.hideCodes.setOnClickListener {
                 codesHidden = !codesHidden
                 if (codesHidden) {
