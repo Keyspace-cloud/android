@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Vibrator
 import android.text.Editable
+import android.text.TextUtils.split
 import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.util.Base64
@@ -955,6 +956,21 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, warning, null)
                             loginCard.miscText.text = "Weak password"
                         }
+                    }
+                }
+            }
+
+            if (login.name!!.lowercase().contains("keyspace")) { // Easter egg
+                if (login.loginData?.password!!.split("-").size == 12 || login.loginData.password.split(" ").size == 12) {
+                    loginCard.miscText.visibility = View.VISIBLE
+                    loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
+                    loginCard.miscText.text = "You were supposed to write them down! "
+                }
+                login.customFields!!.forEach { field ->
+                    if (field.value.split(" ").size == 12 || field.value.split("-").size == 12) {
+                        loginCard.miscText.visibility = View.VISIBLE
+                        loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
+                        loginCard.miscText.text = "You were supposed to write them down! "
                     }
                 }
             }
