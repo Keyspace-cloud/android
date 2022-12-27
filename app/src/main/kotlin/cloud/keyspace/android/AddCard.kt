@@ -244,7 +244,7 @@ class AddCard : AppCompatActivity() {
             override fun onTextChanged(bankName: CharSequence, start: Int, before: Int, count: Int) {
                 thread {
                     val bankLogo = misc.getSiteIcon(bankName.toString(), nameInput.currentTextColor)
-                    if (bankLogo != null && iconFileName == null) {
+                    if (bankLogo != null/* && iconFileName == null*/) {
                         iconFileName = bankName.toString()
                         runOnUiThread {
                             nameInputIcon.setImageDrawable(bankLogo)
