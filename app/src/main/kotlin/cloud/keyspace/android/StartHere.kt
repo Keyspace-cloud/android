@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.isVisible
@@ -60,6 +61,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executor
+import kotlin.system.exitProcess
 
 
 private lateinit var _supportFragmentManager: FragmentManager
@@ -1437,19 +1439,22 @@ class StartHere : AppCompatActivity() {
                 subtitleEmail.visibility = View.VISIBLE
                 titleEmail.visibility = View.GONE
                 emailContinue.visibility = View.VISIBLE
-                emailContinue.text = requireContext().resources.getString(R.string.exit)
+                emailContinue.text = requireContext().resources.getString(R.string.retry)
                 keyspaceLogo.setImageDrawable(requireContext().getDrawable(R.drawable.ic_baseline_cloud_off_24))
                 keyspaceLogo.startAnimation(loadAnimation(requireContext(), R.anim.fade_in))
                 keyspaceLogo.animate().scaleX(0.85f).scaleY(0.85f)
-                emailContinue.setIconResource(R.drawable.ic_baseline_exit_to_app_24)
+                emailContinue.setIconResource(R.drawable.ic_baseline_refresh_24)
                 subtitleEmail.startAnimation(loadAnimation(requireContext(), R.anim.from_bottom))
                 emailContinue.startAnimation(loadAnimation(requireContext(), R.anim.from_bottom))
                 emailContinue.isEnabled = true
+
                 emailContinue.setOnClickListener {
                     requireActivity().finish()
-                    requireActivity().finishAffinity()
-                    requireActivity().finishAndRemoveTask()
+                    val intent = requireActivity().baseContext.packageManager.getLaunchIntentForPackage(requireActivity().baseContext.packageName)
+                    intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(intent)
                 }
+
             }, 750)
         }
 

@@ -3,6 +3,7 @@ package cloud.keyspace.android
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorInflater
+import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.annotation.SuppressLint
 import android.content.*
@@ -19,6 +20,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Vibrator
 import android.text.Editable
+import android.text.TextUtils.split
 import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.util.Base64
@@ -38,11 +40,12 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.NetworkError
 import com.budiyev.android.codescanner.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
@@ -51,12 +54,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.goterl.lazysodium.utils.HexMessageEncoder
 import com.keyspace.keyspacemobile.NetworkUtilities
 import com.neovisionaries.ws.client.*
 import com.nulabinc.zxcvbn.Zxcvbn
 import com.permissionx.guolindev.PermissionX
-import com.pixplicity.sharp.Sharp
 import com.tsuryo.swipeablerv.SwipeLeftRightCallback
 import com.tsuryo.swipeablerv.SwipeableRecyclerView
 import com.yydcdut.markdown.MarkdownConfiguration
@@ -104,14 +107,19 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private lateinit var swipeIcon: ImageView
     private lateinit var swipeHint: LinearLayout
 
+
+    private lateinit var topBar: AppBarLayout
     private lateinit var input: InputMethodManager
     private lateinit var searchBar: EditText
     private lateinit var searchButton: ImageView
     private lateinit var root: CoordinatorLayout
 
     private lateinit var loginsRecycler: SwipeableRecyclerView
+    private lateinit var loginsScrollView: NestedScrollView
     private lateinit var notesRecycler: SwipeableRecyclerView
+    private lateinit var notesScrollView: NestedScrollView
     private lateinit var cardsRecycler: RecyclerView
+    private lateinit var cardsScrollView: NestedScrollView
     var flipDistance: Float = 65535f
 
     private lateinit var filterButton: ImageView
@@ -557,6 +565,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     var alreadyAnimated = false
     @SuppressLint("ClickableViewAccessibility")
     private fun renderTopBar (searchType: String) {
+        topBar = findViewById(R.id.topBar)
         searchButton = findViewById(R.id.searchButton)
         filterButton = findViewById(R.id.filterButton)
         accountInfoButton = findViewById(R.id.accountInfoButton)
@@ -835,8 +844,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             val usernameText: TextView = itemView.findViewById(R.id.usernameText)
 
-            val mfaLayout: LinearLayout = itemView.findViewById(R.id.mfa)
-            val mfaProgress: CircularProgressIndicator = itemView.findViewById(R.id.mfaProgress)
+            val mfaProgress: LinearProgressIndicator = itemView.findViewById(R.id.mfaProgress)
             val mfaText: TextView = itemView.findViewById(R.id.mfaText)
 
             val miscText: TextView = itemView.findViewById(R.id.MiscText)
@@ -938,6 +946,21 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
+            if (login.name!!.lowercase().contains("keyspace")) { // Easter egg
+                if (login.loginData?.password!!.split("-").size == 12 || login.loginData.password.split(" ").size == 12) {
+                    loginCard.miscText.visibility = View.VISIBLE
+                    loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
+                    loginCard.miscText.text = "You were supposed to write them down! "
+                }
+                login.customFields!!.forEach { field ->
+                    if (field.value.split(" ").size == 12 || field.value.split("-").size == 12) {
+                        loginCard.miscText.visibility = View.VISIBLE
+                        loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
+                        loginCard.miscText.text = "You were supposed to write them down! "
+                    }
+                }
+            }
+
             var otpCode: String? = null
             if (!login.loginData?.totp?.secret.isNullOrEmpty()) {
                 try {
@@ -958,10 +981,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         }, 0, 1000) // 1000 milliseconds = 1 second
                     }
                 } catch (_: IllegalStateException) {}
-            } else loginCard.mfaLayout.visibility = View.GONE
+            } else {
+                loginCard.mfaText.visibility = View.GONE
+                loginCard.mfaProgress.visibility = View.GONE
+            }
 
             // tap on totp / mfa / 2fa
-            loginCard.mfaLayout.setOnClickListener {
+            loginCard.mfaText.setOnClickListener {
                 val clip = ClipData.newPlainText("Keyspace", otpCode)
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(applicationContext, "Code copied!", Toast.LENGTH_LONG).show()
@@ -1049,6 +1075,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         Toast.makeText(applicationContext, "Password copied!", Toast.LENGTH_LONG).show()
                     }
                     adapter.notifyItemChanged(position)
+                }
+            })
+
+            loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
+
+            loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                if (scrollY > oldScrollY + 12) {
+                    fab.hide()
+                    bottomSheet.visibility = View.GONE
+                    bottomSheet.animate().scaleY(0.0f)
+                    topBar.animate().translationY(-330f)
+                }
+
+                if (scrollY < oldScrollY - 12) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+
+                if (scrollY == 0) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
                 }
             })
 
@@ -1233,6 +1284,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 keyring = keyring,
                 itemId = login.id
             )
+            miniLoginDialog.dismiss()
         }
 
         if (login.loginData?.totp?.backupCodes != null) {
@@ -1410,7 +1462,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         private fun bindData (noteCard: ViewHolder) {
             val note = notes[noteCard.adapterPosition]
 
-            noteCard.note.setOnClickListener {
+            noteCard.noteCardLayout.setOnClickListener {
                 crypto.secureStartActivity (
                     nextActivity = AddNote(),
                     nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
@@ -1930,6 +1982,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             var codesHidden = true
             hideCodes()
+            if (!card.pin.isNullOrBlank()) cardCard.pin.text = card.pin else cardCard.pinLayout.visibility = View.GONE
             cardCard.hideCodes.setOnClickListener {
                 codesHidden = !codesHidden
                 if (codesHidden) {
@@ -2055,6 +2108,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
 
             })
+
+            notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
+
+            notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                if (scrollY > oldScrollY + 12) {
+                    fab.hide()
+                    bottomSheet.visibility = View.GONE
+                    bottomSheet.animate().scaleY(0.0f)
+                    topBar.animate().translationY(-330f)
+                }
+
+                if (scrollY < oldScrollY - 12) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+
+                if (scrollY == 0) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+            })
         }
 
     }
@@ -2102,6 +2180,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             adapter.notifyItemInserted(cards.size)
             cardsRecycler.isNestedScrollingEnabled = false
             cardsRecycler.scheduleLayoutAnimation()
+
+            cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
+
+            cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                if (scrollY > oldScrollY + 12) {
+                    fab.hide()
+                    bottomSheet.visibility = View.GONE
+                    bottomSheet.animate().scaleY(0.0f)
+                    topBar.animate().translationY(-330f)
+                }
+
+                if (scrollY < oldScrollY - 12) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+
+                if (scrollY == 0) {
+                    fab.show()
+                    bottomSheet.visibility = View.VISIBLE
+                    bottomSheet.animate().scaleY(1.0f)
+                    topBar.animate().translationY(0f)
+                }
+            })
 
         }
 
@@ -2237,8 +2340,10 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
                         Handler(Looper.getMainLooper()).postDelayed({ runOnUiThread {
                             swipeText.text = "Swipe down to collapse"
-                            fab.visibility = View.INVISIBLE
                             fab.isEnabled = false
+
+                            fab.hide()
+
                             swipeIcon.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_keyboard_arrow_down_24))
                             swipeHint.setOnClickListener {
                                 swipeHint.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
@@ -2261,8 +2366,10 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                         }
 
                         sheetBehavior.isDraggable = true
-                        fab.visibility = View.VISIBLE
                         fab.isEnabled = true
+
+                        fab.show()
+
                         swipeIcon.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_keyboard_arrow_up_24))
 
                         swipeHint.setOnClickListener {
@@ -2274,8 +2381,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
 
                     BottomSheetBehavior.STATE_DRAGGING -> {
-
-                        fab.visibility = View.INVISIBLE
+                        fab.visibility = View.GONE
                         fab.isEnabled = false
                         swipeText.text = "Continue swiping..."
                         startCodeScanner()

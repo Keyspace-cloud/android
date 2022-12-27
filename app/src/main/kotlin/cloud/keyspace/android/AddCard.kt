@@ -69,6 +69,7 @@ class AddCard : AppCompatActivity() {
     lateinit var nameInputLayout: TextInputLayout
     lateinit var nameInput: TextInputEditText
     lateinit var nameInputIcon: ImageView
+    lateinit var nameIconPicker: ImageView
 
     lateinit var cardNumberInput: TextInputEditText
     lateinit var cardNumberInputLayout: TextInputLayout
@@ -229,6 +230,11 @@ class AddCard : AppCompatActivity() {
 
         nameInputIcon = findViewById (R.id.nameInputIcon)
         nameInputIcon.setOnClickListener {
+            iconFilePicker()
+        }
+
+        nameIconPicker = findViewById (R.id.pickIcon)
+        nameIconPicker.setOnClickListener {
             iconFilePicker()
         }
 

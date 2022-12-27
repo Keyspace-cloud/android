@@ -9,6 +9,7 @@
     tools:context=".Dashboard">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/cards_scrollview"
         android:layout_width="match_parent"
         android:fillViewport="true"
         android:layout_height="wrap_content">
@@ -22,8 +23,8 @@
             android:animateLayoutChanges="false"
 
             android:clipToPadding="false"
-            android:paddingBottom="80dp"
-            android:paddingTop="8dp"
+            android:paddingBottom="90dp"
+            android:paddingTop="90dp"
 
             app:textColor="@android:color/white"
             app:textSize="18sp"

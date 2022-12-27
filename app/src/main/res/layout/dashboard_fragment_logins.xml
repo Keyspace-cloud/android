@@ -9,6 +9,7 @@
     tools:context=".Dashboard">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/logins_scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
@@ -24,8 +25,9 @@
         android:animateLayoutChanges="false"
 
         android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        android:paddingTop="8dp"
+        android:paddingBottom="90dp"
+        android:paddingTop="90dp"
+
         app:leftBgColor="@color/black"
         app:leftImage="@drawable/ic_baseline_key_24"
         app:leftText="Password"
