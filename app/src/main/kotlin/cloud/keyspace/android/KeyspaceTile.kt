@@ -20,6 +20,15 @@ class KeyspaceTile: TileService(){
     private val vaultFilename = "vault"
     private var filename: String? = "$vaultFilename.$filenameExtension"
 
+    private val queueFileExtension = "queue"
+    private val saveFilename = "save"
+    private val editFilename = "edit"
+    private val deleteFilename = "delete"
+
+    private var saveQueueFilename: String? = "$saveFilename.$queueFileExtension"
+    private var editQueueFilename: String? = "$editFilename.$queueFileExtension"
+    private var deleteQueueFilename: String? = "$deleteFilename.$queueFileExtension"
+
     private val quickSettingsTile = "quickSettingsTile"
     private val channelId: Int = 2310
 
@@ -36,9 +45,22 @@ class KeyspaceTile: TileService(){
 
             keyring.edit().clear().commit()
             userData.edit().clear().commit()
-            val file = File(applicationContext.cacheDir, filename!!)
-            file.delete()
-            file.deleteRecursively()
+
+            val vaultFile = File(applicationContext.cacheDir, filename!!)
+            vaultFile.delete()
+            vaultFile.deleteRecursively()
+
+            val saveQueue = File(applicationContext.cacheDir, saveQueueFilename!!)
+            saveQueue.delete()
+            saveQueue.deleteRecursively()
+
+            val editQueue = File(applicationContext.cacheDir, editQueueFilename!!)
+            editQueue.delete()
+            editQueue.deleteRecursively()
+
+            val deleteQueue = File(applicationContext.cacheDir, deleteQueueFilename!!)
+            deleteQueue.delete()
+            deleteQueue.deleteRecursively()
 
             (applicationContext as Activity).finish()
 

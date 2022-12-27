@@ -77,6 +77,7 @@ class StartHere : AppCompatActivity() {
     private lateinit var misc: MiscUtilities
     private lateinit var configData: SharedPreferences
 
+
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var keyring: CryptoUtilities.Keyring
 
