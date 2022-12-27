@@ -1422,24 +1422,17 @@ class StartHere : AppCompatActivity() {
                 keyspaceLogo.startAnimation(loadAnimation(requireContext(), R.anim.fade_in))
                 keyspaceLogo.animate().scaleX(0.85f).scaleY(0.85f)
                 emailContinue.setIconResource(R.drawable.ic_baseline_refresh_24)
-
-                emailContinue.setOnClickListener {
-                    requireActivity().finish()
-                    requireActivity().finishAffinity()
-                    val mainIntent = IntentCompat.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_LAUNCHER)
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    requireActivity().applicationContext.startActivity(mainIntent)
-                    exitProcess(0)
-                }
-
                 subtitleEmail.startAnimation(loadAnimation(requireContext(), R.anim.from_bottom))
                 emailContinue.startAnimation(loadAnimation(requireContext(), R.anim.from_bottom))
                 emailContinue.isEnabled = true
+
                 emailContinue.setOnClickListener {
                     requireActivity().finish()
-                    requireActivity().finishAffinity()
-                    requireActivity().finishAndRemoveTask()
+                    val intent = requireActivity().baseContext.packageManager.getLaunchIntentForPackage(requireActivity().baseContext.packageName)
+                    intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(intent)
                 }
+
             }, 750)
         }
 
