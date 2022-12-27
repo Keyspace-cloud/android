@@ -8,8 +8,9 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
@@ -46,10 +47,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.keyspace.keyspacemobile.NetworkUtilities
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
@@ -128,7 +125,9 @@ class AddLogin : AppCompatActivity() {
     var passwordCopied = false
 
     lateinit var tagButton: ImageView
+    private lateinit var tagPicker: AddTag
     var tagId: String? = null
+    val tagIdGrabber = Handler(Looper.getMainLooper())
 
     lateinit var favoriteButton: ImageView
     var favorite: Boolean = false
@@ -233,7 +232,16 @@ class AddLogin : AppCompatActivity() {
         }
 
         tagButton = findViewById (R.id.tag)
-        tagButton.setOnClickListener { initializeTag(vault) }
+        tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
+        tagButton.setOnClickListener {
+            tagPicker.showPicker(tagId)
+            tagIdGrabber.post(object : Runnable {
+                override fun run() {
+                    tagId = tagPicker.getSelectedTagId()
+                    tagIdGrabber.postDelayed(this, 100)
+                }
+            })
+        }
 
         favoriteButton = findViewById(R.id.favoriteButton)
         favoriteButton.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
@@ -762,6 +770,7 @@ class AddLogin : AppCompatActivity() {
         }
 
         tagId = login.tagId
+        tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
 
         siteNameInput.setText(login.name)
 
@@ -848,220 +857,6 @@ class AddLogin : AppCompatActivity() {
 
         iconFileName = login.iconFile
         if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
-
-        return true
-    }
-
-    private fun initializeTag (vault: IOUtilities.Vault): Boolean {
-        val inflater = layoutInflater
-        val dialogView: View = inflater.inflate (R.layout.edit_tag, null)
-        val dialogBuilder = MaterialAlertDialogBuilder(this)
-        dialogBuilder
-            .setView(dialogView)
-            .setCancelable(true)
-
-        val tagDialog: AlertDialog = dialogBuilder.show()
-
-        val tagCollection = dialogView.findViewById<View>(R.id.tagCollection) as ChipGroup
-        val tagNameInputLayout = dialogView.findViewById<View>(R.id.tagNameInputLayout) as TextInputLayout
-        val tagName = dialogView.findViewById<View>(R.id.tagNameInput) as TextInputEditText
-        val tagColorCircle = dialogView.findViewById<View>(R.id.tagColor) as ImageView
-        val addTagButton = dialogView.findViewById<View>(R.id.addTagButton) as MaterialButton
-        val tagColorButton = dialogView.findViewById<View>(R.id.tagColorButton) as MaterialButton
-        val backButton = dialogView.findViewById<View>(R.id.backButton) as TextView
-        var tagColor: String? = null
-
-        tagCollection.isSelectionRequired = true
-        tagCollection.isSingleSelection = true
-
-        if (vault.tag?.size!! > 0) {
-            for (tag in vault.tag) {
-                val decryptedTag = io.decryptTag (tag)!!
-                var tagChip = Chip(this@AddLogin)
-                tagChip.id = ViewCompat.generateViewId()
-                tagChip.text = decryptedTag.name
-                tagChip.chipCornerRadius = 50f
-                tagChip.chipMinHeight = 90f
-                tagChip.textSize = 20f
-                tagColor = if (!decryptedTag.color.isNullOrBlank()) decryptedTag.color else null
-                try {tagChip.chipIconTint = ColorStateList.valueOf(Color.parseColor(tagColor))} catch (_: Exception) {}
-                tagChip.isCloseIconVisible = true
-                tagChip.isChipIconVisible = true
-                tagChip.chipIcon = getDrawable(R.drawable.ic_baseline_circle_24)
-                tagChip.setOnClickListener {
-                    tagName.setText(decryptedTag.name)
-                    try { tagColorCircle.imageTintList = ColorStateList.valueOf(Color.parseColor(tagColor))   } catch (noSuchTag: IllegalArgumentException) { tagColorCircle.imageTintList = tagName.textColors }
-                }
-
-                tagCollection.addView(tagChip)
-
-                tagChip.setCloseIconResource(R.drawable.ic_baseline_close_24)
-                tagChip.setOnCloseIconClickListener {
-
-                    val builder = MaterialAlertDialogBuilder(this@AddLogin)
-                    builder.setTitle("Delete tag")
-                    builder.setMessage("Would you like to delete \"${decryptedTag.name}\"?")
-                    builder.setPositiveButton("Delete"){ _, _ ->
-
-                        for (existingTag in vault.tag) {
-
-                            val decryptedTag = io.decryptTag (tag)!!
-
-                            if (tagChip.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
-
-                                tagCollection.removeView(tagChip)
-                                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
-                                vault.tag.remove(existingTag)
-                                io.writeVault(vault)
-
-                                Toast.makeText(applicationContext, "Deleted ${decryptedTag.name}", Toast.LENGTH_LONG).show()
-
-                                network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                                break
-                            }
-                        }
-
-                    }
-                    builder.setNegativeButton("Go back"){ _, _ -> }
-                    val alertDialog: AlertDialog = builder.create()
-                    alertDialog.setCancelable(false)
-                    alertDialog.show()
-
-                }
-
-                (tagChip.parent as? ViewGroup)?.removeView(tagChip)
-                tagCollection.addView(tagChip)
-
-            }
-        } else {
-            tagCollection.visibility = View.GONE
-        }
-
-        if (!tagId.isNullOrBlank()) {
-            try {
-                tagName.setText(io.decryptTag(io.getTag(tagId!!, vault)!!)?.name)
-                tagColor = io.decryptTag(io.getTag(tagId!!, vault)!!)?.color
-                try { tagColorCircle.imageTintList = ColorStateList.valueOf(Color.parseColor(tagColor))  } catch (noSuchTag: IllegalArgumentException) { tagColorCircle.imageTintList = tagName.textColors }
-            } catch (noSuchTag: NullPointerException) {
-                try {
-                    val data = IOUtilities.Login(
-                        id = login.id,
-                        organizationId = null,
-                        type = login.type,
-                        name = login.name,
-                        notes = login.notes,
-                        favorite = login.favorite,
-                        tagId = login.tagId,
-                        loginData = login.loginData,
-                        dateCreated = login.dateCreated,
-                        dateModified = login.dateModified,
-                        frequencyAccessed = 0,
-                        customFields = login.customFields,
-                        iconFile = iconFileName
-                    )
-
-                    vault.login?.remove(io.getLogin(itemId!!, vault))
-                    vault.login?.add (io.encryptLogin(data))
-                    io.writeVault(vault)
-                } catch (noSuchItem: UninitializedPropertyAccessException) {
-
-                }
-
-            }
-        }
-
-        tagColorButton.setOnClickListener {
-            MaterialColorPickerDialog.Builder(this@AddLogin)
-                .setColors(resources.getStringArray(R.array.vault_item_colors))
-                .setTickColorPerCard(true)
-                .setDefaultColor(tagColor.toString())
-                .setColorListener(object : ColorListener {
-                    @SuppressLint("UseCompatTextViewDrawableApis")
-                    override fun onColorSelected(color: Int, colorHex: String) {
-                        tagColor = colorHex
-                        tagColorCircle.imageTintList = ColorStateList.valueOf(color)
-                    }
-                })
-                .show()
-        }
-
-        if (!tagName.text.isNullOrEmpty()) tagNameInputLayout.isEndIconVisible = true
-        tagNameInputLayout.setEndIconOnClickListener {
-            tagColorCircle.imageTintList = tagName.textColors
-
-            val builder = MaterialAlertDialogBuilder(this@AddLogin)
-            builder.setTitle("Delete tag")
-            builder.setMessage("Would you like to delete \"${tagName.text.toString()}\"?")
-            builder.setPositiveButton("Delete"){ _, _ ->
-
-                for (existingTag in vault.tag) {
-
-                    val decryptedTag = io.decryptTag (existingTag)!!
-
-                    for (index in 0 until tagCollection.childCount) {
-                        try { val chip = tagCollection.getChildAt(index) as Chip
-                        if (chip.text.toString().trim().lowercase().contains(tagName.text.toString().trim().lowercase())) {
-                            (chip.parent as? ViewGroup)?.removeView(chip)
-                            break
-                        } } catch (_: NullPointerException) {} catch (_: ClassCastException) {}
-                    }
-
-                    if (tagName.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
-
-                        tagName.text?.clear()
-                        vault.tag.remove(existingTag)
-                        io.writeVault(vault)
-
-                        Toast.makeText(applicationContext, "Deleted ${decryptedTag.name}", Toast.LENGTH_LONG).show()
-
-                        network.writeQueueTask (existingTag.id, mode = network.MODE_DELETE)
-                        break
-                    }
-
-                }
-
-            }
-            builder.setNegativeButton("Go back"){ _, _ -> }
-            val alertDialog: AlertDialog = builder.create()
-            alertDialog.setCancelable(false)
-            alertDialog.show()
-        }
-
-        addTagButton.setOnClickListener {  // save data
-            if (tagName.text.toString().length < 2) {
-                tagName.error = "Invalid tag name"
-            } else {
-                for (tag in vault.tag)  {
-                    val decryptedTag = io.decryptTag (tag)!!
-                    if (tagName.text.toString().trim().lowercase() == decryptedTag.name.trim().lowercase()) {
-                        tagId = decryptedTag.id
-                        tagName.setText(decryptedTag.name)
-                        break
-                    } else tagId = null
-                }
-
-                val tag = io.encryptTag(IOUtilities.Tag(
-                    id = tagId ?: UUID.randomUUID().toString(),
-                    name = tagName.text.toString(),
-                    type = io.TYPE_TAG,
-                    dateCreated = Instant.now().epochSecond,
-                    color = tagColor.toString()
-                ))!!
-
-                vault.tag.add (tag)
-
-                io.writeVault(vault)
-                Toast.makeText(applicationContext, "Added tag!", Toast.LENGTH_LONG).show()
-
-                network.writeQueueTask (tag, mode = network.MODE_POST)
-
-                tagDialog.dismiss()
-            }
-        }
-
-        backButton.setOnClickListener {
-            tagDialog.dismiss()
-        }
 
         return true
     }
@@ -1179,7 +974,7 @@ class AddLogin : AppCompatActivity() {
             name = siteNameInput.text.toString(),
             notes = notesInput.text.toString(),
             favorite = favorite,
-            tagId = tagId,
+            tagId = tagPicker.getSelectedTagId() ?: tagId,
             loginData = IOUtilities.LoginData(
                 username = userNameInput.text.toString(),
                 password = passwordInput.text.toString(),
@@ -1229,6 +1024,7 @@ class AddLogin : AppCompatActivity() {
                 itemId = null
             )
             super.onBackPressed()
+            tagIdGrabber.removeCallbacksAndMessages(null)
         }
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
