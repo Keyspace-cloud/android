@@ -125,48 +125,66 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="10dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
 
-                    <ImageView
-                        android:id="@+id/nameInputIcon"
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginTop="5dp"
-                        android:elevation="5dp"
-                        android:maxWidth="25dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintWidth_max="25dp"
-                        app:srcCompat="@drawable/ic_baseline_account_balance_24"
-                        app:tint="?android:attr/textColorSecondary" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/nameInputLayout"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="Bank Name"
-                        android:paddingVertical="5dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:startIconContentDescription="Bank Name"
-                        app:startIconDrawable="@drawable/ic_baseline_account_balance_24"
-                        app:startIconTint="#00FFFFFF">
+                        android:layout_weight="1">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/nameInput"
+                        <ImageView
+                            android:id="@+id/nameInputIcon"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginTop="5dp"
+                            android:elevation="5dp"
+                            android:maxWidth="25dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintWidth_max="25dp"
+                            app:srcCompat="@drawable/ic_baseline_account_balance_24"
+                            app:tint="?android:attr/textColorSecondary" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/nameInputLayout"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="start"
-                            android:inputType="textCapWords"
-                            android:maxLength="30" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                            android:layout_height="match_parent"
+                            android:hint="Bank Name"
+                            android:paddingVertical="5dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:startIconContentDescription="Bank Name"
+                            app:startIconDrawable="@drawable/ic_baseline_account_balance_24"
+                            app:startIconTint="#00FFFFFF">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/nameInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="start"
+                                android:inputType="textCapWords"
+                                android:maxLength="30" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <ImageView
+                        android:id="@+id/pickIcon"
+                        android:layout_width="85dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="5dp"
+                        app:srcCompat="@drawable/ic_baseline_add_photo_alternate_24" />
+
+                </LinearLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
