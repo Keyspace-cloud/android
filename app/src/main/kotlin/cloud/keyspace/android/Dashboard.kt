@@ -1464,7 +1464,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         private fun bindData (noteCard: ViewHolder) {
             val note = notes[noteCard.adapterPosition]
 
-            noteCard.note.setOnClickListener {
+            noteCard.noteCardLayout.setOnClickListener {
                 crypto.secureStartActivity (
                     nextActivity = AddNote(),
                     nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
