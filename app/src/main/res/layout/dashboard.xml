@@ -11,16 +11,36 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
-        android:layout_marginBottom="80dp"
         android:orientation="vertical">
 
         <FrameLayout
             android:id="@+id/fragmentRoot"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center" />
+            android:layout_gravity="center" >
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/floatingActionButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="105dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:contentDescription="Add item"
+                android:translationY="12.5dp"
+                app:elevation="9dp"
+                app:srcCompat="@drawable/ic_baseline_add_24"
+                app:tint="?attr/colorSurfaceInverse"
+                app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+                />
+
+        </FrameLayout>
+
     </LinearLayout>
+
+    <include layout="@layout/bottom_sheet" />
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topBar"
@@ -148,8 +168,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/bottom_sheet" />
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         style="@style/Theme.KeyspaceMobile.BottomNavigationView"
@@ -160,6 +178,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_navigation_menu" />
+        app:menu="@menu/bottom_navigation_menu"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -69,6 +69,7 @@ class AddCard : AppCompatActivity() {
     lateinit var nameInputLayout: TextInputLayout
     lateinit var nameInput: TextInputEditText
     lateinit var nameInputIcon: ImageView
+    lateinit var nameIconPicker: ImageView
 
     lateinit var cardNumberInput: TextInputEditText
     lateinit var cardNumberInputLayout: TextInputLayout
@@ -232,13 +233,18 @@ class AddCard : AppCompatActivity() {
             iconFilePicker()
         }
 
+        nameIconPicker = findViewById (R.id.pickIcon)
+        nameIconPicker.setOnClickListener {
+            iconFilePicker()
+        }
+
         nameInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) { }
             override fun beforeTextChanged(bankName: CharSequence, start: Int, count: Int, after: Int) { }
             override fun onTextChanged(bankName: CharSequence, start: Int, before: Int, count: Int) {
                 thread {
                     val bankLogo = misc.getSiteIcon(bankName.toString(), nameInput.currentTextColor)
-                    if (bankLogo != null && iconFileName == null) {
+                    if (bankLogo != null/* && iconFileName == null*/) {
                         iconFileName = bankName.toString()
                         runOnUiThread {
                             nameInputIcon.setImageDrawable(bankLogo)

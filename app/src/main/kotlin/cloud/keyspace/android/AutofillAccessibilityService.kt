@@ -684,7 +684,7 @@ class AutofillAccessibilityService: AccessibilityService() {
                keyspaceSubtitle.setTextColor(Color.WHITE)
             }
 
-            nub!!.setOnTouchListener(object : OnSwipeTouchListener(this@AutofillAccessibilityService) {
+            nub!!.setOnTouchListener(object : MiscUtilities.OnSwipeTouchListener(this@AutofillAccessibilityService) {
 
                 override fun onClick() {
                     getVault (urlOnScreen!!)

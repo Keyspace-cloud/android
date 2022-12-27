@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.isVisible
@@ -60,6 +61,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executor
+import kotlin.system.exitProcess
 
 
 private lateinit var _supportFragmentManager: FragmentManager
@@ -76,7 +78,6 @@ class StartHere : AppCompatActivity() {
     private lateinit var crypto: CryptoUtilities
     private lateinit var misc: MiscUtilities
     private lateinit var configData: SharedPreferences
-
 
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var keyring: CryptoUtilities.Keyring
@@ -1171,8 +1172,7 @@ class StartHere : AppCompatActivity() {
         }
 
     }
-
-    class PassphraseFragment(email: String) : Fragment() {
+    class PassphraseFragment(email: String, mode: String) : Fragment() {
         lateinit var titlePassphrase: TextView
         lateinit var subtitlePassphrase: TextView
         lateinit var descriptionPassphrase: TextView
@@ -1181,13 +1181,13 @@ class StartHere : AppCompatActivity() {
         lateinit var reenterPassphraseInput: TextInputEditText
         lateinit var reenterPassphraseLayout: TextInputLayout
         lateinit var passphraseStrength: TextView
-        lateinit var createNewButton: MaterialButton
-        lateinit var signInButton: MaterialButton
+        lateinit var nextButton: MaterialButton
         lateinit var backButton: ImageView
 
         private var passphraseFragmentView: View? = null
 
         private val email = email
+        private val mode = mode
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -1197,7 +1197,6 @@ class StartHere : AppCompatActivity() {
             passphraseFragmentView = inflater.inflate(R.layout.onboarding_enter_passphrase, container, false)
 
             loadContent()
-            loadForCreatingAccount()
 
             return passphraseFragmentView
 
@@ -1212,48 +1211,37 @@ class StartHere : AppCompatActivity() {
             reenterPassphraseInput = passphraseFragmentView!!.findViewById(R.id.reenterPassphraseInput)
             reenterPassphraseLayout = passphraseFragmentView!!.findViewById(R.id.reenterPassphraseLayout)
             passphraseStrength = passphraseFragmentView!!.findViewById(R.id.passphraseStrength)
-            signInButton = passphraseFragmentView!!.findViewById(R.id.passphraseSignin)
-            createNewButton = passphraseFragmentView!!.findViewById(R.id.passphraseCreateNew)
+            nextButton = passphraseFragmentView!!.findViewById(R.id.passphraseNextButton)
             backButton = passphraseFragmentView!!.findViewById(R.id.backButton)
             backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+
+            if (mode == MODE_SIGN_IN) loadForSigningIn() else if (mode == MODE_CREATE_ACCOUNT) loadForCreatingAccount()
+
         }
 
         private fun loadForSigningIn() {
             subtitlePassphrase.text = "Type in your passphrase"
             descriptionPassphrase.text = "If you used a passphrase during account creation, enter it below."
 
-            signInButton.clearAnimation()
-            subtitlePassphrase.startAnimation(loadAnimation(requireContext(), R.anim.from_right))
-            descriptionPassphrase.startAnimation(loadAnimation(requireContext(), R.anim.from_right))
-            signInButton.startAnimation(loadAnimation(requireContext(), R.anim.from_right))
-
             passphraseStrength.visibility = View.GONE
             passphraseStrength.clearAnimation()
             passphraseInput.text!!.clear()
-            signInButton.text = "Create Keyspace account"
-            signInButton.setOnClickListener {
-                loadForCreatingAccount()
-                signInButton.text = "Sign in to existing account"
-                signInButton.startAnimation(loadAnimation(requireContext(), R.anim.from_right))
-                subtitlePassphrase.startAnimation(loadAnimation(requireContext(), R.anim.from_right))
-                descriptionPassphrase.startAnimation(loadAnimation(requireContext(), R.anim.from_right))
-            }
 
             reenterPassphraseLayout.visibility = View.GONE
             reenterPassphraseLayout.clearAnimation()
 
             passphraseInput.doOnTextChanged { passphrase, start, before, count ->
                 if (passphrase.toString().isNotEmpty()) {
-                    createNewButton.isEnabled = passphrase.toString().length >= 8
+                    nextButton.isEnabled = passphrase.toString().length >= 8
 
                 } else {
-                    createNewButton.isEnabled = true
+                    nextButton.isEnabled = true
                     passphraseStrength.visibility = View.GONE
                     passphraseStrength.clearAnimation()
                 }
             }
 
-            createNewButton.setOnClickListener {
+            nextButton.setOnClickListener {
                 loadFragment(EnterWordsFragment(email, passphraseInput.text.toString().toCharArray()))
             }
 
@@ -1262,12 +1250,11 @@ class StartHere : AppCompatActivity() {
         private fun loadForCreatingAccount() {
             subtitlePassphrase.text = requireContext().getString(R.string.subtitlePassphrase)
             descriptionPassphrase.text = requireContext().getString(R.string.descriptionPassphrase)
-            signInButton.visibility = View.VISIBLE
 
             passphraseStrength.visibility = View.GONE
             reenterPassphraseLayout.visibility = View.GONE
 
-            createNewButton.isEnabled = true
+            nextButton.isEnabled = true
 
             val passphraseTextWatcher: TextWatcher = object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {}
@@ -1288,10 +1275,8 @@ class StartHere : AppCompatActivity() {
                             }
                         }
                         if (passphrase.toString().length >= 8) {
-                            signInButton.visibility = View.GONE
-                            signInButton.animation = loadAnimation(requireContext(), R.anim.from_right)
                             subtitlePassphrase.text = "Almost there"
-                            descriptionPassphrase.text = "Re-enter your passphrase and tap \"Create new account\" confirm"
+                            descriptionPassphrase.text = "Re-enter your passphrase to continue"
 
                             if (!reenterPassphraseLayout.isVisible) {
                                 reenterPassphraseLayout.visibility = View.VISIBLE
@@ -1302,23 +1287,22 @@ class StartHere : AppCompatActivity() {
                             reenterPassphraseInput.doOnTextChanged { reenterPassphrase, start, before, count ->
                                 if (passphrase.toString() != reenterPassphrase.toString()) {
                                     passphraseStrength.text = "Please make sure the above passphrases match."
-                                    createNewButton.isEnabled = false
+                                    nextButton.isEnabled = false
                                 } else {
                                     passphraseStrength.text = "These passphrases match!"
-                                    createNewButton.isEnabled = true
+                                    nextButton.isEnabled = true
                                 }
                             }
 
                         } else {
-                            signInButton.visibility = View.VISIBLE
                             reenterPassphraseLayout.visibility = View.GONE
                             reenterPassphraseInput.text!!.clear()
-                            createNewButton.isEnabled = false
+                            nextButton.isEnabled = false
                             reenterPassphraseLayout.clearAnimation()
                         }
 
                     } else {  // Empty passphrase, continue without any drama
-                        createNewButton.isEnabled = true
+                        nextButton.isEnabled = true
                         subtitlePassphrase.text = requireContext().getString(R.string.subtitlePassphrase)
                         descriptionPassphrase.text = requireContext().getString(R.string.descriptionPassphrase)
                         passphraseStrength.startAnimation(loadAnimation(requireContext(), R.anim.to_right))
@@ -1331,13 +1315,53 @@ class StartHere : AppCompatActivity() {
 
             passphraseInput.addTextChangedListener(passphraseTextWatcher)
 
-            createNewButton.setOnClickListener {
+            nextButton.setOnClickListener {
                 loadFragment(WordsBlurbFragment(email, passphraseInput.text.toString().toCharArray()))
             }
 
+        }
+
+    }
+
+    class MethodPickerFragment(email: String) : Fragment() {
+        lateinit var titlePassphrase: TextView
+        lateinit var subtitleMethodPicker: TextView
+        lateinit var createNewButton: MaterialButton
+        lateinit var signInButton: MaterialButton
+        lateinit var backButton: ImageView
+
+        private var methodPickerFragmentView: View? = null
+
+        private val email = email
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?,
+        ): View? { // Inflate the layout for this fragment
+            methodPickerFragmentView = inflater.inflate(R.layout.onboarding_method_picker, container, false)
+
+            loadContent()
+
+            return methodPickerFragmentView
+
+        }
+
+        private fun loadContent() {
+            subtitleMethodPicker = methodPickerFragmentView!!.findViewById(R.id.subtitleMethodPicker)
+            signInButton = methodPickerFragmentView!!.findViewById(R.id.methodPickerSignIn)
+            createNewButton = methodPickerFragmentView!!.findViewById(R.id.methodPickerCreateNew)
+            backButton = methodPickerFragmentView!!.findViewById(R.id.backButton)
+            backButton.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+
+            subtitleMethodPicker.text = subtitleMethodPicker.text.toString().replace("0x4f", email.substringBefore("@"))
+
             signInButton.setOnClickListener {
-                loadForSigningIn()
-                passphraseInput.removeTextChangedListener(passphraseTextWatcher)
+                loadFragment(PassphraseFragment(email, mode = MODE_SIGN_IN))
+            }
+
+            createNewButton.setOnClickListener {
+                loadFragment(PassphraseFragment(email, mode = MODE_CREATE_ACCOUNT))
             }
 
         }
@@ -1415,19 +1439,22 @@ class StartHere : AppCompatActivity() {
                 subtitleEmail.visibility = View.VISIBLE
                 titleEmail.visibility = View.GONE
                 emailContinue.visibility = View.VISIBLE
-                emailContinue.text = requireContext().resources.getString(R.string.exit)
+                emailContinue.text = requireContext().resources.getString(R.string.retry)
                 keyspaceLogo.setImageDrawable(requireContext().getDrawable(R.drawable.ic_baseline_cloud_off_24))
                 keyspaceLogo.startAnimation(loadAnimation(requireContext(), R.anim.fade_in))
                 keyspaceLogo.animate().scaleX(0.85f).scaleY(0.85f)
-                emailContinue.setIconResource(R.drawable.ic_baseline_exit_to_app_24)
+                emailContinue.setIconResource(R.drawable.ic_baseline_refresh_24)
                 subtitleEmail.startAnimation(loadAnimation(requireContext(), R.anim.from_bottom))
                 emailContinue.startAnimation(loadAnimation(requireContext(), R.anim.from_bottom))
                 emailContinue.isEnabled = true
+
                 emailContinue.setOnClickListener {
                     requireActivity().finish()
-                    requireActivity().finishAffinity()
-                    requireActivity().finishAndRemoveTask()
+                    val intent = requireActivity().baseContext.packageManager.getLaunchIntentForPackage(requireActivity().baseContext.packageName)
+                    intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(intent)
                 }
+
             }, 750)
         }
 
@@ -1538,7 +1565,7 @@ class StartHere : AppCompatActivity() {
 
             emailContinue.setOnClickListener {
                 nextPressed = true
-                loadFragment(PassphraseFragment(emailInput.text.toString()))
+                loadFragment(MethodPickerFragment(emailInput.text.toString()))
             }
 
         }
