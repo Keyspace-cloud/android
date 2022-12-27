@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: net.java.dev.jna:jna:5.10.0@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/716451a0681e3e784b8ff34bf0861682/transformed/jetified-jna-5.10.0/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/716451a0681e3e784b8ff34bf0861682/transformed/jetified-jna-5.10.0/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/716451a0681e3e784b8ff34bf0861682/transformed/jetified-jna-5.10.0/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/f7085a81df85e6e2ee48528bd1f77aea/transformed/jetified-jna-5.10.0/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/f7085a81df85e6e2ee48528bd1f77aea/transformed/jetified-jna-5.10.0/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/f7085a81df85e6e2ee48528bd1f77aea/transformed/jetified-jna-5.10.0/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.10.0/b6e02bfc30545b6c8dd423ff8958c24b2d1b464f/jna-5.10.0-javadoc.jar!/" />

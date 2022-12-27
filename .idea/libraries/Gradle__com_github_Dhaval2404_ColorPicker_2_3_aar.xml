@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.Dhaval2404:ColorPicker:2.3@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/202ea21d23bfde54c197ddfcb89c83fc/transformed/jetified-ColorPicker-2.3/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/202ea21d23bfde54c197ddfcb89c83fc/transformed/jetified-ColorPicker-2.3/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/202ea21d23bfde54c197ddfcb89c83fc/transformed/jetified-ColorPicker-2.3/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/4389f983cb0b3d8df1290cd9058b3ca7/transformed/jetified-ColorPicker-2.3/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4389f983cb0b3d8df1290cd9058b3ca7/transformed/jetified-ColorPicker-2.3/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4389f983cb0b3d8df1290cd9058b3ca7/transformed/jetified-ColorPicker-2.3/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.Dhaval2404/ColorPicker/2.3/896dd54d38825c036a77e7e440a1384b52cadd5a/ColorPicker-2.3-javadoc.jar!/" />

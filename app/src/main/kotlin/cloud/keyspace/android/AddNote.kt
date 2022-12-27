@@ -8,12 +8,9 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-<<<<<<< HEAD
-=======
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils.replace
->>>>>>> origin/final-v1.4.0
 import android.text.format.DateFormat
 import android.view.View
 import android.view.ViewGroup
