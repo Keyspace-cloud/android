@@ -37,7 +37,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/37fe78c7ce82bbfeceea22fabd408f8b/transformed/navigation-fragment-ktx-2.5.3-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/2530d1dd3acba785b8837f6e78f1a19c/transformed/navigation-fragment-2.5.3-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/61bd33cbbf85cf9c6dca41ffd4b7ee07/transformed/preference-1.2.0-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/b8424a88df7a343934196286e802c61f/transformed/jetified-fragment-ktx-1.5.4-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/d3e8f4a7e05c105d862d08efd840cc6b/transformed/jetified-fragment-ktx-1.5.5-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/281aa9c0882d48ee978f1513a3b39d43/transformed/navigation-ui-ktx-2.5.3-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/d97005bb04bd6778eaadb1273db98e96/transformed/navigation-runtime-ktx-2.5.3-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/e04a01c197848016c08228a4c1e09d25/transformed/navigation-ui-2.5.3-api.jar</arg>
@@ -53,7 +53,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b7997aa0ca90c9ce9d46e2919394db8c/transformed/legacy-support-v4-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/a580167b89d39a19c8497ad63e0ed68a/transformed/biometric-1.2.0-alpha05-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b809b0655dd0b4609e4ba157ed061a60/transformed/jetified-viewpager2-1.0.0-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/e28958e9bfe0c844824a77411aca3bf7/transformed/fragment-1.5.4-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/3adb0843e399a60c8f1158fe89d686f5/transformed/fragment-1.5.5-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/63c323e6d8c793f26af5c7541d266cc4/transformed/jetified-activity-1.5.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/e200ded399ec97ec809657d91bbb9bc8/transformed/jetified-lifecycle-viewmodel-savedstate-2.5.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/5c667d2ce7febff4cbe25565579e0e13/transformed/jetified-lifecycle-runtime-ktx-2.5.1-api.jar</arg>
@@ -228,7 +228,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.cursoradapter:cursoradapter:1.0.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.drawerlayout:drawerlayout:1.1.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.customview:customview:1.1.0@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: androidx.fragment:fragment:1.5.4@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: androidx.fragment:fragment:1.5.5@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.loader:loader:1.0.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.lifecycle:lifecycle-livedata:2.5.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.arch.core:core-runtime:2.1.0@aar" level="project" />
@@ -251,7 +251,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.navigation:navigation-fragment-ktx:2.5.3@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.navigation:navigation-fragment:2.5.3@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: androidx.fragment:fragment-ktx:1.5.4@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: androidx.fragment:fragment-ktx:1.5.5@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.activity:activity-ktx:1.5.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.lifecycle:lifecycle-runtime-ktx:2.5.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.savedstate:savedstate-ktx:1.2.0@aar" level="project" />
