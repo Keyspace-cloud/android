@@ -18,6 +18,7 @@ import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import cash.z.ecc.android.bip39.Mnemonics
@@ -529,7 +530,11 @@ class CryptoUtilities(
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Ask for authentication when loading keys, must be larger than 0
-                setUserAuthenticationParameters(DEFAULT_AUTHENTICATION_DELAY, KeyProperties.AUTH_DEVICE_CREDENTIAL or KeyProperties.AUTH_BIOMETRIC_STRONG)
+                if (FingerprintManagerCompat.from(context).isHardwareDetected && FingerprintManagerCompat.from(context).hasEnrolledFingerprints()) {
+                    setUserAuthenticationParameters(DEFAULT_AUTHENTICATION_DELAY, KeyProperties.AUTH_DEVICE_CREDENTIAL or KeyProperties.AUTH_BIOMETRIC_STRONG)
+                } else {
+                    setUserAuthenticationParameters(DEFAULT_AUTHENTICATION_DELAY, KeyProperties.AUTH_DEVICE_CREDENTIAL)
+                }
             } else {
                 setUserAuthenticationValidityDurationSeconds(DEFAULT_AUTHENTICATION_DELAY)
             }
