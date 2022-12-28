@@ -536,11 +536,9 @@
                             android:alwaysDrawnWithCache="false"
                             android:animationCache="false"
                             android:drawingCacheQuality="low"
-                            android:fontFamily="monospace"
                             android:gravity="start"
                             android:text="123 456"
-                            android:textSize="16dp"
-                            android:textStyle="bold" />
+                            android:textSize="28sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -548,8 +546,7 @@
                             android:layout_weight="1"
                             android:gravity="start"
                             android:text="(Tap to view QR Code)"
-                            android:textSize="12dp"
-                            android:textStyle="italic" />
+                            android:textSize="14dp" />
                     </LinearLayout>
 
                 </LinearLayout>
