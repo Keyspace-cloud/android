@@ -545,7 +545,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:gravity="start"
-                            android:text="(Tap to view QR Code)"
+                            android:text="Tap to view QR Code"
                             android:textSize="14dp" />
                     </LinearLayout>
 
