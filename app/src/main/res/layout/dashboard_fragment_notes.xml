@@ -19,20 +19,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
-            android:clipToPadding="false"
             android:animateLayoutChanges="false"
-            android:smoothScrollbar="true"
+            android:clipToPadding="false"
+            android:paddingTop="90dp"
 
             android:paddingBottom="90dp"
-            android:paddingTop="90dp"
+            android:smoothScrollbar="true"
 
             app:leftBgColor="@color/black"
             app:leftImage="@drawable/ic_baseline_notes_24"
             app:leftText="Copy Note"
-
-            app:rightBgColor="@color/black"
-            app:rightImage="@drawable/ic_baseline_edit_24"
-            app:rightText="Edit"
 
             app:textColor="@android:color/white"
             app:textSize="18sp"

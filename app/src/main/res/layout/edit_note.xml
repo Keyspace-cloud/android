@@ -29,7 +29,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="15dp"
-                android:layout_marginBottom="10dp"
                 android:elevation="5dp"
                 android:orientation="horizontal">
 
@@ -69,14 +68,14 @@
 
 
                     <ImageView
-                        android:id="@+id/colorButton"
+                        android:id="@+id/previewButton"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:layout_weight="1"
                         android:background="?android:attr/selectableItemBackground"
-                        android:contentDescription="Note color"
+                        android:contentDescription="Favorite account"
                         android:padding="10dp"
-                        app:srcCompat="@drawable/ic_outline_color_lens_24"
+                        app:srcCompat="@drawable/ic_baseline_visibility_24"
                         app:tint="?android:attr/textColorPrimary" />
 
                     <ImageView
@@ -132,10 +131,9 @@
                 android:id="@+id/noteToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginHorizontal="12.75dp"
+                android:layout_marginHorizontal="15dp"
                 android:fadingEdgeLength="100dp"
-                android:requiresFadingEdge="horizontal"
-                android:paddingBottom="10dp">
+                android:requiresFadingEdge="horizontal">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -149,6 +147,17 @@
                         android:foregroundGravity="center_horizontal"
                         android:paddingHorizontal="12.75dp"
                         app:srcCompat="@drawable/ic_baseline_help_24"
+                        app:tint="?android:attr/textColorPrimary" />
+
+                    <ImageView
+                        android:id="@+id/colorButton"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:contentDescription="Note color"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_outline_color_lens_24"
                         app:tint="?android:attr/textColorPrimary" />
 
                     <ImageView
@@ -278,7 +287,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:paddingHorizontal="15dp"
-                android:paddingBottom="10dp"
+                android:paddingBottom="7.5dp"
                 android:text="Date, Time"
                 android:textColor="?attr/actionMenuTextColor"
                 android:textStyle="italic" />
@@ -306,7 +315,7 @@
             android:orientation="vertical">
 
             <com.yydcdut.markdown.MarkdownEditText
-                android:id="@+id/noteViewer"
+                android:id="@+id/noteEditor"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
@@ -322,6 +331,28 @@
                 android:singleLine="false"
                 android:textCursorDrawable="@null"
                 android:textSize="18sp" />
+
+            <com.yydcdut.markdown.MarkdownEditText
+                android:id="@+id/notePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:editable="false"
+                android:focusable="false"
+                android:gravity="top"
+                android:hapticFeedbackEnabled="true"
+                android:hint="Type something to render it"
+                android:importantForAutofill="no"
+                android:inputType="none"
+                android:isScrollContainer="true"
+                android:nestedScrollingEnabled="true"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:singleLine="false"
+                android:textCursorDrawable="@null"
+                android:textIsSelectable="true"
+                android:textSize="18sp" />
+
         </LinearLayout>
     </ScrollView>
 
