@@ -43,6 +43,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.android.volley.NetworkError
 import com.budiyev.android.codescanner.*
 import com.google.android.material.appbar.AppBarLayout
@@ -71,6 +72,7 @@ import com.yydcdut.markdown.theme.ThemeDefault
 import com.yydcdut.markdown.theme.ThemeDesert
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
 import kotlinx.coroutines.*
+import kotlinx.coroutines.NonCancellable.cancel
 import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -1794,60 +1796,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             val miscText: TextView = itemView.findViewById(R.id.miscText)
 
             init {
-                rfidIcon.setColorFilter(Color.WHITE)
-
-                tagText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                tagText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                rfidIcon.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                magstripe.backgroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                bankLogoBack.setColorFilter(cardHolder.currentTextColor)
-                bankLogoFront.setColorFilter(cardHolder.currentTextColor)
-                paymentGateway.setColorFilter(cardHolder.currentTextColor)
-
-                editButton.backgroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                editButton.iconTint = ColorStateList.valueOf(editButton.currentTextColor)
-
-                rfidIcon.setColorFilter(Color.WHITE)
-                cardNotes.setTextColor (Color.WHITE)
-                hideCodes.setColorFilter(Color.WHITE)
-                pin.setTextColor (Color.WHITE)
-                pinLabel.setTextColor (Color.WHITE)
-                securityCode.setTextColor (Color.WHITE)
-                securityCodeLabel.setTextColor (Color.WHITE)
-                bankNameFront.setTextColor (Color.WHITE)
-                bankNameBack.setTextColor (Color.WHITE)
-                cardNotes.setTextColor (Color.WHITE)
-                cardHolder .setTextColor (Color.WHITE)
-                toDate .setTextColor (Color.WHITE)
-                toLabel.setTextColor (Color.WHITE)
-                cardNumber.setTextColor (Color.WHITE)
-                cardNumber.setTextColor (Color.WHITE)
-                miscText.setTextColor (Color.WHITE)
-                tagText.setTextColor (Color.WHITE)
-
-                tagText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-                miscText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                miscText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-                rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                cardNotes.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                cardNotes.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-
-                magstripe.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-
-                bankLogoBack.setColorFilter(Color.WHITE)
-                bankLogoFront.setColorFilter(Color.WHITE)
-                paymentGateway.setColorFilter(Color.WHITE)
-
-                editButton.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-                editButton.setTextColor(ColorStateList.valueOf(Color.BLACK))
-                editButton.setIconTintResource (R.color.black)
 
                 rfidIcon.invalidate()
                 rfidIcon.refreshDrawableState()
@@ -2022,24 +1970,23 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             if (!card.notes.isNullOrBlank()) cardCard.cardNotes.text = card.notes else cardCard.cardNotes.visibility = View.GONE
 
+
             val cardColor = card.color
             if (!card.color.isNullOrEmpty()) {
                 cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
                 cardCard.cardsCardBackLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
+            } else {
+                cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
+                cardCard.cardsCardBackLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
             }
 
             val intColor: Int = try { cardCard.cardsCardFrontLayout.backgroundTintList?.defaultColor!! } catch (_: NullPointerException) { 0 }
-
-            val paymentGateway = misc.getPaymentGateway(card.cardNumber.toString())
-            var bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, Color.WHITE) else null
-
-            var gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, Color.WHITE) else null
 
             val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
             if (g >= 200 || b >= 200) {
                 cardCard.rfidIcon.setColorFilter(Color.BLACK)
                 cardCard.cardNotes.setTextColor (Color.BLACK)
-                cardCard.hideCodes.setColorFilter(Color.BLACK)
+                cardCard.hideCodes.imageTintList = ColorStateList.valueOf(Color.BLACK)
                 cardCard.pin.setTextColor (Color.BLACK)
                 cardCard.pinLabel.setTextColor (Color.BLACK)
                 cardCard.securityCode.setTextColor (Color.BLACK)
@@ -2068,9 +2015,44 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 cardCard.editButton.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
                 cardCard.editButton.setTextColor(Color.WHITE)
                 cardCard.editButton.setIconTintResource (R.color.white)
-                bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, Color.BLACK) else null
-                gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, Color.BLACK) else null
+            } else {
+                cardCard.rfidIcon.setColorFilter(Color.WHITE)
+                cardCard.cardNotes.setTextColor (Color.WHITE)
+                cardCard.hideCodes.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.pin.setTextColor (Color.WHITE)
+                cardCard.pinLabel.setTextColor (Color.WHITE)
+                cardCard.securityCode.setTextColor (Color.WHITE)
+                cardCard.securityCodeLabel.setTextColor (Color.WHITE)
+                cardCard.bankNameFront.setTextColor (Color.WHITE)
+                cardCard.bankNameBack.setTextColor (Color.WHITE)
+                cardCard.cardNotes.setTextColor (Color.WHITE)
+                cardCard.cardHolder .setTextColor (Color.WHITE)
+                cardCard.toDate .setTextColor (Color.WHITE)
+                cardCard.toLabel.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.miscText.setTextColor (Color.WHITE)
+                cardCard.tagText.setTextColor (Color.WHITE)
+                cardCard.tagText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.miscText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.miscText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.cardNotes.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.cardNotes.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.magstripe.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.bankLogoBack.setColorFilter(Color.WHITE)
+                cardCard.bankLogoFront.setColorFilter(Color.WHITE)
+                cardCard.paymentGateway.setColorFilter(Color.WHITE)
+                cardCard.editButton.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.editButton.setTextColor(ColorStateList.valueOf(Color.BLACK))
+                cardCard.editButton.setIconTintResource (R.color.black)
             }
+
+            val paymentGateway = misc.getPaymentGateway(card.cardNumber.toString())
+            var bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, cardCard.cardNumber.currentTextColor) else null
+
+            var gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, cardCard.cardNumber.currentTextColor) else null
 
             thread {
                 if (bankLogo != null && card.iconFile != "bank") {
@@ -2126,11 +2108,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             cardCard.cardHolder.isEnabled = true
             cardCard.toDate.isEnabled = true
             cardCard.bankNameFront.isEnabled = true
-
-            if (!cardColor.isNullOrEmpty()) {
-                cardCard.cardsCardFrontLayout.setBackgroundColor(Color.parseColor(cardColor))
-                cardCard.cardsCardBackLayout.setBackgroundColor(Color.parseColor(cardColor))
-            }
 
             cardCard.magstripe.isClickable = false
 
@@ -2240,7 +2217,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 notes.add(io.decryptNote(encryptedNote))
 
             notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
-            notesRecycler.layoutManager = LinearLayoutManager(this)
+
+            if (configData.getBoolean("notesGrid", true)) notesRecycler.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
+            else notesRecycler.layoutManager = LinearLayoutManager(this)
 
             val adapter = NotesAdapter(notes)
             adapter.setHasStableIds(true)
@@ -2253,14 +2232,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             notesRecycler.scheduleLayoutAnimation()
 
             notesRecycler.setListener(object : SwipeLeftRightCallback.Listener {
-                override fun onSwipedLeft(position: Int) {  // Edit login
-                    crypto.secureStartActivity (
-                        nextActivity = AddNote(),
-                        nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
-                        keyring = keyring,
-                        itemId = notes.elementAt(position).id
-                    )
-                }
+                override fun onSwipedLeft(position: Int) { }
 
                 override fun onSwipedRight(position: Int) {  // Copy password
                     val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
@@ -2397,7 +2369,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             doneBox = layoutInflater.inflate(R.layout.keyroute_done_screen, null)
             builder.setView(doneBox)
 
-            builder.setCancelable(true)
+            builder.setCancelable(false)
 
             killBottomSheet()
 
@@ -3088,10 +3060,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private fun vaultSynchronizer () {
         var refreshInterval: Long = configData.getLong ("refreshInterval", 0L)
 
-        fun grabVault () {
+        suspend fun grabVault () {
 
-            CoroutineScope(Dispatchers.IO).launch {
-                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
                     networkStatus = network.keyspaceStatus().status
                     try {
                         if (networkStatus != "alive") {
@@ -3138,8 +3108,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     } catch (noInternet: NullPointerException) {
                         cancel()
                     }
-                }
-            }
+
         }
 
         fun syncVault () {
@@ -3147,14 +3116,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             try {
                 CoroutineScope(Dispatchers.IO).launch {
                     kotlin.runCatching {
-                        withContext(Dispatchers.Main) {
-                            network.completeQueueTasks(network.generateSignedToken())
-                        }
+                        network.completeQueueTasks(network.generateSignedToken())
+                        grabVault()
                     }.onFailure {
                         when (it) {
                             is NetworkUtilities.IncorrectCredentialsException -> {
                                 withContext(Dispatchers.Main) {
-                                    showIncorrectCredentialsDialog()
+                                    // showIncorrectCredentialsDialog()
                                 }
                             }
                             else -> throw it
@@ -3162,7 +3130,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
                 }
 
-                grabVault()
             } catch (_: Exception) { }
         }
 
