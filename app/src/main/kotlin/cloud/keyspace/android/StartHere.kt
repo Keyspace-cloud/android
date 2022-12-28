@@ -1629,8 +1629,6 @@ class StartHere : AppCompatActivity() {
                     authenticateButton.visibility = View.INVISIBLE
                     authenticateButton.isEnabled = false
 
-                    authenticateDescription.setText("Authentication token")
-
                     Handler().postDelayed({
                         authenticateDescription.setText("Ed25519 public key")
                         Handler().postDelayed({ authenticateDescription.setText("Ed25519 private key")
