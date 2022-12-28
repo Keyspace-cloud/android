@@ -3,29 +3,52 @@ package cloud.keyspace.android
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
+<<<<<<< HEAD
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.AnimatedVectorDrawable
+=======
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+>>>>>>> origin/v1.4.1
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+<<<<<<< HEAD
 import android.os.SystemClock
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.MotionEvent
+=======
+import android.os.Vibrator
+import android.text.format.DateFormat
+import android.util.Log
+>>>>>>> origin/v1.4.1
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils.loadAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+<<<<<<< HEAD
 import androidx.core.widget.doOnTextChanged
+=======
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+>>>>>>> origin/v1.4.1
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -42,6 +65,7 @@ import com.yydcdut.markdown.theme.ThemeDefault
 import com.yydcdut.markdown.theme.ThemeDesert
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.Executor
 import kotlin.properties.Delegates
 
 class AddNote : AppCompatActivity() {
@@ -109,27 +133,243 @@ class AddNote : AppCompatActivity() {
         utils = MiscUtilities (applicationContext)
         crypto = CryptoUtilities(applicationContext, this)
 
-        val intentData = crypto.receiveKeyringFromSecureIntent (
-            currentActivityClassNameAsString = getString(R.string.title_activity_add_note),
-            intent = intent
-        )
+        val intent = intent
+        val action = intent.action
+        val type = intent.type
 
-        keyring = intentData.first
-        network = NetworkUtilities(applicationContext, this, keyring)
-        itemId = intentData.second
+        if ("android.intent.action.SEND" == action && type != null && "text/plain" == type) {
 
-        network = NetworkUtilities(applicationContext, this, keyring)
+            val biometricPromptThread = Handler(Looper.getMainLooper())
+            val executor: Executor = ContextCompat.getMainExecutor(this@AddNote) // execute on different thread awaiting response
 
-        io = IOUtilities(applicationContext, this, keyring)
+            try {
+                val biometricManager = BiometricManager.from(this@AddNote)
+                val canAuthenticate =
+                    biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
 
-        initializeUI()
+                if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+                    Log.d("Keyspace", "Device lock found")
+                } else {
+                    Log.d("Keyspace", "Device lock not set")
+                    throw NoSuchMethodError()
+                }
 
+                biometricPromptThread.removeCallbacksAndMessages(null)
+
+                val decryptingDialogBuilder = MaterialAlertDialogBuilder(this@AddNote)
+                val decryptingDialogBox = layoutInflater.inflate(R.layout.biometrics_screen, null)
+                decryptingDialogBuilder.setCancelable(false).setView(decryptingDialogBox)
+                val decryptingDialog = decryptingDialogBuilder.create()
+                decryptingDialog.show()
+
+                decryptingDialogBox.findViewById<MaterialButton>(R.id.authenticateButton).visibility = View.GONE
+                val authenticateDescription = decryptingDialogBox.findViewById<TextView>(R.id.fingerprint_description)
+                authenticateDescription.text = "Enter credentials to continue"
+
+                val authenticationIcon = decryptingDialogBox.findViewById<ImageView>(R.id.fingerprint_icon)
+                authenticationIcon.setPadding(0, 50, 0, 0)
+
+                val authenticateTitle = decryptingDialogBox.findViewById<TextView>(R.id.fingerprint_title)
+                val keystoreProgress = decryptingDialogBox.findViewById<ProgressBar>(R.id.keystoreProgress)
+
+                val keyguardToUnlock = AnimatedVectorDrawableCompat.create(applicationContext, R.drawable.keyguardtolock)
+                val fingerprintToUnlock = AnimatedVectorDrawableCompat.create(applicationContext, R.drawable.fingerprinttolock)
+                val zoomSpin = loadAnimation(applicationContext, R.anim.zoom_spin)
+
+                val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
+
+                        Handler().postDelayed({
+                            authenticateDescription.text = "Ed25519 public key"
+                            Handler().postDelayed({ authenticateDescription.text = "Ed25519 private key"
+                                Handler().postDelayed({ authenticateDescription.text = "XChaCha20-Poly1305 symmetric key" }, 50) }, 100) }, 100)
+
+                        val keyringThread = Thread { keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!! }
+                        keyringThread.start()
+
+                        if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox exists
+                            authenticateTitle.text = "Reading Strongbox"
+                        } else if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if hardware keystore exists
+                            authenticateTitle.text = "Reading HAL Keystore"
+                        } else authenticateTitle.text = "Reading Keystore"
+
+                        if (utils.biometricsExist()) authenticationIcon.setImageDrawable(fingerprintToUnlock)
+                        else authenticationIcon.setImageDrawable(keyguardToUnlock)
+
+                        fingerprintToUnlock!!.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                            override fun onAnimationEnd(drawable: Drawable) {
+                                authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_check_24))
+                                keyringThread.join()
+
+                                zoomSpin.setAnimationListener(object : Animation.AnimationListener {
+
+                                    override fun onAnimationStart(animation: Animation) {
+                                        keystoreProgress.visibility = View.INVISIBLE
+                                        authenticateTitle.text = "All done!"
+                                    }
+
+                                    override fun onAnimationRepeat(animation: Animation) {  }
+
+                                    @SuppressLint("UseCompatLoadingForDrawables")
+                                    override fun onAnimationEnd(animation: Animation) {
+
+                                        keyringThread.join()
+
+                                        network = NetworkUtilities(applicationContext, this@AddNote, keyring)
+
+                                        network = NetworkUtilities(applicationContext, this@AddNote, keyring)
+
+                                        io = IOUtilities(applicationContext, this@AddNote, keyring)
+
+                                        initializeUI()
+
+                                        vault = io.getVault()
+
+                                        if (itemId != null) {
+                                            note = io.decryptNote(io.getNote(itemId!!, vault)!!)
+                                            loadNote (note)
+
+                                            frequencyAccessed = note.frequencyAccessed!!
+                                        }
+
+                                        decryptingDialog.dismiss()
+
+                                        biometricPromptThread.removeCallbacksAndMessages(null)
+
+                                        noteViewer.setText(intent.getStringExtra("android.intent.extra.TEXT").toString())
+
+                                    }
+
+                                })
+
+                                authenticationIcon.startAnimation(zoomSpin)
+
+                            }
+                        })
+
+                        fingerprintToUnlock.start()
+
+                        Log.d("Keyspace", "Authentication successful")
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
+                        biometricPromptThread.removeCallbacksAndMessages(null)
+                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                        Log.d("Keyspace", "Authentication canceled")
+                        Toast.makeText(applicationContext, "Couldn't unlock Keyspace due to incorrect credentials.", Toast.LENGTH_LONG).show()
+                        finishAffinity()
+                    }
+
+                    override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
+                        biometricPromptThread.removeCallbacksAndMessages(null)
+                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                        Log.d("Keyspace", "Incorrect credentials supplied")
+                    }
+                }
+
+                val biometricPrompt = BiometricPrompt(this@AddNote, executor, authenticationCallback)
+
+                val builder = BiometricPrompt.PromptInfo.Builder()
+                    .setTitle(resources.getString(R.string.app_name))
+                    .setSubtitle(resources.getString(R.string.biometrics_generic_subtitle))
+                    .setDescription(resources.getString(R.string.biometrics_share_sheet_item_description))
+                builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                builder.setConfirmationRequired(true)
+
+                val promptInfo = builder.build()
+                biometricPrompt.authenticate(promptInfo)
+
+                biometricPromptThread.postDelayed({
+                    biometricPrompt.cancelAuthentication()
+                    biometricPromptThread.removeCallbacksAndMessages(null)
+                    val timeoutDialogBuilder = MaterialAlertDialogBuilder(this@AddNote)
+                    timeoutDialogBuilder.setTitle("Authentication error")
+                    timeoutDialogBuilder.setMessage("Authentication timed out because you waited too long.\n\nPlease try again.")
+                    timeoutDialogBuilder.setNegativeButton("Retry") { _, _ ->
+                        biometricPrompt.authenticate(promptInfo)
+                    }
+
+                    try {
+                        val timeoutDialog: AlertDialog = timeoutDialogBuilder.create()
+                        timeoutDialog.setCancelable(true)
+                        timeoutDialog.show()
+                    } catch (_: WindowManager.BadTokenException) { }
+
+                }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
+
+<<<<<<< HEAD
         vault = io.getVault()
         if (itemId != null) {
             note = io.decryptNote(io.getNote(itemId!!, vault)!!)
             loadNote (note)
+=======
 
-            frequencyAccessed = note.frequencyAccessed!!
+            } catch (noLockSet: NoSuchMethodError) {
+                biometricPromptThread.removeCallbacksAndMessages(null)
+                noLockSet.printStackTrace()
+                val builder = MaterialAlertDialogBuilder(this@AddNote)
+                builder.setTitle("No biometric hardware")
+                builder.setMessage("Your biometric sensors (fingerprint, face ID or iris scanner) could not be accessed. Please add biometrics from your phone's settings to continue.\n\nTry restarting your phone if you have already enrolled biometrics.")
+                builder.setNegativeButton("Exit") { _, _ ->
+                    this@AddNote.finishAffinity()
+                }
+                val errorDialog: AlertDialog = builder.create()
+                errorDialog.setCancelable(true)
+                errorDialog.show()
+
+                Log.e("Keyspace", "Please set a screen lock.")
+                noLockSet.stackTrace
+
+            } catch (incorrectCredentials: Exception) {
+                biometricPromptThread.removeCallbacksAndMessages(null)
+                incorrectCredentials.printStackTrace()
+                val builder = MaterialAlertDialogBuilder(this@AddNote)
+                builder.setTitle("Authentication failed")
+                builder.setMessage("Your identity couldn't be verified. Please try again after a while.")
+                builder.setNegativeButton("Exit") { _, _ ->
+                    this@AddNote.finishAffinity()
+                }
+                val errorDialog: AlertDialog = builder.create()
+                errorDialog.setCancelable(true)
+                errorDialog.show()
+
+                Log.e("Keyspace", "Your identity could not be verified.")
+                incorrectCredentials.stackTrace
+
+            }
+
+
+        } else {
+
+            val intentData = crypto.receiveKeyringFromSecureIntent (
+                currentActivityClassNameAsString = getString(R.string.title_activity_add_note),
+                intent = intent
+            )
+
+            keyring = intentData.first
+
+            itemId = intentData.second
+
+            /////
+
+            network = NetworkUtilities(applicationContext, this, keyring)
+
+            network = NetworkUtilities(applicationContext, this, keyring)
+
+            io = IOUtilities(applicationContext, this, keyring)
+
+            initializeUI()
+
+            vault = io.getVault()
+
+            if (itemId != null) {
+                note = io.decryptNote(io.getNote(itemId!!, vault)!!)
+                loadNote (note)
+
+                frequencyAccessed = note.frequencyAccessed!!
+            }
+>>>>>>> origin/v1.4.1
+
         }
 
     }
@@ -685,6 +925,10 @@ class AddNote : AppCompatActivity() {
 
     }
 
+    private fun getKeyringForShareSheet () {
+
+    }
+
     override fun onBackPressed () {
         val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
         alertDialog.setTitle("Confirm exit")
@@ -711,4 +955,5 @@ class AddNote : AppCompatActivity() {
         super.onUserLeaveHint()
 
     }
+
 }
