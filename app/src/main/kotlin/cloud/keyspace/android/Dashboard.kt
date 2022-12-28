@@ -71,6 +71,7 @@ import com.yydcdut.markdown.theme.ThemeDefault
 import com.yydcdut.markdown.theme.ThemeDesert
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
 import kotlinx.coroutines.*
+import kotlinx.coroutines.NonCancellable.cancel
 import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -2892,10 +2893,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private fun vaultSynchronizer () {
         var refreshInterval: Long = configData.getLong ("refreshInterval", 0L)
 
-        fun grabVault () {
+        suspend fun grabVault () {
 
-            CoroutineScope(Dispatchers.IO).launch {
-                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
                     networkStatus = network.keyspaceStatus().status
                     try {
                         if (networkStatus != "alive") {
@@ -2942,8 +2941,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     } catch (noInternet: NullPointerException) {
                         cancel()
                     }
-                }
-            }
+
         }
 
         fun syncVault () {
@@ -2951,14 +2949,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             try {
                 CoroutineScope(Dispatchers.IO).launch {
                     kotlin.runCatching {
-                        withContext(Dispatchers.Main) {
-                            network.completeQueueTasks(network.generateSignedToken())
-                        }
+                        network.completeQueueTasks(network.generateSignedToken())
+                        grabVault()
                     }.onFailure {
                         when (it) {
                             is NetworkUtilities.IncorrectCredentialsException -> {
                                 withContext(Dispatchers.Main) {
-                                    showIncorrectCredentialsDialog()
+                                    // showIncorrectCredentialsDialog()
                                 }
                             }
                             else -> throw it
@@ -2966,7 +2963,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
                 }
 
-                grabVault()
             } catch (_: Exception) { }
         }
 
