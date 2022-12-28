@@ -36,7 +36,7 @@
             android:layout_marginBottom="14dp"
             android:gravity="center"
             android:singleLine="false"
-            android:text="No results found"
+            android:text="No search results"
             android:textSize="18sp"
             android:textStyle="italic" />
 

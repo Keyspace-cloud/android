@@ -662,6 +662,58 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     loginsRecycler.isNestedScrollingEnabled = false
                                     loginsRecycler.scheduleLayoutAnimation()
 
+                                    loginsRecycler.setListener(object : SwipeLeftRightCallback.Listener {
+                                        override fun onSwipedLeft(position: Int) {  // Edit login
+                                            crypto.secureStartActivity (
+                                                nextActivity = AddLogin(),
+                                                nextActivityClassNameAsString = getString(R.string.title_activity_add_login),
+                                                keyring = keyring,
+                                                itemId = logins.elementAt(position).id
+                                            )
+                                        }
+
+                                        override fun onSwipedRight(position: Int) {  // Copy password
+                                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            if (logins.elementAt(position).loginData?.password.isNullOrEmpty()) {
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Dashboard).create()
+                                                alertDialog.setTitle("No password")
+                                                alertDialog.setMessage("This login has no password.")
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                                                alertDialog.show()
+                                            } else {
+                                                val clip = ClipData.newPlainText("Keyspace", logins.elementAt(position).loginData?.password)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(applicationContext, "Password copied!", Toast.LENGTH_LONG).show()
+                                            }
+                                            adapter.notifyItemChanged(position)
+                                        }
+                                    })
+
+                                    loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
+
+                                    loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-330f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 12) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
                                 } else {
                                     fragmentRoot.removeAllViews()
                                     fragmentView = inflater.inflate(R.layout.no_search_results, null)
@@ -708,6 +760,59 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     adapter.notifyItemInserted(notes.size)
                                     notesRecycler.isNestedScrollingEnabled = false
                                     notesRecycler.scheduleLayoutAnimation()
+
+                                    notesRecycler.setListener(object : SwipeLeftRightCallback.Listener {
+                                        override fun onSwipedLeft(position: Int) {  // Edit login
+                                            crypto.secureStartActivity (
+                                                nextActivity = AddNote(),
+                                                nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
+                                                keyring = keyring,
+                                                itemId = notes.elementAt(position).id
+                                            )
+                                        }
+
+                                        override fun onSwipedRight(position: Int) {  // Copy password
+                                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            if (notes.elementAt(position).notes.isNullOrEmpty()) {
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Dashboard).create()
+                                                alertDialog.setTitle("No text")
+                                                alertDialog.setMessage("This note has no text.")
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                                                alertDialog.show()
+                                            } else {
+                                                val clip = ClipData.newPlainText("Keyspace", notes.elementAt(position).notes)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(applicationContext, "Note copied!", Toast.LENGTH_LONG).show()
+                                            }
+                                            adapter.notifyItemChanged(position)
+                                        }
+
+                                    })
+
+                                    notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
+
+                                    notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-330f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 12) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
 
                                 } else {
                                     fragmentRoot.removeAllViews()
@@ -759,6 +864,31 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     adapter.notifyItemInserted(cards.size)
                                     cardsRecycler.isNestedScrollingEnabled = false
                                     cardsRecycler.scheduleLayoutAnimation()
+
+                                    cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
+
+                                    cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-330f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 12) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
 
                                 } else {
                                     fragmentRoot.removeAllViews()
