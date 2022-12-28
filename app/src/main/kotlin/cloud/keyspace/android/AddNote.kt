@@ -3,52 +3,32 @@ package cloud.keyspace.android
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
-<<<<<<< HEAD
-import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.Point
-import android.graphics.drawable.AnimatedVectorDrawable
-=======
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Drawable
->>>>>>> origin/v1.4.1
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-<<<<<<< HEAD
-import android.os.SystemClock
-import android.text.format.DateFormat
-import android.util.Log
-import android.view.MotionEvent
-=======
 import android.os.Vibrator
 import android.text.format.DateFormat
 import android.util.Log
->>>>>>> origin/v1.4.1
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils.loadAnimation
 import android.view.inputmethod.InputMethodManager
-import android.widget.HorizontalScrollView
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-<<<<<<< HEAD
 import androidx.core.widget.doOnTextChanged
-=======
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
->>>>>>> origin/v1.4.1
+import com.fasterxml.jackson.module.kotlin.SequenceSerializer.properties
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -236,7 +216,7 @@ class AddNote : AppCompatActivity() {
 
                                         biometricPromptThread.removeCallbacksAndMessages(null)
 
-                                        noteViewer.setText(intent.getStringExtra("android.intent.extra.TEXT").toString())
+                                        noteEditor.setText(intent.getStringExtra("android.intent.extra.TEXT").toString())
 
                                     }
 
@@ -297,12 +277,6 @@ class AddNote : AppCompatActivity() {
 
                 }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
 
-<<<<<<< HEAD
-        vault = io.getVault()
-        if (itemId != null) {
-            note = io.decryptNote(io.getNote(itemId!!, vault)!!)
-            loadNote (note)
-=======
 
             } catch (noLockSet: NoSuchMethodError) {
                 biometricPromptThread.removeCallbacksAndMessages(null)
@@ -368,8 +342,6 @@ class AddNote : AppCompatActivity() {
 
                 frequencyAccessed = note.frequencyAccessed!!
             }
->>>>>>> origin/v1.4.1
-
         }
 
     }
