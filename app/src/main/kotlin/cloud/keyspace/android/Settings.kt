@@ -79,10 +79,17 @@ class Settings : AppCompatActivity() {
         }
 
         val notesGridButton: MaterialSwitch = findViewById(R.id.notesGridButton)
-        notesGridButton.isChecked = configData.getBoolean("notesGrid", false)
+        notesGridButton.isChecked = configData.getBoolean("notesGrid", true)
         notesGridButton.setOnCheckedChangeListener { _, isChecked ->
             configData.edit().remove("notesGrid").commit()
             if (isChecked) configData.edit().putBoolean("notesGrid", true).commit() else configData.edit().putBoolean("notesGrid", false).commit()
+        }
+
+        val notesPreviewButton: MaterialSwitch = findViewById(R.id.notesPreviewButton)
+        notesPreviewButton.isChecked = configData.getBoolean("notesPreview", false)
+        notesPreviewButton.setOnCheckedChangeListener { _, isChecked ->
+            configData.edit().remove("notesPreview").commit()
+            if (isChecked) configData.edit().putBoolean("notesPreview", true).commit() else configData.edit().putBoolean("notesPreview", false).commit()
         }
 
         val appScreenshotsButton: MaterialSwitch = findViewById(R.id.appScreenshotsButton)

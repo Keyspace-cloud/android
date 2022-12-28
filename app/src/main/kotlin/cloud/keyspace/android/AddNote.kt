@@ -18,6 +18,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnimationUtils.loadAnimation
+import android.view.inputmethod.InputMethodManager
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.TextView
@@ -57,6 +58,8 @@ class AddNote : AppCompatActivity() {
     lateinit var noteEditor: com.yydcdut.markdown.MarkdownEditText
     lateinit var notePreview: com.yydcdut.markdown.MarkdownEditText
 
+    lateinit var input: InputMethodManager
+
     lateinit var tagButton: ImageView
     private lateinit var tagPicker: AddTag
     private var tagId: String? = null
@@ -77,6 +80,8 @@ class AddNote : AppCompatActivity() {
     lateinit var doneButton: ImageView
     lateinit var backButton: ImageView
     lateinit var deleteButton: ImageView
+
+    lateinit var noteToolbar: HorizontalScrollView
 
     var unrenderedText = ""
     var markdownToolbar = true
@@ -118,7 +123,6 @@ class AddNote : AppCompatActivity() {
         io = IOUtilities(applicationContext, this, keyring)
 
         initializeUI()
-
 
         vault = io.getVault()
         if (itemId != null) {
@@ -190,7 +194,7 @@ class AddNote : AppCompatActivity() {
         dateAndTime.visibility = View.GONE
 
         // Load toolbar
-        val noteToolbar = findViewById<HorizontalScrollView>(R.id.noteToolbar)
+        noteToolbar = findViewById<HorizontalScrollView>(R.id.noteToolbar)
 
         noteToolbar.visibility = View.VISIBLE
 
@@ -572,10 +576,17 @@ class AddNote : AppCompatActivity() {
             }
         }
 
+        input = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+
         notePreview.setOnClickListener {
             val location = IntArray(2)
             notePreview.getLocationOnScreen(location)
             previewButton.performClick()
+            noteEditor.setSelection(noteEditor.text.length)
+            noteEditor.requestFocusFromTouch()
+            Handler().postDelayed({
+                input.showSoftInput(noteEditor, 0)
+            }, 250)
         }
 
         return true
@@ -619,7 +630,19 @@ class AddNote : AppCompatActivity() {
 
         }
 
-        previewButton.performClick()
+        if (configData.getBoolean("notesPreview", false)) {
+            previewButton.setImageDrawable(getDrawable(R.drawable.ic_baseline_edit_24))
+            noteToolbar.visibility = View.VISIBLE
+            notePreview.visibility = View.GONE
+            noteEditor.visibility = View.VISIBLE
+            noteEditor.setSelection(noteEditor.text.length)
+            noteEditor.requestFocusFromTouch()
+            Handler().postDelayed({
+                input.showSoftInput(noteEditor, 0)
+            }, 250)
+        } else {
+            previewButton.performClick()
+        }
 
         return true
     }
