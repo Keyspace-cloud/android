@@ -308,6 +308,7 @@
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="15dp"
                         android:layout_weight="1"
+                        android:checked="true"
                         app:thumbTint="@color/cardBorderColor" />
 
                 </LinearLayout>
