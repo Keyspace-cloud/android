@@ -5,26 +5,30 @@
       <map>
         <entry key="vectorWizard">
           <value>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/final-v1.4.0
             <PersistentState>
               <option name="children">
                 <map>
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="clipartAsset">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="url" value="file:$USER_HOME$/Android/Sdk/icons/material/materialicons/dashboard/baseline_dashboard_24.xml" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-<<<<<<< HEAD
-                            <entry key="outputName" value="illustration_onboarding_method" />
-                            <entry key="sourceFile" value="$USER_HOME$/Downloads/undraw_through_the_park_lxnl.svg" />
-=======
-                            <entry key="outputName" value="illustration_no_vault_data" />
-                            <entry key="sourceFile" value="$USER_HOME$/Downloads/undraw_vault_re_s4my.svg" />
->>>>>>> origin/final-v1.4.0
+                            <entry key="outputName" value="ic_baseline_grid_24" />
                           </map>
                         </option>
                       </PersistentState>
@@ -33,12 +37,6 @@
                 </map>
               </option>
             </PersistentState>
-<<<<<<< HEAD
-=======
-=======
-            <PersistentState />
->>>>>>> origin/final-v1.4.0
->>>>>>> origin/final-v1.4.0
           </value>
         </entry>
       </map>

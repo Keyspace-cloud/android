@@ -43,6 +43,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.android.volley.NetworkError
 import com.budiyev.android.codescanner.*
 import com.google.android.material.appbar.AppBarLayout
@@ -2069,7 +2070,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 notes.add(io.decryptNote(encryptedNote))
 
             notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
-            notesRecycler.layoutManager = LinearLayoutManager(this)
+
+            if (configData.getBoolean("notesGrid", true)) notesRecycler.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
+            else notesRecycler.layoutManager = LinearLayoutManager(this)
 
             val adapter = NotesAdapter(notes)
             adapter.setHasStableIds(true)
@@ -2082,14 +2085,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             notesRecycler.scheduleLayoutAnimation()
 
             notesRecycler.setListener(object : SwipeLeftRightCallback.Listener {
-                override fun onSwipedLeft(position: Int) {  // Edit login
-                    crypto.secureStartActivity (
-                        nextActivity = AddNote(),
-                        nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
-                        keyring = keyring,
-                        itemId = notes.elementAt(position).id
-                    )
-                }
+                override fun onSwipedLeft(position: Int) { }
 
                 override fun onSwipedRight(position: Int) {  // Copy password
                     val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
