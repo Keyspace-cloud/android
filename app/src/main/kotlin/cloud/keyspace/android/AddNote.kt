@@ -490,6 +490,8 @@ class AddNote : AppCompatActivity() {
                 .setColors(resources.getStringArray(R.array.vault_item_colors))
                 .setTickColorPerCard(true)
                 .setDefaultColor(noteColor.toString())
+                .setPositiveButton("Pick color")
+                .setNegativeButton("Go back")
                 .setColorListener(object : ColorListener {
                     override fun onColorSelected(color: Int, colorHex: String) {
                         noteColor = colorHex
