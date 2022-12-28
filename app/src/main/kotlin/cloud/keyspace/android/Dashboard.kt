@@ -601,6 +601,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     closeIcon!!.start()
                     alreadyAnimated = true
                 }
+
                 searchBar.isFocusableInTouchMode = true
                 searchBar.requestFocusFromTouch()
                 input.showSoftInput(searchBar, 0)
@@ -614,17 +615,15 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             }
 
             searchBar.addTextChangedListener (object : TextWatcher {
-                override fun beforeTextChanged (charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+                override fun beforeTextChanged (charSequence: CharSequence, i: Int, i1: Int, i2: Int) { }
+
                 @SuppressLint("NotifyDataSetChanged", "SuspiciousIndentation")
                 override fun onTextChanged (searchTerms: CharSequence, i: Int, i1: Int, i2: Int) {
-
-                    CoroutineScope(Dispatchers.IO).launch {
-
-                        if (searchTerms.isNotEmpty()) {
 
                         if (searchType.contains(io.TYPE_LOGIN)) {
 
                             val searchTermsList: MutableList<IOUtilities.Login> = mutableListOf()
+
                             for (login in logins) {
                                 val loginSearchableData = mutableListOf<String?>()
                                 loginSearchableData.add(login.name)
@@ -633,16 +632,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                 loginSearchableData.add(login.loginData?.email)
                                 loginSearchableData.add(login.loginData?.username)
                                 loginSearchableData.add(login.loginData?.siteUrls.toString())
-                                val loginSearchableDataString = loginSearchableData.filterNotNull().joinToString("")
-                                    .lowercase(Locale.getDefault())
-                                    .filter { it.isLetterOrDigit() }
+                                val loginSearchableDataString = loginSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
                                 if (loginSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
                                     searchTermsList.add(login)
                                 }
 
-                                for (tag in tags!!) {
-                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag?.name?.lowercase(Locale.getDefault())!!) {
+                                for (tag in tags) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name?.lowercase(Locale.getDefault())!!) {
                                         if (login.tagId == tag.id) searchTermsList.add (login)
                                     }
                                 }
@@ -650,55 +647,186 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             }
 
                             try {
-                                withContext(Dispatchers.Main) {
-                                val adapter = LoginsAdapter(searchTermsList)
-                                adapter.setHasStableIds(true)
-                                loginsRecycler.adapter = adapter
-                                loginsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_down_anim_controller)
-                                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                adapter.notifyDataSetChanged()
-                                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                loginsRecycler.invalidate()
-                                loginsRecycler.refreshDrawableState()
-                                loginsRecycler.isNestedScrollingEnabled = false
-                                loginsRecycler.scheduleLayoutAnimation()}
-                            } catch (noRecyclerSet: UninitializedPropertyAccessException) {  }
+                                if (searchTermsList.isNotEmpty()) {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.dashboard_fragment_logins, null)
+                                    fragmentRoot.addView(fragmentView)
+                                    loginsRecycler = fragmentView.findViewById(R.id.logins_recycler)
+                                    loginsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
+                                    val adapter = LoginsAdapter(searchTermsList)
+                                    adapter.setHasStableIds(true)
+                                    loginsRecycler.adapter = adapter
+                                    loginsRecycler.setItemViewCacheSize(50);
+                                    if (coldStart) loginsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_right_anim_controller)
+                                    LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+                                    loginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                                    adapter.notifyItemInserted(notes.size)
+                                    loginsRecycler.isNestedScrollingEnabled = false
+                                    loginsRecycler.scheduleLayoutAnimation()
+
+                                    loginsRecycler.setListener(object : SwipeLeftRightCallback.Listener {
+                                        override fun onSwipedLeft(position: Int) {  // Edit login
+                                            crypto.secureStartActivity (
+                                                nextActivity = AddLogin(),
+                                                nextActivityClassNameAsString = getString(R.string.title_activity_add_login),
+                                                keyring = keyring,
+                                                itemId = logins.elementAt(position).id
+                                            )
+                                        }
+
+                                        override fun onSwipedRight(position: Int) {  // Copy password
+                                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            if (logins.elementAt(position).loginData?.password.isNullOrEmpty()) {
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Dashboard).create()
+                                                alertDialog.setTitle("No password")
+                                                alertDialog.setMessage("This login has no password.")
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                                                alertDialog.show()
+                                            } else {
+                                                val clip = ClipData.newPlainText("Keyspace", logins.elementAt(position).loginData?.password)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(applicationContext, "Password copied!", Toast.LENGTH_LONG).show()
+                                            }
+                                            adapter.notifyItemChanged(position)
+                                        }
+                                    })
+
+                                    loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
+
+                                    loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-330f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 12) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
+                                } else {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.no_search_results, null)
+                                    fragmentRoot.addView(fragmentView)
+                                }
+                            } catch (_: UninitializedPropertyAccessException) { }
 
                         } else if (searchType.contains(io.TYPE_NOTE)) {
+
                             val searchTermsList: MutableList<IOUtilities.Note> = mutableListOf()
+
                             for (note in notes) {
                                 val noteSearchableData = mutableListOf<String?>()
                                 noteSearchableData.add(note.notes)
                                 noteSearchableData.add(note.color)
-                                val noteSearchableDataString = noteSearchableData.filterNotNull().joinToString("")
-                                    .lowercase(Locale.getDefault())
-                                    .filter { it.isLetterOrDigit() }
+                                val noteSearchableDataString = noteSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
                                 if (noteSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
                                     searchTermsList.add(note)
                                 }
 
                                 for (tag in tags) {
-                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())) {
                                         if (note.tagId == tag.id) searchTermsList.add (note)
                                     }
                                 }
+
                             }
-                            try{
-                                withContext(Dispatchers.Main) {
+
+                            try {
+                                if (searchTermsList.isNotEmpty()) {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.dashboard_fragment_notes, null)
+                                    fragmentRoot.addView(fragmentView)
+                                    notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
+                                    notesRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
                                     val adapter = NotesAdapter(searchTermsList)
                                     adapter.setHasStableIds(true)
                                     notesRecycler.adapter = adapter
-                                    notesRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_down_anim_controller)
+                                    notesRecycler.setItemViewCacheSize(50)
+                                    if (coldStart) notesRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_right_anim_controller)
                                     LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                    adapter.notifyDataSetChanged()
+                                    notesRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                                    adapter.notifyItemInserted(notes.size)
                                     notesRecycler.isNestedScrollingEnabled = false
                                     notesRecycler.scheduleLayoutAnimation()
+
+                                    notesRecycler.setListener(object : SwipeLeftRightCallback.Listener {
+                                        override fun onSwipedLeft(position: Int) {  // Edit login
+                                            crypto.secureStartActivity (
+                                                nextActivity = AddNote(),
+                                                nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
+                                                keyring = keyring,
+                                                itemId = notes.elementAt(position).id
+                                            )
+                                        }
+
+                                        override fun onSwipedRight(position: Int) {  // Copy password
+                                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            if (notes.elementAt(position).notes.isNullOrEmpty()) {
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Dashboard).create()
+                                                alertDialog.setTitle("No text")
+                                                alertDialog.setMessage("This note has no text.")
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                                                alertDialog.show()
+                                            } else {
+                                                val clip = ClipData.newPlainText("Keyspace", notes.elementAt(position).notes)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(applicationContext, "Note copied!", Toast.LENGTH_LONG).show()
+                                            }
+                                            adapter.notifyItemChanged(position)
+                                        }
+
+                                    })
+
+                                    notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
+
+                                    notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-330f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 12) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
+                                } else {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.no_search_results, null)
+                                    fragmentRoot.addView(fragmentView)
                                 }
-                            } catch (noRecyclerSet: UninitializedPropertyAccessException) {  }
+                            } catch (_: UninitializedPropertyAccessException) { }
 
                         } else if (searchType.contains(io.TYPE_CARD)) {
+
                             val searchTermsList: MutableList<IOUtilities.Card> = mutableListOf()
+
                             for (card in cards) {
                                 val cardSearchableData = mutableListOf<String?>()
                                 cardSearchableData.add(card.notes)
@@ -707,42 +835,77 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                 cardSearchableData.add(card.cardholderName)
                                 cardSearchableData.add(card.name)
                                 cardSearchableData.add(card.expiry)
-                                val cardSearchableDataString = cardSearchableData.filterNotNull().joinToString("")
-                                    .lowercase(Locale.getDefault())
-                                    .filter { it.isLetterOrDigit() }
+                                val cardSearchableDataString = cardSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
-                                if (cardSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
+                                if (cardSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) { // other search
                                     searchTermsList.add(card)
                                 }
 
                                 for (tag in tags) {
-                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())) {
                                         if (card.tagId == tag.id) searchTermsList.add (card)
                                     }
                                 }
-                            }
-                            try{withContext(Dispatchers.Main) {
-                                val adapter = CardsAdapter(searchTermsList)
-                                cardsRecycler.adapter = adapter
-                                cardsRecycler.isNestedScrollingEnabled = false
-                                cardsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_down_anim_controller)
-                                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                adapter.notifyDataSetChanged()
-                                cardsRecycler.invalidate()
-                                cardsRecycler.refreshDrawableState()
-                                cardsRecycler.scheduleLayoutAnimation()}
 
-                            } catch (noRecyclerSet: UninitializedPropertyAccessException) {
                             }
+
+                            try {
+                                if (searchTermsList.isNotEmpty()) {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.dashboard_fragment_cards, null)
+                                    fragmentRoot.addView(fragmentView)
+                                    cardsRecycler = fragmentView.findViewById(R.id.cards_recycler)
+                                    cardsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
+                                    val adapter = CardsAdapter(searchTermsList)
+                                    adapter.setHasStableIds(true)
+                                    cardsRecycler.adapter = adapter
+                                    cardsRecycler.setItemViewCacheSize(50)
+                                    if (coldStart) cardsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_right_anim_controller)
+                                    LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+                                    cardsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                                    adapter.notifyItemInserted(cards.size)
+                                    cardsRecycler.isNestedScrollingEnabled = false
+                                    cardsRecycler.scheduleLayoutAnimation()
+
+                                    cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
+
+                                    cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-330f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 12) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
+                                } else {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.no_search_results, null)
+                                    fragmentRoot.addView(fragmentView)
+
+                                }
+                            } catch (_: UninitializedPropertyAccessException) { }
+
                         }
 
-                    }
+                }
 
+                override fun afterTextChanged (editable: Editable) { }
 
-                    } }
-
-
-                override fun afterTextChanged (editable: Editable) {}
             })
 
             searchButton.setOnClickListener {
@@ -753,13 +916,16 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     searchBar.requestFocusFromTouch()
                     input.showSoftInput(searchBar, 0)
                     alreadyAnimated = true
+
                 } else {
+
                     searchButton.setImageDrawable(searchIcon)
                     searchIcon!!.start()
                     searchBar.setText("")
                     searchBar.clearFocus()
                     input.hideSoftInputFromWindow(searchBar.windowToken, 0)
                     alreadyAnimated = false
+
                 }
             }
 
@@ -767,7 +933,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 searchBar.clearFocus()
                 input.hideSoftInputFromWindow(searchBar.windowToken, 0)
             }
-        } catch (noRecyclerSet: UninitializedPropertyAccessException) {}
+
+        } catch (noRecyclerSet: UninitializedPropertyAccessException) { }
 
     }
 
@@ -787,15 +954,19 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             searchButton.setImageDrawable(searchIcon)
                             searchIcon!!.start()
                             alreadyAnimated = false
-                            if (lastFragment == io.TYPE_LOGIN) {
-                                renderLoginsFragment()
-                            }else if (configData.getString("lastFragment", io.TYPE_NOTE) == io.TYPE_NOTE) {
-                                renderNotesFragment()
-                            }else if (configData.getString("lastFragment", io.TYPE_CARD) == io.TYPE_CARD) {
-                                renderCardsFragment()
+
+                            when (lastFragment) {
+                                io.TYPE_LOGIN -> {
+                                    renderLoginsFragment()
+                                }
+                                io.TYPE_NOTE -> {
+                                    renderNotesFragment()
+                                }
+                                io.TYPE_CARD -> {
+                                    renderCardsFragment()
+                                }
                             }
                         }
-
                     } }, 100)
 
                 }
