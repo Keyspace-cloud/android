@@ -1623,52 +1623,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             val miscText: TextView = itemView.findViewById(R.id.miscText)
 
             init {
-                rfidIcon.setColorFilter(Color.WHITE)
-
-                tagText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                tagText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                rfidIcon.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                magstripe.backgroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                bankLogoBack.setColorFilter(cardHolder.currentTextColor)
-                bankLogoFront.setColorFilter(cardHolder.currentTextColor)
-                paymentGateway.setColorFilter(cardHolder.currentTextColor)
-
-                editButton.backgroundTintList = ColorStateList.valueOf(cardNumber.hintTextColors.defaultColor)
-                editButton.iconTint = ColorStateList.valueOf(editButton.currentTextColor)
-
-                rfidIcon.setColorFilter(cardHolder.currentTextColor)
-                cardNotes.setTextColor (cardHolder.currentTextColor)
-                hideCodes.setColorFilter(cardHolder.currentTextColor)
-                pin.setTextColor (cardHolder.currentTextColor)
-                pinLabel.setTextColor (cardHolder.currentTextColor)
-                securityCode.setTextColor (cardHolder.currentTextColor)
-                securityCodeLabel.setTextColor (cardHolder.currentTextColor)
-                bankNameFront.setTextColor (cardHolder.currentTextColor)
-                bankNameBack.setTextColor (cardHolder.currentTextColor)
-                cardNotes.setTextColor (cardHolder.currentTextColor)
-                cardHolder .setTextColor (cardHolder.currentTextColor)
-                toDate .setTextColor (cardHolder.currentTextColor)
-                toLabel.setTextColor (cardHolder.currentTextColor)
-                cardNumber.setTextColor (cardHolder.currentTextColor)
-                cardNumber.setTextColor (cardHolder.currentTextColor)
-                miscText.setTextColor (cardHolder.currentTextColor)
-                tagText.setTextColor (cardHolder.currentTextColor)
-
-                tagText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                tagText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                rfidIcon.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                magstripe.backgroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
 
                 rfidIcon.invalidate()
                 rfidIcon.refreshDrawableState()
@@ -1843,10 +1797,83 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             if (!card.notes.isNullOrBlank()) cardCard.cardNotes.text = card.notes else cardCard.cardNotes.visibility = View.GONE
 
+
             val cardColor = card.color
             if (!card.color.isNullOrEmpty()) {
                 cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
                 cardCard.cardsCardBackLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
+            } else {
+                cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
+                cardCard.cardsCardBackLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
+            }
+
+            val intColor: Int = try { cardCard.cardsCardFrontLayout.backgroundTintList?.defaultColor!! } catch (_: NullPointerException) { 0 }
+
+            val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+            if (g >= 200 || b >= 200) {
+                cardCard.rfidIcon.setColorFilter(Color.BLACK)
+                cardCard.cardNotes.setTextColor (Color.BLACK)
+                cardCard.hideCodes.imageTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.pin.setTextColor (Color.BLACK)
+                cardCard.pinLabel.setTextColor (Color.BLACK)
+                cardCard.securityCode.setTextColor (Color.BLACK)
+                cardCard.securityCodeLabel.setTextColor (Color.BLACK)
+                cardCard.bankNameFront.setTextColor (Color.BLACK)
+                cardCard.bankNameBack.setTextColor (Color.BLACK)
+                cardCard.cardNotes.setTextColor (Color.BLACK)
+                cardCard.cardHolder.setTextColor (Color.BLACK)
+                cardCard.toDate.setTextColor (Color.BLACK)
+                cardCard.toLabel.setTextColor (Color.BLACK)
+                cardCard.cardNumber.setTextColor (Color.BLACK)
+                cardCard.cardNumber.setTextColor (Color.BLACK)
+                cardCard.miscText.setTextColor (Color.BLACK)
+                cardCard.tagText.setTextColor (Color.BLACK)
+                cardCard.tagText.foregroundTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.miscText.foregroundTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.miscText.compoundDrawableTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.cardNotes.foregroundTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.cardNotes.compoundDrawableTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.magstripe.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.bankLogoBack.setColorFilter(Color.BLACK)
+                cardCard.bankLogoFront.setColorFilter(Color.BLACK)
+                cardCard.paymentGateway.setColorFilter(Color.BLACK)
+                cardCard.editButton.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
+                cardCard.editButton.setTextColor(Color.WHITE)
+                cardCard.editButton.setIconTintResource (R.color.white)
+            } else {
+                cardCard.rfidIcon.setColorFilter(Color.WHITE)
+                cardCard.cardNotes.setTextColor (Color.WHITE)
+                cardCard.hideCodes.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.pin.setTextColor (Color.WHITE)
+                cardCard.pinLabel.setTextColor (Color.WHITE)
+                cardCard.securityCode.setTextColor (Color.WHITE)
+                cardCard.securityCodeLabel.setTextColor (Color.WHITE)
+                cardCard.bankNameFront.setTextColor (Color.WHITE)
+                cardCard.bankNameBack.setTextColor (Color.WHITE)
+                cardCard.cardNotes.setTextColor (Color.WHITE)
+                cardCard.cardHolder .setTextColor (Color.WHITE)
+                cardCard.toDate .setTextColor (Color.WHITE)
+                cardCard.toLabel.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.miscText.setTextColor (Color.WHITE)
+                cardCard.tagText.setTextColor (Color.WHITE)
+                cardCard.tagText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.miscText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.miscText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.cardNotes.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.cardNotes.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.magstripe.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.bankLogoBack.setColorFilter(Color.WHITE)
+                cardCard.bankLogoFront.setColorFilter(Color.WHITE)
+                cardCard.paymentGateway.setColorFilter(Color.WHITE)
+                cardCard.editButton.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.editButton.setTextColor(ColorStateList.valueOf(Color.BLACK))
+                cardCard.editButton.setIconTintResource (R.color.black)
             }
 
             val paymentGateway = misc.getPaymentGateway(card.cardNumber.toString())
@@ -1908,11 +1935,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             cardCard.cardHolder.isEnabled = true
             cardCard.toDate.isEnabled = true
             cardCard.bankNameFront.isEnabled = true
-
-            if (!cardColor.isNullOrEmpty()) {
-                cardCard.cardsCardFrontLayout.setBackgroundColor(Color.parseColor(cardColor))
-                cardCard.cardsCardBackLayout.setBackgroundColor(Color.parseColor(cardColor))
-            }
 
             cardCard.magstripe.isClickable = false
 
