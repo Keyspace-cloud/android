@@ -68,7 +68,7 @@
 
 
                     <ImageView
-                        android:id="@+id/markdownButton"
+                        android:id="@+id/previewButton"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:layout_weight="1"
@@ -131,7 +131,7 @@
                 android:id="@+id/noteToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginHorizontal="12.75dp"
+                android:layout_marginHorizontal="15dp"
                 android:fadingEdgeLength="100dp"
                 android:requiresFadingEdge="horizontal">
 
@@ -315,7 +315,7 @@
             android:orientation="vertical">
 
             <com.yydcdut.markdown.MarkdownEditText
-                android:id="@+id/noteViewer"
+                android:id="@+id/noteEditor"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
@@ -331,6 +331,28 @@
                 android:singleLine="false"
                 android:textCursorDrawable="@null"
                 android:textSize="18sp" />
+
+            <com.yydcdut.markdown.MarkdownEditText
+                android:id="@+id/notePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:editable="false"
+                android:focusable="false"
+                android:gravity="top"
+                android:hapticFeedbackEnabled="true"
+                android:hint="Type something to render it"
+                android:importantForAutofill="no"
+                android:inputType="none"
+                android:isScrollContainer="true"
+                android:nestedScrollingEnabled="true"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:singleLine="false"
+                android:textCursorDrawable="@null"
+                android:textIsSelectable="true"
+                android:textSize="18sp" />
+
         </LinearLayout>
     </ScrollView>
 
