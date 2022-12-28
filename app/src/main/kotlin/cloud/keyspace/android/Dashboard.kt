@@ -751,7 +751,10 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     fragmentView = inflater.inflate(R.layout.dashboard_fragment_notes, null)
                                     fragmentRoot.addView(fragmentView)
                                     notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
-                                    notesRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
+
+                                    if (configData.getBoolean("notesGrid", true)) notesRecycler.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
+                                    else notesRecycler.layoutManager = LinearLayoutManager(this)
+
                                     val adapter = NotesAdapter(searchTermsList)
                                     adapter.setHasStableIds(true)
                                     notesRecycler.adapter = adapter
