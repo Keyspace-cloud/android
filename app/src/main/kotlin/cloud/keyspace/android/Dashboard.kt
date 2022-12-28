@@ -3068,10 +3068,11 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     networkStatus = network.keyspaceStatus().status
                     try {
                         if (networkStatus != "alive") {
-                            connectionStatusDot.visibility = View.VISIBLE
-                            connectionStatusDot.imageTintList = ColorStateList.valueOf(Color.RED)
+                            withContext(Dispatchers.Main) {
+                                connectionStatusDot.visibility = View.VISIBLE
+                                connectionStatusDot.imageTintList = ColorStateList.valueOf(Color.RED)
+                            }
                         } else {
-                            connectionStatusDot.visibility = View.GONE
 
                             lateinit var signedToken: String
 
@@ -3083,23 +3084,28 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
                             val serverVault = network.grabLatestVaultFromBackend (signedToken)
 
-                            connectionStatusDot.visibility = View.GONE
+                            withContext(Dispatchers.Main) {
+                                connectionStatusDot.visibility = View.GONE
+                            }
 
                             if (io.vaultsDiffer(vault, serverVault)) {
                                 io.writeVault(serverVault)
                                 vault = serverVault
-                                when {
-                                    (lastFragment == io.TYPE_LOGIN) -> {
-                                        renderLoginsFragment()
-                                        bottomNavbar.selectedItemId = R.id.logins
-                                    }
-                                    (lastFragment == io.TYPE_NOTE) -> {
-                                        renderNotesFragment()
-                                        bottomNavbar.selectedItemId = R.id.notes
-                                    }
-                                    (lastFragment == io.TYPE_CARD) -> {
-                                        renderCardsFragment()
-                                        bottomNavbar.selectedItemId = R.id.payments
+
+                                withContext(Dispatchers.Main) {
+                                    when {
+                                        (lastFragment == io.TYPE_LOGIN) -> {
+                                            renderLoginsFragment()
+                                            bottomNavbar.selectedItemId = R.id.logins
+                                        }
+                                        (lastFragment == io.TYPE_NOTE) -> {
+                                            renderNotesFragment()
+                                            bottomNavbar.selectedItemId = R.id.notes
+                                        }
+                                        (lastFragment == io.TYPE_CARD) -> {
+                                            renderCardsFragment()
+                                            bottomNavbar.selectedItemId = R.id.payments
+                                        }
                                     }
                                 }
                             }
