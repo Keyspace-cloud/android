@@ -52,7 +52,7 @@ import java.util.concurrent.Executor
 class CryptoUtilities(
     applicationContext: Context,  // The context to derive information from.
     appCompatActivity: AppCompatActivity, // The activity to display the prompt inside of.
-) { // constructor without init {}
+) {
 
     private var context: Context = applicationContext
     var activity: AppCompatActivity = appCompatActivity
@@ -63,7 +63,6 @@ class CryptoUtilities(
     val XCHACHA_POLY1305_KEY_ALIAS = "keyspace_xchacha_poly1305_key"
     val ED25519_PUBLIC_KEY_ALIAS = "keyspace_ed25519_public"
     val ED25519_PRIVATE_KEY_ALIAS = "keyspace_ed25519_private"
-    val LOGIN_TOKEN_ALIAS = "keyspace_login_token"
     val KEYRING_NAME = MasterKey.DEFAULT_MASTER_KEY_ALIAS
 
     private var XCHACHA_POLY1305_NONCE_BYTES = 24
@@ -104,15 +103,12 @@ class CryptoUtilities(
         mnemonicCode.validate()
 
         val seed = mnemonicCode.toSeed(password)
-        //password.fill('0')
 
         val words: MutableList<String> = mutableListOf()
         for (word in mnemonicCode) {
             words.add(word)}
         val trimmedWords = words.joinToString(" ").toCharArray()
 
-        //Log.d("RAW BIP39 SEED", String(seed))
-        //Log.d("RAW BIP39 SEED LENGTH", seed.size.toString())
         mnemonicCode.clear()
 
         return Bip39 (
@@ -198,37 +194,6 @@ class CryptoUtilities(
     }
 
     /**
-     * Generate an Argon2i hash using LazySodium to use as hardened seed or xChaCha key
-     *
-     * @param password A password as a String.
-     * - To generate an ed25519 keypair, use the seed of the bip39 words.
-     * - To generate an AES key, use the hyphenated bip39 words themselves
-     * @param salt The last 16 bytes of a SHA256 salt of the 12 word hyphenated mnemonic as a ByteArray.
-     * @return A hash of the password + salt as a ByteArray
-     * @see <a href="https://github.com/terl/lazysodium-android">LazySodium on GitHub</a>
-     * @see <a href="https://doc.libsodium.org/">LibSodium documentation</a>
-     */
-    fun argon2i (password: CharArray, salt: ByteArray): ByteArray {
-        var stringifiedPassword = String(password)
-        val hash = lazySodium.cryptoPwHash (
-            stringifiedPassword,
-            32,
-            salt,
-            8, // updated on Oct 25, 2022 at 22:10 IST
-            NativeLong(128000), // if using KiB, convert to kB and cast to NativeLong (due to LibSodium using C / NDK)
-            PwHash.Alg.PWHASH_ALG_ARGON2I13
-        )
-
-        //password.fill('0')
-        stringifiedPassword.replaceRange(0, stringifiedPassword.length, "")
-        System.gc()
-
-        val byteArrayHash = HexMessageEncoder().decode(hash)
-
-        return byteArrayHash
-    }
-
-    /**
      * Generate an ed25519 keypair using LazySodium
      *
      * @param seed Argon2i hash as ByteArray
@@ -256,236 +221,6 @@ class CryptoUtilities(
     fun sign (data: String, privateKey: ByteArray): String {
         val ed25519SecretKey = Key.fromBytes(privateKey)
         return lazySodium.cryptoSign (data, ed25519SecretKey)
-    }
-
-    /**
-     * Verify data using LazySodium's cryptoSignVerifyDetached
-     *
-     * @param data The string to be signed using edDSA
-     * @param publicKey The ed25519 public key as a hex string (128 characters long / 256B)
-     * @return `true` if message was signed with the right private key and not tampered with, or else `false`.
-     * @see <a href="https://github.com/terl/lazysodium-android">LazySodium on GitHub</a>
-     * @see <a href="https://doc.libsodium.org/">LibSodium documentation</a>
-     */
-    fun verify (signature: String, data: String, publicKey: ByteArray): Boolean {
-        val ed25519PublicKey = Key.fromBytes(publicKey)
-        return lazySodium.cryptoSignVerifyDetached (signature, data, ed25519PublicKey)
-    }
-
-    /**
-     * Display a BiometricPrompt. Note: The BiometricPrompt runs on a separate Executor thread.
-     *
-     * @param title The prompt's title
-     * @param subtitle The prompt's subtitle
-     * @param description The prompt's description (Android 8.0+)
-     * @return `true` if successfully authenticated, `false` by default.
-     */
-    fun authenticate (
-        title: String, // Title of the prompt, could be app name.
-        subtitle: String, // Subtitle of the prompt, could be action to be performed.
-        description: String, // Description of the prompt, could be reason for the prompt.
-    ): Boolean {
-        var authenticationResult = false // don't allow successful authentication by default
-        val executor: Executor = ContextCompat.getMainExecutor(activity) // execute on different thread awaiting response
-        try {
-            val biometricManager = BiometricManager.from(context)
-            val canAuthenticate = biometricManager.canAuthenticate(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
-
-            if (canAuthenticate == BIOMETRIC_SUCCESS) {
-                Log.d("Keyspace", "Device lock found")
-            } else {
-                Log.d("Keyspace", "Device lock not set")
-                throw NoSuchMethodError()
-            }
-
-            val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
-                    authenticationResult = true
-                    Log.d("Keyspace", "Authentication successful")
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
-                    Log.d("Keyspace", "Authentication canceled")
-                    AlertDialog.Builder(activity)
-                        .setTitle("Authentication failure")
-                        .setMessage("Android needs your biometrics or credentials to retrieve your data from the Keystore. Please use biometrics or enter your PIN, pattern or password.")
-                        .setCancelable(false)
-                        .setNegativeButton("Exit"){ _, _ ->
-                            activity.finish()
-                        }
-                    .show()
-                }
-
-                override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
-                    Log.d("Keyspace", "Incorrect credentials supplied")
-                }
-            }
-
-            val builder = BiometricPrompt.PromptInfo.Builder().setTitle(title).setSubtitle(subtitle).setDescription(description)
-            builder.setAllowedAuthenticators(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
-            builder.setConfirmationRequired(true)
-
-            val promptInfo = builder.build()
-            val biometricPrompt = BiometricPrompt(activity, executor, authenticationCallback)
-            biometricPrompt.authenticate(promptInfo)
-
-        } catch (badPrompt: IllegalArgumentException) {
-            Log.e("Keyspace", "Wrong context or activity passed to function.")
-            badPrompt.stackTrace
-        } catch (wrongActivity: ClassCastException) {
-            Log.e("Keyspace", "Wrong activity passed to function.")
-            wrongActivity.stackTrace
-        } catch (noLockSet: NoSuchMethodError) {
-            Log.e("Keyspace", "Please set a screen lock.")
-            noLockSet.stackTrace
-        } catch (incorrectCredentials: Exception) {
-            Log.e("Keyspace", "Your identity could not be verified.")
-            incorrectCredentials.stackTrace
-        }
-
-        return authenticationResult
-    }
-
-    /**
-     * Display a BiometricPrompt and start an activity if successful. Note: The BiometricPrompt runs on a separate Executor thread.
-     *
-     * @param nextActivityIntent The intent of the next `AppCompatActivity` to start.
-     * @param title The prompt's title
-     * @param subtitle The prompt's subtitle
-     * @param description The prompt's description (Android 8.0+)
-     * @return `true` if successfully authenticated, `false` by default.
-     */
-    fun authenticateAndStartActivity(
-        nextActivityIntent: Intent, // The activity to start upon successful authentication.
-        title: String, // Title of the prompt, could be app name.
-        subtitle: String, // Subtitle of the prompt, could be action to be performed.
-        description: String, // Description of the prompt, could be reason for the prompt.
-    ): Boolean {
-
-        var authenticationResult = false // don't allow successful authentication by default
-        val executor: Executor = ContextCompat.getMainExecutor(activity) // execute on different thread awaiting response
-        try {
-            val biometricManager = BiometricManager.from(context)
-            val canAuthenticate = biometricManager.canAuthenticate(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
-
-            if (canAuthenticate == BIOMETRIC_SUCCESS) {
-                Log.d("Keyspace", "Device lock found")
-            } else {
-                Log.d("Keyspace", "Device lock not set")
-                throw NoSuchMethodError()
-            }
-
-            val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
-                    authenticationResult = true
-                    Log.d("Keyspace", "Authentication successful")
-                    nextActivityIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    context.startActivity(nextActivityIntent)
-                    activity.finish()
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
-                    Log.d("Keyspace", "Authentication canceled")
-                }
-
-                override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
-                    Log.d("Keyspace", "Incorrect credentials supplied")
-                }
-            }
-
-            val builder = BiometricPrompt.PromptInfo.Builder().setTitle(title).setSubtitle(subtitle).setDescription(description)
-            builder.setAllowedAuthenticators(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
-            builder.setConfirmationRequired(true)
-
-            val promptInfo = builder.build()
-            val biometricPrompt = BiometricPrompt(activity, executor, authenticationCallback)
-            biometricPrompt.authenticate(promptInfo)
-
-        } catch (badPrompt: IllegalArgumentException) {
-            Log.e("Keyspace", "Wrong context or activity passed to function.")
-            badPrompt.stackTrace
-        } catch (wrongActivity: ClassCastException) {
-            Log.e("Keyspace", "Wrong activity passed to function.")
-            wrongActivity.stackTrace
-        } catch (noLockSet: NoSuchMethodError) {
-            Log.e("Keyspace", "Please set a screen lock.")
-            noLockSet.stackTrace
-        } catch (incorrectCredentials: Exception) {
-            Log.e("Keyspace", "Your identity could not be verified.")
-            incorrectCredentials.stackTrace
-        }
-
-        return authenticationResult
-    }
-
-    /**
-     * Display a BiometricPrompt and start a method/function if successful. Note: The BiometricPrompt runs on a separate Executor thread.
-     *
-     * @param method The method to start if authentication is successful
-     * @param title The prompt's title
-     * @param subtitle The prompt's subtitle
-     * @param description The prompt's description (Android 8.0+)
-     * @return `true` if successfully authenticated, `false` by default.
-     */
-    fun authenticateAndRun (
-        function: () -> (Unit), // The function to be invoked post authentication success
-        title: String, // Title of the prompt, could be app name.
-        subtitle: String, // Subtitle of the prompt, could be action to be performed.
-        description: String, // Description of the prompt, could be reason for the prompt.
-    ): Boolean {
-
-        var authenticationResult = false // don't allow successful authentication by default
-        val executor: Executor = ContextCompat.getMainExecutor(activity) // execute on different thread awaiting response
-        try {
-            val biometricManager = BiometricManager.from(context)
-            val canAuthenticate = biometricManager.canAuthenticate(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
-
-            if (canAuthenticate == BIOMETRIC_SUCCESS) {
-                Log.d("Keyspace", "Device lock found")
-            } else {
-                Log.d("Keyspace", "Device lock not set")
-                throw NoSuchMethodError()
-            }
-
-            val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) { // Authentication succeeded
-                    authenticationResult = true
-                    Log.d("Keyspace", "Authentication successful")
-                    function()
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
-                    Log.d("Keyspace", "Authentication canceled")
-                }
-
-                override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
-                    Log.d("Keyspace", "Incorrect credentials supplied")
-                }
-            }
-
-            val builder = BiometricPrompt.PromptInfo.Builder().setTitle(title).setSubtitle(subtitle).setDescription(description)
-            builder.setAllowedAuthenticators(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
-            builder.setConfirmationRequired(true)
-
-            val promptInfo = builder.build()
-            val biometricPrompt = BiometricPrompt(activity, executor, authenticationCallback)
-            biometricPrompt.authenticate(promptInfo)
-
-        } catch (badPrompt: IllegalArgumentException) {
-            Log.e("Keyspace", "Wrong context or activity passed to function.")
-            badPrompt.stackTrace
-        } catch (wrongActivity: ClassCastException) {
-            Log.e("Keyspace", "Wrong activity passed to function.")
-            wrongActivity.stackTrace
-        } catch (noLockSet: NoSuchMethodError) {
-            Log.e("Keyspace", "Please set a screen lock.")
-            noLockSet.stackTrace
-        } catch (incorrectCredentials: Exception) {
-            Log.e("Keyspace", "Your identity could not be verified.")
-            incorrectCredentials.stackTrace
-        }
-
-        return authenticationResult
     }
 
     /**
@@ -686,11 +421,11 @@ class CryptoUtilities(
             if (keyring.ED25519_PRIVATE_KEY!!.isEmpty()) throw InvalidKeyException()
             if (keyring.ED25519_PUBLIC_KEY!!.isEmpty()) throw InvalidKeyException()
             if (keyring.XCHACHA_POLY1305_KEY!!.isEmpty()) throw InvalidKeyException()
-            // if (keyring.LOGIN_TOKEN!!.isEmpty()) throw InvalidKeyException()
+
             storeKey (XCHACHA_POLY1305_KEY_ALIAS, keyring.XCHACHA_POLY1305_KEY, masterKey)
             storeKey (ED25519_PUBLIC_KEY_ALIAS, keyring.ED25519_PUBLIC_KEY, masterKey)
             storeKey (ED25519_PRIVATE_KEY_ALIAS, keyring.ED25519_PRIVATE_KEY, masterKey)
-            // storeKey (LOGIN_TOKEN_ALIAS, keyring.LOGIN_TOKEN, masterKey)
+
             true
         } catch (badKeys: InvalidKeyException) {
             Log.e ("Keyspace", "Bad keyring supplied. Keys cannot be null or empty.")
@@ -762,14 +497,12 @@ class CryptoUtilities(
             keyring = Keyring (
                 XCHACHA_POLY1305_KEY = retrieveKey(XCHACHA_POLY1305_KEY_ALIAS, masterKey),
                 ED25519_PRIVATE_KEY = retrieveKey(ED25519_PRIVATE_KEY_ALIAS, masterKey),
-                ED25519_PUBLIC_KEY = retrieveKey(ED25519_PUBLIC_KEY_ALIAS, masterKey),
-                //LOGIN_TOKEN = retrieveKey(LOGIN_TOKEN_ALIAS, masterKey)
+                ED25519_PUBLIC_KEY = retrieveKey(ED25519_PUBLIC_KEY_ALIAS, masterKey)
             )
 
             if (keyring.XCHACHA_POLY1305_KEY!!.isEmpty()) throw InvalidKeyException()
             if (keyring.ED25519_PUBLIC_KEY!!.isEmpty()) throw InvalidKeyException()
             if (keyring.ED25519_PRIVATE_KEY!!.isEmpty()) throw InvalidKeyException()
-            // if (keyring.LOGIN_TOKEN!!.isEmpty()) throw InvalidKeyException()
 
         } catch (badKeys: InvalidKeyException) {
             Log.e ("Keyspace", "Couldn't find any valid keys in Keyring.")
@@ -977,7 +710,7 @@ class CryptoUtilities(
         intent.putExtra (XCHACHA_POLY1305_KEY_ALIAS, keyring?.XCHACHA_POLY1305_KEY)
         intent.putExtra (ED25519_PUBLIC_KEY_ALIAS, keyring?.ED25519_PUBLIC_KEY)
         intent.putExtra (ED25519_PRIVATE_KEY_ALIAS, keyring?.ED25519_PRIVATE_KEY)
-        //intent.putExtra (LOGIN_TOKEN_ALIAS, keyring?.LOGIN_TOKEN)
+
         intent.putExtra ("itemId", itemId)
         intent.setClassName (context.packageName, context.packageName + "." + nextActivityClassNameAsString) // Target explicitly to Keyspace app's Dashboard class only
 
@@ -986,7 +719,7 @@ class CryptoUtilities(
         intent.removeExtra (XCHACHA_POLY1305_KEY_ALIAS)
         intent.removeExtra (ED25519_PUBLIC_KEY_ALIAS)
         intent.removeExtra (ED25519_PRIVATE_KEY_ALIAS)
-        intent.removeExtra (LOGIN_TOKEN_ALIAS)
+
         intent.removeExtra ("itemId")
 
         try {
@@ -1009,7 +742,7 @@ class CryptoUtilities(
         lateinit var xChaChaPoly1305Key: ByteArray
         lateinit var ed25519PublicKey: ByteArray
         lateinit var ed25519PrivateKey: ByteArray
-        //lateinit var loginToken: ByteArray
+
         var itemId: String? = null
 
         if (intent.resolveActivity(context.packageManager).packageName == BuildConfig.APPLICATION_ID && intent.resolveActivity(context.packageManager).className == context.packageName + "." + currentActivityClassNameAsString) {
@@ -1017,13 +750,13 @@ class CryptoUtilities(
             xChaChaPoly1305Key = intent.getByteArrayExtra(XCHACHA_POLY1305_KEY_ALIAS)!!
             ed25519PublicKey = intent.getByteArrayExtra(ED25519_PUBLIC_KEY_ALIAS)!!
             ed25519PrivateKey = intent.getByteArrayExtra(ED25519_PRIVATE_KEY_ALIAS)!!
-            //loginToken = intent.getByteArrayExtra(LOGIN_TOKEN_ALIAS)!!
+
             itemId = intent.getStringExtra("itemId")
 
             intent.removeExtra(XCHACHA_POLY1305_KEY_ALIAS)
             intent.removeExtra(ED25519_PUBLIC_KEY_ALIAS)
             intent.removeExtra(ED25519_PRIVATE_KEY_ALIAS)
-            intent.removeExtra(LOGIN_TOKEN_ALIAS)
+
             intent.removeExtra ("itemId")
 
             try {
@@ -1047,7 +780,6 @@ class CryptoUtilities(
                 XCHACHA_POLY1305_KEY = xChaChaPoly1305Key,
                 ED25519_PUBLIC_KEY = ed25519PublicKey,
                 ED25519_PRIVATE_KEY = ed25519PrivateKey,
-                //LOGIN_TOKEN = loginToken
             ),
             itemId
         )
