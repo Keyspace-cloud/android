@@ -1624,7 +1624,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
                     .setLinkFontColor(note.currentTextColor)
                     .setOnTodoClickCallback(object : OnTodoClickCallback {
-                        override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence { return "" }
+                        override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence {
+                            return ""
+                        }
                     })
                     .setDefaultImageSize(480, 240)
                     .build()
