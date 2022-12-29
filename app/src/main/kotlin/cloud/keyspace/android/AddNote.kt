@@ -748,6 +748,7 @@ class AddNote : AppCompatActivity() {
         notePreview.visibility = View.GONE
 
         previewButton.setOnClickListener {
+            notePreview.clear()
             notePreview.setText (noteData)
             preview = if (preview) {
 
