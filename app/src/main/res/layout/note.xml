@@ -84,14 +84,21 @@
                     android:layoutDirection="rtl">
 
                     <TextView
-                        android:id="@+id/Date"
+                        android:id="@+id/TagText"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:foregroundGravity="center_vertical"
-                        android:gravity="center_vertical"
-                        android:paddingTop="2.5dp"
-                        android:text="Sept 55, 5555 at 55:55"
-                        android:textSize="14sp" />
+                        android:layout_weight="1"
+                        android:drawablePadding="5dp"
+                        android:ellipsize="marquee"
+                        android:fadingEdge="horizontal"
+                        android:gravity="center|end"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:scrollbars="none"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Tag"
+                        android:textSize="14sp"
+                        app:drawableEndCompat="@drawable/ic_baseline_circle_24" />
 
                     <TextView
                         android:id="@+id/MiscText"
@@ -112,21 +119,14 @@
                         app:drawableEndCompat="@drawable/ic_baseline_help_24" />
 
                     <TextView
-                        android:id="@+id/TagText"
+                        android:id="@+id/Date"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:drawablePadding="5dp"
-                        android:ellipsize="marquee"
-                        android:fadingEdge="horizontal"
-                        android:gravity="center|end"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollbars="none"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:text="Tag"
-                        android:textSize="14sp"
-                        app:drawableEndCompat="@drawable/ic_baseline_circle_24" />
+                        android:foregroundGravity="center_vertical"
+                        android:gravity="center_vertical"
+                        android:paddingTop="2.5dp"
+                        android:text="Sept 55, 5555 at 55:55"
+                        android:textSize="14sp" />
 
                 </com.google.android.material.chip.ChipGroup>
 
