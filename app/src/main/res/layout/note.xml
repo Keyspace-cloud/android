@@ -75,47 +75,26 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/noteMetadata"
-                    android:layout_width="match_parent"
-                    android:layout_height="34dp"
-                    android:translationY="-2dp"
-                    android:paddingHorizontal="15dp">
+                <com.google.android.material.chip.ChipGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginVertical="5dp">
 
                     <TextView
                         android:id="@+id/Date"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sept 55, 5555 at 55:55"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/TagText"
-                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:drawablePadding="5dp"
-                        android:ellipsize="marquee"
-                        android:fadingEdge="horizontal"
-                        android:gravity="center|end"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:paddingStart="10dp"
-                        android:scrollbars="none"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:text="Tag"
-                        android:textSize="14sp"
-                        app:drawableEndCompat="@drawable/ic_baseline_circle_24"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:foregroundGravity="center_vertical"
+                        android:gravity="center_vertical"
+                        android:paddingTop="2.5dp"
+                        android:text="Sept 55, 5555 at 55:55"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/MiscText"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:drawablePadding="5dp"
@@ -123,18 +102,31 @@
                         android:fadingEdge="horizontal"
                         android:gravity="center|end"
                         android:marqueeRepeatLimit="marquee_forever"
-                        android:paddingStart="10dp"
                         android:scrollbars="none"
                         android:scrollHorizontally="true"
                         android:singleLine="true"
                         android:text="Misc stuff"
                         android:textSize="14sp"
-                        app:drawableEndCompat="@drawable/ic_baseline_help_24"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/TagText"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:drawableEndCompat="@drawable/ic_baseline_help_24" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/TagText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:drawablePadding="5dp"
+                        android:ellipsize="marquee"
+                        android:fadingEdge="horizontal"
+                        android:gravity="center|end"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:scrollbars="none"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Tag"
+                        android:textSize="14sp"
+                        app:drawableEndCompat="@drawable/ic_baseline_circle_24" />
+
+                </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>
 
