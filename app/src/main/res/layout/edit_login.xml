@@ -571,7 +571,7 @@
                             android:layout_marginVertical="5dp"
                             android:fontFamily="monospace"
                             android:inputType="textPassword"
-                            android:maxLength="48" />
+                            android:maxLength="64" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
