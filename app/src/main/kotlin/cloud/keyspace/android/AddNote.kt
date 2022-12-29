@@ -750,18 +750,18 @@ class AddNote : AppCompatActivity() {
                     notePreview.setBackgroundColor(Color.parseColor(noteColor))
                     intColor = noteColor!!.replace("#", "").toInt(16)
                 } catch (_: Exception) {
-                    when (applicationContext.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                    intColor = when (applicationContext.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
                         Configuration.UI_MODE_NIGHT_YES -> {
                             notePreview.setBackgroundColor(Color.BLACK)
-                            intColor = Color.BLACK
+                            Color.BLACK
                         }
                         Configuration.UI_MODE_NIGHT_NO or Configuration.COLOR_MODE_HDR_UNDEFINED -> {
                             notePreview.setBackgroundColor(Color.WHITE)
-                            intColor = Color.WHITE
+                            Color.WHITE
                         }
                         else -> {
                             notePreview.setBackgroundColor(Color.WHITE)
-                            intColor = Color.WHITE
+                            Color.WHITE
                         }
                     }
                 }
@@ -778,6 +778,7 @@ class AddNote : AppCompatActivity() {
                 noteEditor.visibility = View.GONE
                 notePreview.visibility = View.VISIBLE
                 previewMarkdownProcessor.live(notePreview)
+                input.hideSoftInputFromWindow(noteEditor.windowToken, 0)
                 false
             } else {
                 previewButton.setImageDrawable(getDrawable(R.drawable.ic_baseline_visibility_24))

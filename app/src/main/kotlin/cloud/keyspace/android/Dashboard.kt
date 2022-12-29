@@ -957,6 +957,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             searchButton.setImageDrawable(searchIcon)
                             searchIcon!!.start()
                             alreadyAnimated = false
+                            fab.show()
 
                             when (lastFragment) {
                                 io.TYPE_LOGIN -> {
@@ -2526,7 +2527,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
 
                     BottomSheetBehavior.STATE_DRAGGING -> {
-                        fab.visibility = View.GONE
+                        fab.hide()
                         fab.isEnabled = false
                         swipeText.text = "Continue swiping..."
                         startCodeScanner()
