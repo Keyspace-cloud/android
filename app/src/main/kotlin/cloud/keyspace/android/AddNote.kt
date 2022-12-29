@@ -820,7 +820,7 @@ class AddNote : AppCompatActivity() {
 
         previousTimestamp = note.dateModified!!
 
-        val time = Calendar.getInstance(Locale.ENGLISH)
+        val time = Calendar.getInstance(Locale.getDefault())
         time.timeInMillis = previousTimestamp?.times(1000L)!!
         dateAndTime.text = "Last edited on " + DateFormat.format("MMM dd, yyyy ⋅  hh:mm a", time).toString()
 

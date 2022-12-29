@@ -1236,7 +1236,7 @@ class AddLogin : AppCompatActivity() {
         override fun onBindViewHolder(passwordHistoryView: ViewHolder, position: Int) {
             val passwordHistory = oldPasswords[passwordHistoryView.adapterPosition]
 
-            val calendar = Calendar.getInstance(Locale.ENGLISH)
+            val calendar = Calendar.getInstance(Locale.getDefault())
             calendar.timeInMillis = passwordHistory.created * 1000L
             val date = DateFormat.format("MMM dd, yyyy",calendar).toString()
             val time = DateFormat.format("HH:mm",calendar).toString()

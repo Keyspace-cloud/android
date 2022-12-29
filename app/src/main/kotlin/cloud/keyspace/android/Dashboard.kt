@@ -1428,7 +1428,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         } else loginNotes.visibility = View.GONE
 
         if (login.dateCreated != null || login.dateCreated != 0L) {
-            val calendar = Calendar.getInstance(Locale.ENGLISH)
+            val calendar = Calendar.getInstance(Locale.getDefault())
             calendar.timeInMillis = login.dateCreated?.times(1000L)!!
 
             dateCreated.text = "Created on\n" + DateFormat.format("MMM dd, yyyy ⋅ hh:mm a", calendar).toString()
@@ -1497,7 +1497,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 override fun onBindViewHolder(passwordHistoryView: ViewHolder, position: Int) {
                     val passwordHistory = oldPasswords[passwordHistoryView.adapterPosition]
 
-                    val calendar = Calendar.getInstance(Locale.ENGLISH)
+                    val calendar = Calendar.getInstance(Locale.getDefault())
                     calendar.timeInMillis = passwordHistory.created * 1000L
                     val date = DateFormat.format("MMM dd, yyyy",calendar).toString()
                     val time = DateFormat.format("HH:mm",calendar).toString()
@@ -1614,7 +1614,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     else -> ThemeDefault()
                 }
 
-                calendar = Calendar.getInstance(Locale.ENGLISH)
+                calendar = Calendar.getInstance(Locale.getDefault())
 
                 val markdownConfig = MarkdownConfiguration.Builder(applicationContext)
                     .setTheme(theme)
