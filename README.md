@@ -10,7 +10,7 @@
 
 The official Android client for [app.keyspace.cloud](https://app.keyspace.cloud/). A beautiful and secure password manager where you hold the keys.
 
-<img src="misc_assets/app-previews/readme/2phones.png" width="400px"  alt="Click to view screenshots">
+<img src="misc_assets/app-previews/readme/banner_github.png" width="400px"  alt="Click to view screenshots">
 
 ### Logins
 
