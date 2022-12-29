@@ -701,7 +701,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                             topBar.animate().translationY(-350f)
                                         }
 
-                                        if (scrollY < oldScrollY - 12) {
+                                        if (scrollY < oldScrollY - 5) {
                                             fab.show()
                                             bottomSheet.visibility = View.VISIBLE
                                             bottomSheet.animate().scaleY(1.0f)
@@ -797,14 +797,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
 
                                     notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                                        if (scrollY > oldScrollY + 12) {
+                                        if (scrollY > oldScrollY + 5) {
                                             fab.hide()
                                             bottomSheet.visibility = View.GONE
                                             bottomSheet.animate().scaleY(0.0f)
                                             topBar.animate().translationY(-350f)
                                         }
 
-                                        if (scrollY < oldScrollY - 12) {
+                                        if (scrollY < oldScrollY - 5) {
                                             fab.show()
                                             bottomSheet.visibility = View.VISIBLE
                                             bottomSheet.animate().scaleY(1.0f)
@@ -873,14 +873,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                     cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
 
                                     cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                                        if (scrollY > oldScrollY + 12) {
+                                        if (scrollY > oldScrollY + 5) {
                                             fab.hide()
                                             bottomSheet.visibility = View.GONE
                                             bottomSheet.animate().scaleY(0.0f)
                                             topBar.animate().translationY(-350f)
                                         }
 
-                                        if (scrollY < oldScrollY - 12) {
+                                        if (scrollY < oldScrollY - 5) {
                                             fab.show()
                                             bottomSheet.visibility = View.VISIBLE
                                             bottomSheet.animate().scaleY(1.0f)
@@ -1258,14 +1258,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
 
             loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollY > oldScrollY + 12) {
+                if (scrollY > oldScrollY + 5) {
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
                     topBar.animate().translationY(-350f)
                 }
 
-                if (scrollY < oldScrollY - 12) {
+                if (scrollY < oldScrollY - 5) {
                     fab.show()
                     bottomSheet.visibility = View.VISIBLE
                     bottomSheet.animate().scaleY(1.0f)
@@ -2260,14 +2260,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
 
             notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollY > oldScrollY + 12) {
+                if (scrollY > oldScrollY + 5) {
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
                     topBar.animate().translationY(-350f)
                 }
 
-                if (scrollY < oldScrollY - 12) {
+                if (scrollY < oldScrollY - 5) {
                     fab.show()
                     bottomSheet.visibility = View.VISIBLE
                     bottomSheet.animate().scaleY(1.0f)
@@ -2332,14 +2332,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
 
             cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollY > oldScrollY + 12) {
+                if (scrollY > oldScrollY + 5) {
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
                     topBar.animate().translationY(-350f)
                 }
 
-                if (scrollY < oldScrollY - 12) {
+                if (scrollY < oldScrollY - 5) {
                     fab.show()
                     bottomSheet.visibility = View.VISIBLE
                     bottomSheet.animate().scaleY(1.0f)
