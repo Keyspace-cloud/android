@@ -630,6 +630,7 @@ class MiscUtilities (applicationContext: Context) {
                 stringCharacters.add('[')
                 stringCharacters.add(' ')
                 stringCharacters.add(']')
+                stringCharacters.add(' ')
                 for (c in string) {
                     stringCharacters.add(c)
                     if (c == '\n') {
@@ -638,6 +639,7 @@ class MiscUtilities (applicationContext: Context) {
                         stringCharacters.add('[')
                         stringCharacters.add(' ')
                         stringCharacters.add(']')
+                        stringCharacters.add(' ')
                     }
                 }
                 String(stringCharacters.toCharArray())
@@ -660,6 +662,7 @@ class MiscUtilities (applicationContext: Context) {
                 stringCharacters.add('[')
                 stringCharacters.add('x')
                 stringCharacters.add(']')
+                stringCharacters.add(' ')
                 for (c in string) {
                     stringCharacters.add(c)
                     if (c == '\n') {
@@ -668,6 +671,7 @@ class MiscUtilities (applicationContext: Context) {
                         stringCharacters.add('[')
                         stringCharacters.add('x')
                         stringCharacters.add(']')
+                        stringCharacters.add(' ')
                     }
                 }
                 String(stringCharacters.toCharArray())
