@@ -698,7 +698,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                             fab.hide()
                                             bottomSheet.visibility = View.GONE
                                             bottomSheet.animate().scaleY(0.0f)
-                                            topBar.animate().translationY(-330f)
+                                            topBar.animate().translationY(-350f)
                                         }
 
                                         if (scrollY < oldScrollY - 12) {
@@ -801,7 +801,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                             fab.hide()
                                             bottomSheet.visibility = View.GONE
                                             bottomSheet.animate().scaleY(0.0f)
-                                            topBar.animate().translationY(-330f)
+                                            topBar.animate().translationY(-350f)
                                         }
 
                                         if (scrollY < oldScrollY - 12) {
@@ -877,7 +877,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                             fab.hide()
                                             bottomSheet.visibility = View.GONE
                                             bottomSheet.animate().scaleY(0.0f)
-                                            topBar.animate().translationY(-330f)
+                                            topBar.animate().translationY(-350f)
                                         }
 
                                         if (scrollY < oldScrollY - 12) {
@@ -1262,7 +1262,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
-                    topBar.animate().translationY(-330f)
+                    topBar.animate().translationY(-350f)
                 }
 
                 if (scrollY < oldScrollY - 12) {
@@ -2264,7 +2264,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
-                    topBar.animate().translationY(-330f)
+                    topBar.animate().translationY(-350f)
                 }
 
                 if (scrollY < oldScrollY - 12) {
@@ -2336,7 +2336,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
-                    topBar.animate().translationY(-330f)
+                    topBar.animate().translationY(-350f)
                 }
 
                 if (scrollY < oldScrollY - 12) {

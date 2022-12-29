@@ -48,8 +48,7 @@
         android:fitsSystemWindows="true"
         android:outlineProvider="background"
         android:layout_width="match_parent"
-        android:layout_height="125dp"
-        app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed" >
+        android:layout_height="125dp" >
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
