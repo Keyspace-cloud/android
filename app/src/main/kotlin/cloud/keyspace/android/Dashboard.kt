@@ -15,10 +15,7 @@ import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Vibrator
+import android.os.*
 import android.text.Editable
 import android.text.TextUtils.split
 import android.text.TextWatcher
@@ -26,6 +23,8 @@ import android.text.format.DateFormat
 import android.util.Base64
 import android.util.Log
 import android.view.*
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils.loadAnimation
 import android.view.animation.AnimationUtils.loadLayoutAnimation
@@ -39,6 +38,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager

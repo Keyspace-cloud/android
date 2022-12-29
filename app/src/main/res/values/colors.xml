@@ -15,7 +15,7 @@
 
     <color name="darkFinesseColor">#009688</color>
 
-    <color name="darkSystemUIStatusBarColor">#2C2B34</color>
+    <color name="darkSystemUIStatusBarColor">#ff1c1b1f</color>
     <color name="darkSystemUINavBarColor">#2A2932</color>
 
     <!--

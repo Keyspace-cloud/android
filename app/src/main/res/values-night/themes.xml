@@ -13,14 +13,12 @@
         <item name="colorOnPrimaryContainer">@color/darkFinesseColor</item>
         <item name="colorOnTertiaryContainer">@color/darkFinesseColor</item>
 
-        <item name="backgroundColor">@color/darkSecondaryBackgroundColor</item>
-
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
 
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/darkSystemUIStatusBarColor</item>
         <item name="android:navigationBarColor">@color/darkSecondaryBackgroundColor</item>
         <item name="android:windowBackground">@color/darkBackgroundColor</item>
 

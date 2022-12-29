@@ -21,9 +21,8 @@
 
             android:animateLayoutChanges="false"
             android:clipToPadding="false"
-            android:paddingTop="90dp"
-
-            android:paddingBottom="90dp"
+            android:paddingBottom="175dp"
+            android:paddingTop="75dp"
             android:smoothScrollbar="true"
 
             app:leftBgColor="@color/black"
