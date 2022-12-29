@@ -804,7 +804,6 @@ class AddLogin : AppCompatActivity() {
 
         secretInput.setText(login.loginData.totp!!.secret)
 
-
         backupCodesInput.setText(login.loginData.totp!!.backupCodes?.joinToString(",\n"))
 
         passwordHistoryData = mutableListOf()
@@ -863,6 +862,7 @@ class AddLogin : AppCompatActivity() {
 
         iconFileName = login.iconFile
         if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
+        else siteNameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
 
         return true
     }
