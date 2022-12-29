@@ -369,7 +369,7 @@ class AddNote : AppCompatActivity() {
             .setOnLinkClickCallback { _, link ->
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
             }
-            .setLinkFontColor(R.attr.colorControlActivated)
+            .setLinkFontColor(noteEditor.currentTextColor)
             .setOnTodoClickCallback(object : OnTodoClickCallback {
                 override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence { return "" }
             })
@@ -387,7 +387,7 @@ class AddNote : AppCompatActivity() {
             .setOnLinkClickCallback { view, link ->
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
             }
-            .setLinkFontColor(R.attr.colorControlActivated)
+            .setLinkFontColor(noteEditor.currentTextColor)
             .setOnTodoClickCallback(object : OnTodoClickCallback {
                 override fun onTodoClicked(view: View?, text: String?, lineNumber: Int): CharSequence {
                     return text.toString()

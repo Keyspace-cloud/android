@@ -1622,7 +1622,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     .setOnLinkClickCallback { _, link ->
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
                     }
-                    .setLinkFontColor(R.attr.colorControlActivated)
+                    .setLinkFontColor(note.currentTextColor)
                     .setOnTodoClickCallback(object : OnTodoClickCallback {
                         override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence { return "" }
                     })
