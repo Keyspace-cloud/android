@@ -80,7 +80,8 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="end"
                     android:layout_marginHorizontal="15dp"
-                    android:layout_marginVertical="5dp">
+                    android:layout_marginVertical="5dp"
+                    android:layoutDirection="rtl">
 
                     <TextView
                         android:id="@+id/Date"
@@ -107,6 +108,7 @@
                         android:singleLine="true"
                         android:text="Misc stuff"
                         android:textSize="14sp"
+                        android:visibility="visible"
                         app:drawableEndCompat="@drawable/ic_baseline_help_24" />
 
                     <TextView
