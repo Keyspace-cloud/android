@@ -19,29 +19,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="25dp">
+            android:padding="25dp">
 
             <ImageView
                 android:id="@+id/deviceLockIcon"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                app:tint="?attr/colorPrimary"
-                app:srcCompat="@drawable/ic_baseline_phonelink_lock_24" />
+                app:srcCompat="@drawable/ic_baseline_phonelink_lock_24"
+                app:tint="?attr/colorPrimary" />
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="10dp"
-                android:textSize="22sp"
-                android:text="Set a device lock" />
+                android:text="Set a device lock"
+                android:textSize="22sp" />
 
-                    <TextView
-                        android:id="@+id/keyguardPermissionDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="14dp"
-                        android:text="@string/keyguard_permission_description" />
+            <TextView
+                android:id="@+id/keyguardPermissionDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:text="@string/keyguard_permission_description" />
 
 
             <com.google.android.material.button.MaterialButton
@@ -67,9 +67,9 @@
                 android:layout_marginVertical="15dp"
                 android:foregroundGravity="bottom"
                 android:gravity="center"
-                android:visibility="gone"
                 android:text="@string/permissions_learn_more"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>
