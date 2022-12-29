@@ -843,7 +843,6 @@ class AddNote : AppCompatActivity() {
         }
 
         if (configData.getBoolean("notesPreview", false)) {
-            previewButton.setImageDrawable(getDrawable(R.drawable.ic_baseline_edit_24))
             noteToolbar.visibility = View.VISIBLE
             notePreview.visibility = View.GONE
             noteEditor.visibility = View.VISIBLE
