@@ -860,9 +860,11 @@ class AddLogin : AppCompatActivity() {
             customFieldsView.scheduleLayoutAnimation()
         }
 
-        iconFileName = login.iconFile
-        if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
-        else siteNameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+        Handler().postDelayed({ runOnUiThread {
+            iconFileName = login.iconFile
+            if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
+            else siteNameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+        } }, 100)
 
         return true
     }

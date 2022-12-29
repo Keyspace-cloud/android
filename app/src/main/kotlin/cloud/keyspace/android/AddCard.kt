@@ -462,9 +462,11 @@ class AddCard : AppCompatActivity() {
 
         cardColor = card.color
 
-        iconFileName = card.iconFile
-        if (iconFileName != null) nameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, nameInput.currentTextColor))
-        else nameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+        Handler().postDelayed({ runOnUiThread {
+            iconFileName = card.iconFile
+            if (iconFileName != null) nameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, nameInput.currentTextColor))
+            else nameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+        } }, 100)
 
         return true
     }
