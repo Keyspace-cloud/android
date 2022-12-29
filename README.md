@@ -75,7 +75,7 @@ Your encryption key is stored on a separate [hardware security module (HSM)](htt
 
 ### Quick wipe
 
-Instantly sign out and delete all on-device Keyspace data by tapping a single tile. Useful if the country you're in has a poor human rights record or [if your device is confiscated without your consent](https://www.dailydot.com/debug/greenwald-partner-david-miranda-detained-airport/).
+Instantly sign out and delete all on-device Keyspace data by tapping the quick settings tile. Useful if the country you're in has a poor human rights record or [if your device is confiscated without your consent](https://www.dailydot.com/debug/greenwald-partner-david-miranda-detained-airport/).
 
 ### Offline support
 
