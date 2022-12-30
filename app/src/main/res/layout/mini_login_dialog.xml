@@ -154,7 +154,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingBottom="10dp">
 
                 <LinearLayout
                     android:id="@+id/mfa"
@@ -183,14 +184,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/droid_sans_mono"
                         android:gravity="center|start"
-                        android:letterSpacing="0.1"
                         android:paddingHorizontal="12.5dp"
                         android:text="123 456"
                         android:textIsSelectable="true"
-                        android:textSize="24sp"
-                        android:textStyle="normal|bold" />
+                        android:textSize="28sp"
+                        android:textStyle="normal" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -201,7 +200,7 @@
                     android:layout_marginVertical="5dp"
                     android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:paddingVertical="15dp">
+                    android:paddingEnd="15dp">
 
                     <TextView
                         android:id="@+id/loginPassword"
@@ -213,7 +212,7 @@
                         android:drawablePadding="20dp"
                         android:fontFamily="monospace"
                         android:gravity="center|start"
-                        android:text="passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword  "
+                        android:text="passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"
                         android:textIsSelectable="true"
                         android:textSize="18sp" />
 
@@ -222,7 +221,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:paddingStart="5dp"
+                        android:paddingStart="15dp"
                         app:srcCompat="@drawable/ic_baseline_visibility_off_24" />
 
                 </LinearLayout>

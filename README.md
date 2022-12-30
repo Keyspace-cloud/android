@@ -1,4 +1,4 @@
-[![Android](https://img.shields.io/badge/Android-8.1+-138808.svg?style=flat-square&logo=android)](https://wearos.google.com)
+[![Android](https://img.shields.io/badge/Android-8.1+-138808.svg?style=flat-square&logo=android)](https://www.android.com/intl/en_in/versions/oreo-8-0/)
 [![License](https://img.shields.io/badge/License-GPLv3-purple?style=flat-square&logo=libreoffice)](LICENSE)
 [![Latest Version](https://img.shields.io/github/v/tag/Keyspace-cloud/android?label=Version&style=flat-square&logo=semver)](https://github.com/Keyspace-cloud/android/tags)
 [![Play Store](https://img.shields.io/badge/Play%20Store-Click%20Here-3DDC84?style=flat-square&logo=googleplay)](https://play.google.com/store/apps/details?id=cloud.keyspace.android)
@@ -10,7 +10,7 @@
 
 The official Android client for [app.keyspace.cloud](https://app.keyspace.cloud/). A beautiful and secure password manager where you hold the keys.
 
-<img src="misc_assets/app-previews/readme/2phones.png" width="400px"  alt="Click to view screenshots">
+<img src="misc_assets/app-previews/readme/banner_github.png" width="400px"  alt="Click to view screenshots">
 
 ### Logins
 
@@ -75,7 +75,7 @@ Your encryption key is stored on a separate [hardware security module (HSM)](htt
 
 ### Quick wipe
 
-Instantly sign out and delete all on-device Keyspace data by tapping a single tile. Useful if the country you're in countries has a poor human rights record or [if your device is confiscated without your consent](https://www.dailydot.com/debug/greenwald-partner-david-miranda-detained-airport/).
+Instantly sign out and delete all on-device Keyspace data by tapping the quick settings tile. Useful if the country you're in has a poor human rights record or [if your device is confiscated without your consent](https://www.dailydot.com/debug/greenwald-partner-david-miranda-detained-airport/).
 
 ### Offline support
 

@@ -59,6 +59,7 @@
     <string name="biometrics_keyring_description">Hold your phone upright and unlock your vault.\n\n(This is done once in a while to keep your data secure)</string>
     <string name="biometrics_onboarding_completion_description">This stores your encryption keys in the Keyring.</string>
     <string name="biometrics_modify_item_description">Enter your credentials to unlock the Keyring and access data.</string>
+    <string name="biometrics_share_sheet_item_description">Enter your credentials to unlock the Keyring and save data.</string>
 
     <string name="markdown_guide">
         # Title

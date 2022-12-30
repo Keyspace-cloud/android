@@ -15,10 +15,7 @@ import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Vibrator
+import android.os.*
 import android.text.Editable
 import android.text.TextUtils.split
 import android.text.TextWatcher
@@ -26,6 +23,8 @@ import android.text.format.DateFormat
 import android.util.Base64
 import android.util.Log
 import android.view.*
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils.loadAnimation
 import android.view.animation.AnimationUtils.loadLayoutAnimation
@@ -39,10 +38,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.android.volley.NetworkError
 import com.budiyev.android.codescanner.*
 import com.google.android.material.appbar.AppBarLayout
@@ -71,6 +72,7 @@ import com.yydcdut.markdown.theme.ThemeDefault
 import com.yydcdut.markdown.theme.ThemeDesert
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
 import kotlinx.coroutines.*
+import kotlinx.coroutines.NonCancellable.cancel
 import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -599,6 +601,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     closeIcon!!.start()
                     alreadyAnimated = true
                 }
+
                 searchBar.isFocusableInTouchMode = true
                 searchBar.requestFocusFromTouch()
                 input.showSoftInput(searchBar, 0)
@@ -612,35 +615,32 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             }
 
             searchBar.addTextChangedListener (object : TextWatcher {
-                override fun beforeTextChanged (charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+                override fun beforeTextChanged (charSequence: CharSequence, i: Int, i1: Int, i2: Int) { }
+
                 @SuppressLint("NotifyDataSetChanged", "SuspiciousIndentation")
                 override fun onTextChanged (searchTerms: CharSequence, i: Int, i1: Int, i2: Int) {
-
-                    CoroutineScope(Dispatchers.IO).launch {
-
-                        if (searchTerms.isNotEmpty()) {
 
                         if (searchType.contains(io.TYPE_LOGIN)) {
 
                             val searchTermsList: MutableList<IOUtilities.Login> = mutableListOf()
+
                             for (login in logins) {
                                 val loginSearchableData = mutableListOf<String?>()
                                 loginSearchableData.add(login.name)
                                 loginSearchableData.add(login.notes)
+                                loginSearchableData.add(login.iconFile)
                                 loginSearchableData.add(login.customFields.toString())
                                 loginSearchableData.add(login.loginData?.email)
                                 loginSearchableData.add(login.loginData?.username)
                                 loginSearchableData.add(login.loginData?.siteUrls.toString())
-                                val loginSearchableDataString = loginSearchableData.filterNotNull().joinToString("")
-                                    .lowercase(Locale.getDefault())
-                                    .filter { it.isLetterOrDigit() }
+                                val loginSearchableDataString = loginSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
                                 if (loginSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
                                     searchTermsList.add(login)
                                 }
 
-                                for (tag in tags!!) {
-                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag?.name?.lowercase(Locale.getDefault())!!) {
+                                for (tag in tags) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name?.lowercase(Locale.getDefault())!!) {
                                         if (login.tagId == tag.id) searchTermsList.add (login)
                                     }
                                 }
@@ -648,99 +648,269 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             }
 
                             try {
-                                withContext(Dispatchers.Main) {
-                                val adapter = LoginsAdapter(searchTermsList)
-                                adapter.setHasStableIds(true)
-                                loginsRecycler.adapter = adapter
-                                loginsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_down_anim_controller)
-                                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                adapter.notifyDataSetChanged()
-                                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                loginsRecycler.invalidate()
-                                loginsRecycler.refreshDrawableState()
-                                loginsRecycler.isNestedScrollingEnabled = false
-                                loginsRecycler.scheduleLayoutAnimation()}
-                            } catch (noRecyclerSet: UninitializedPropertyAccessException) {  }
+                                if (searchTermsList.isNotEmpty()) {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.dashboard_fragment_logins, null)
+                                    fragmentRoot.addView(fragmentView)
+                                    loginsRecycler = fragmentView.findViewById(R.id.logins_recycler)
+                                    loginsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
+                                    val adapter = LoginsAdapter(searchTermsList)
+                                    adapter.setHasStableIds(true)
+                                    loginsRecycler.adapter = adapter
+                                    loginsRecycler.setItemViewCacheSize(50);
+                                    if (coldStart) loginsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_right_anim_controller)
+                                    LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+                                    loginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                                    adapter.notifyItemInserted(notes.size)
+                                    loginsRecycler.isNestedScrollingEnabled = false
+                                    loginsRecycler.scheduleLayoutAnimation()
+
+                                    loginsRecycler.setListener(object : SwipeLeftRightCallback.Listener {
+                                        override fun onSwipedLeft(position: Int) {  // Edit login
+                                            crypto.secureStartActivity (
+                                                nextActivity = AddLogin(),
+                                                nextActivityClassNameAsString = getString(R.string.title_activity_add_login),
+                                                keyring = keyring,
+                                                itemId = logins.elementAt(position).id
+                                            )
+                                        }
+
+                                        override fun onSwipedRight(position: Int) {  // Copy password
+                                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            if (logins.elementAt(position).loginData?.password.isNullOrEmpty()) {
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Dashboard).create()
+                                                alertDialog.setTitle("No password")
+                                                alertDialog.setMessage("This login has no password.")
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                                                alertDialog.show()
+                                            } else {
+                                                val clip = ClipData.newPlainText("Keyspace", logins.elementAt(position).loginData?.password)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(applicationContext, "Password copied!", Toast.LENGTH_LONG).show()
+                                            }
+                                            adapter.notifyItemChanged(position)
+                                        }
+                                    })
+
+                                    loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
+
+                                    loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 12) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-350f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 5) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
+                                } else {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.no_search_results, null)
+                                    fragmentRoot.addView(fragmentView)
+                                }
+                            } catch (_: UninitializedPropertyAccessException) { }
 
                         } else if (searchType.contains(io.TYPE_NOTE)) {
+
                             val searchTermsList: MutableList<IOUtilities.Note> = mutableListOf()
+
                             for (note in notes) {
                                 val noteSearchableData = mutableListOf<String?>()
                                 noteSearchableData.add(note.notes)
                                 noteSearchableData.add(note.color)
-                                val noteSearchableDataString = noteSearchableData.filterNotNull().joinToString("")
-                                    .lowercase(Locale.getDefault())
-                                    .filter { it.isLetterOrDigit() }
+                                val noteSearchableDataString = noteSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
                                 if (noteSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
                                     searchTermsList.add(note)
                                 }
 
                                 for (tag in tags) {
-                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())) {
                                         if (note.tagId == tag.id) searchTermsList.add (note)
                                     }
                                 }
+
                             }
-                            try{
-                                withContext(Dispatchers.Main) {
+
+                            try {
+                                if (searchTermsList.isNotEmpty()) {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.dashboard_fragment_notes, null)
+                                    fragmentRoot.addView(fragmentView)
+                                    notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
+
+                                    if (configData.getBoolean("notesGrid", true)) notesRecycler.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
+                                    else notesRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
+
                                     val adapter = NotesAdapter(searchTermsList)
                                     adapter.setHasStableIds(true)
                                     notesRecycler.adapter = adapter
-                                    notesRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_down_anim_controller)
+                                    notesRecycler.setItemViewCacheSize(50)
+                                    if (coldStart) notesRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_right_anim_controller)
                                     LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                    adapter.notifyDataSetChanged()
+                                    notesRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                                    adapter.notifyItemInserted(notes.size)
                                     notesRecycler.isNestedScrollingEnabled = false
                                     notesRecycler.scheduleLayoutAnimation()
+
+                                    notesRecycler.setListener(object : SwipeLeftRightCallback.Listener {
+                                        override fun onSwipedLeft(position: Int) {  // Edit login
+                                            crypto.secureStartActivity (
+                                                nextActivity = AddNote(),
+                                                nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
+                                                keyring = keyring,
+                                                itemId = notes.elementAt(position).id
+                                            )
+                                        }
+
+                                        override fun onSwipedRight(position: Int) {  // Copy password
+                                            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            if (notes.elementAt(position).notes.isNullOrEmpty()) {
+                                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Dashboard).create()
+                                                alertDialog.setTitle("No text")
+                                                alertDialog.setMessage("This note has no text.")
+                                                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                                                alertDialog.show()
+                                            } else {
+                                                val clip = ClipData.newPlainText("Keyspace", notes.elementAt(position).notes)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(applicationContext, "Note copied!", Toast.LENGTH_LONG).show()
+                                            }
+                                            adapter.notifyItemChanged(position)
+                                        }
+
+                                    })
+
+                                    notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
+
+                                    notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 5) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-350f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 5) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
+                                } else {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.no_search_results, null)
+                                    fragmentRoot.addView(fragmentView)
                                 }
-                            } catch (noRecyclerSet: UninitializedPropertyAccessException) {  }
+                            } catch (_: UninitializedPropertyAccessException) { }
 
                         } else if (searchType.contains(io.TYPE_CARD)) {
+
                             val searchTermsList: MutableList<IOUtilities.Card> = mutableListOf()
+
                             for (card in cards) {
                                 val cardSearchableData = mutableListOf<String?>()
                                 cardSearchableData.add(card.notes)
                                 cardSearchableData.add(card.color)
                                 cardSearchableData.add(card.cardNumber)
+                                cardSearchableData.add(card.iconFile)
                                 cardSearchableData.add(card.cardholderName)
                                 cardSearchableData.add(card.name)
                                 cardSearchableData.add(card.expiry)
-                                val cardSearchableDataString = cardSearchableData.filterNotNull().joinToString("")
-                                    .lowercase(Locale.getDefault())
-                                    .filter { it.isLetterOrDigit() }
+                                val cardSearchableDataString = cardSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
-                                if (cardSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
+                                if (cardSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) { // other search
                                     searchTermsList.add(card)
                                 }
 
                                 for (tag in tags) {
-                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())!!) {
+                                    if (searchTerms.toString().lowercase(Locale.getDefault()) in tag.name.lowercase(Locale.getDefault())) {
                                         if (card.tagId == tag.id) searchTermsList.add (card)
                                     }
                                 }
-                            }
-                            try{withContext(Dispatchers.Main) {
-                                val adapter = CardsAdapter(searchTermsList)
-                                cardsRecycler.adapter = adapter
-                                cardsRecycler.isNestedScrollingEnabled = false
-                                cardsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_down_anim_controller)
-                                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                                adapter.notifyDataSetChanged()
-                                cardsRecycler.invalidate()
-                                cardsRecycler.refreshDrawableState()
-                                cardsRecycler.scheduleLayoutAnimation()}
 
-                            } catch (noRecyclerSet: UninitializedPropertyAccessException) {
                             }
+
+                            try {
+                                if (searchTermsList.isNotEmpty()) {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.dashboard_fragment_cards, null)
+                                    fragmentRoot.addView(fragmentView)
+                                    cardsRecycler = fragmentView.findViewById(R.id.cards_recycler)
+                                    cardsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
+                                    val adapter = CardsAdapter(searchTermsList)
+                                    adapter.setHasStableIds(true)
+                                    cardsRecycler.adapter = adapter
+                                    cardsRecycler.setItemViewCacheSize(50)
+                                    if (coldStart) cardsRecycler.layoutAnimation = loadLayoutAnimation(applicationContext, R.anim.slide_right_anim_controller)
+                                    LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+                                    cardsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                                    adapter.notifyItemInserted(cards.size)
+                                    cardsRecycler.isNestedScrollingEnabled = false
+                                    cardsRecycler.scheduleLayoutAnimation()
+
+                                    cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
+
+                                    cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                                        if (scrollY > oldScrollY + 5) {
+                                            fab.hide()
+                                            bottomSheet.visibility = View.GONE
+                                            bottomSheet.animate().scaleY(0.0f)
+                                            topBar.animate().translationY(-350f)
+                                        }
+
+                                        if (scrollY < oldScrollY - 5) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+
+                                        if (scrollY == 0) {
+                                            fab.show()
+                                            bottomSheet.visibility = View.VISIBLE
+                                            bottomSheet.animate().scaleY(1.0f)
+                                            topBar.animate().translationY(0f)
+                                        }
+                                    })
+
+                                } else {
+                                    fragmentRoot.removeAllViews()
+                                    fragmentView = inflater.inflate(R.layout.no_search_results, null)
+                                    fragmentRoot.addView(fragmentView)
+
+                                }
+                            } catch (_: UninitializedPropertyAccessException) { }
+
                         }
 
-                    }
+                }
 
+                override fun afterTextChanged (editable: Editable) { }
 
-                    } }
-
-
-                override fun afterTextChanged (editable: Editable) {}
             })
 
             searchButton.setOnClickListener {
@@ -751,13 +921,16 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     searchBar.requestFocusFromTouch()
                     input.showSoftInput(searchBar, 0)
                     alreadyAnimated = true
+
                 } else {
+
                     searchButton.setImageDrawable(searchIcon)
                     searchIcon!!.start()
                     searchBar.setText("")
                     searchBar.clearFocus()
                     input.hideSoftInputFromWindow(searchBar.windowToken, 0)
                     alreadyAnimated = false
+
                 }
             }
 
@@ -765,7 +938,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 searchBar.clearFocus()
                 input.hideSoftInputFromWindow(searchBar.windowToken, 0)
             }
-        } catch (noRecyclerSet: UninitializedPropertyAccessException) {}
+
+        } catch (noRecyclerSet: UninitializedPropertyAccessException) { }
 
     }
 
@@ -785,15 +959,20 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                             searchButton.setImageDrawable(searchIcon)
                             searchIcon!!.start()
                             alreadyAnimated = false
-                            if (lastFragment == io.TYPE_LOGIN) {
-                                renderLoginsFragment()
-                            }else if (configData.getString("lastFragment", io.TYPE_NOTE) == io.TYPE_NOTE) {
-                                renderNotesFragment()
-                            }else if (configData.getString("lastFragment", io.TYPE_CARD) == io.TYPE_CARD) {
-                                renderCardsFragment()
+                            fab.show()
+
+                            when (lastFragment) {
+                                io.TYPE_LOGIN -> {
+                                    renderLoginsFragment()
+                                }
+                                io.TYPE_NOTE -> {
+                                    renderNotesFragment()
+                                }
+                                io.TYPE_CARD -> {
+                                    renderCardsFragment()
+                                }
                             }
                         }
-
                     } }, 100)
 
                 }
@@ -1081,14 +1260,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             loginsScrollView = fragmentView.findViewById(R.id.logins_scrollview)
 
             loginsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollY > oldScrollY + 12) {
+                if (scrollY > oldScrollY + 5) {
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
-                    topBar.animate().translationY(-330f)
+                    topBar.animate().translationY(-350f)
                 }
 
-                if (scrollY < oldScrollY - 12) {
+                if (scrollY < oldScrollY - 5) {
                     fab.show()
                     bottomSheet.visibility = View.VISIBLE
                     bottomSheet.animate().scaleY(1.0f)
@@ -1251,7 +1430,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         } else loginNotes.visibility = View.GONE
 
         if (login.dateCreated != null || login.dateCreated != 0L) {
-            val calendar = Calendar.getInstance(Locale.ENGLISH)
+            val calendar = Calendar.getInstance(Locale.getDefault())
             calendar.timeInMillis = login.dateCreated?.times(1000L)!!
 
             dateCreated.text = "Created on\n" + DateFormat.format("MMM dd, yyyy ⋅ hh:mm a", calendar).toString()
@@ -1320,7 +1499,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 override fun onBindViewHolder(passwordHistoryView: ViewHolder, position: Int) {
                     val passwordHistory = oldPasswords[passwordHistoryView.adapterPosition]
 
-                    val calendar = Calendar.getInstance(Locale.ENGLISH)
+                    val calendar = Calendar.getInstance(Locale.getDefault())
                     calendar.timeInMillis = passwordHistory.created * 1000L
                     val date = DateFormat.format("MMM dd, yyyy",calendar).toString()
                     val time = DateFormat.format("HH:mm",calendar).toString()
@@ -1437,7 +1616,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     else -> ThemeDefault()
                 }
 
-                calendar = Calendar.getInstance(Locale.ENGLISH)
+                calendar = Calendar.getInstance(Locale.getDefault())
 
                 val markdownConfig = MarkdownConfiguration.Builder(applicationContext)
                     .setTheme(theme)
@@ -1445,9 +1624,11 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     .setOnLinkClickCallback { _, link ->
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
                     }
-                    .setLinkFontColor(R.attr.colorControlActivated)
+                    .setLinkFontColor(note.currentTextColor)
                     .setOnTodoClickCallback(object : OnTodoClickCallback {
-                        override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence { return "" }
+                        override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence {
+                            return ""
+                        }
                     })
                     .setDefaultImageSize(480, 240)
                     .build()
@@ -1623,60 +1804,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             val miscText: TextView = itemView.findViewById(R.id.miscText)
 
             init {
-                rfidIcon.setColorFilter(Color.WHITE)
-
-                tagText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                tagText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                miscText.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                rfidIcon.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.foregroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                cardNotes.compoundDrawableTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                magstripe.backgroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-
-                bankLogoBack.setColorFilter(cardHolder.currentTextColor)
-                bankLogoFront.setColorFilter(cardHolder.currentTextColor)
-                paymentGateway.setColorFilter(cardHolder.currentTextColor)
-
-                editButton.backgroundTintList = ColorStateList.valueOf(cardHolder.currentTextColor)
-                editButton.iconTint = ColorStateList.valueOf(editButton.currentTextColor)
-
-                rfidIcon.setColorFilter(Color.WHITE)
-                cardNotes.setTextColor (Color.WHITE)
-                hideCodes.setColorFilter(Color.WHITE)
-                pin.setTextColor (Color.WHITE)
-                pinLabel.setTextColor (Color.WHITE)
-                securityCode.setTextColor (Color.WHITE)
-                securityCodeLabel.setTextColor (Color.WHITE)
-                bankNameFront.setTextColor (Color.WHITE)
-                bankNameBack.setTextColor (Color.WHITE)
-                cardNotes.setTextColor (Color.WHITE)
-                cardHolder .setTextColor (Color.WHITE)
-                toDate .setTextColor (Color.WHITE)
-                toLabel.setTextColor (Color.WHITE)
-                cardNumber.setTextColor (Color.WHITE)
-                cardNumber.setTextColor (Color.WHITE)
-                miscText.setTextColor (Color.WHITE)
-                tagText.setTextColor (Color.WHITE)
-
-                tagText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-                miscText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                miscText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-                rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                cardNotes.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
-                cardNotes.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-
-                magstripe.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-
-                bankLogoBack.setColorFilter(Color.WHITE)
-                bankLogoFront.setColorFilter(Color.WHITE)
-                paymentGateway.setColorFilter(Color.WHITE)
-
-                editButton.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-                editButton.setTextColor(ColorStateList.valueOf(Color.BLACK))
-                editButton.setIconTintResource (R.color.black)
 
                 rfidIcon.invalidate()
                 rfidIcon.refreshDrawableState()
@@ -1851,24 +1978,23 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             if (!card.notes.isNullOrBlank()) cardCard.cardNotes.text = card.notes else cardCard.cardNotes.visibility = View.GONE
 
+
             val cardColor = card.color
             if (!card.color.isNullOrEmpty()) {
                 cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
                 cardCard.cardsCardBackLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
+            } else {
+                cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
+                cardCard.cardsCardBackLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
             }
 
             val intColor: Int = try { cardCard.cardsCardFrontLayout.backgroundTintList?.defaultColor!! } catch (_: NullPointerException) { 0 }
-
-            val paymentGateway = misc.getPaymentGateway(card.cardNumber.toString())
-            var bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, Color.WHITE) else null
-
-            var gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, Color.WHITE) else null
 
             val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
             if (g >= 200 || b >= 200) {
                 cardCard.rfidIcon.setColorFilter(Color.BLACK)
                 cardCard.cardNotes.setTextColor (Color.BLACK)
-                cardCard.hideCodes.setColorFilter(Color.BLACK)
+                cardCard.hideCodes.imageTintList = ColorStateList.valueOf(Color.BLACK)
                 cardCard.pin.setTextColor (Color.BLACK)
                 cardCard.pinLabel.setTextColor (Color.BLACK)
                 cardCard.securityCode.setTextColor (Color.BLACK)
@@ -1897,9 +2023,44 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 cardCard.editButton.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
                 cardCard.editButton.setTextColor(Color.WHITE)
                 cardCard.editButton.setIconTintResource (R.color.white)
-                bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, Color.BLACK) else null
-                gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, Color.BLACK) else null
+            } else {
+                cardCard.rfidIcon.setColorFilter(Color.WHITE)
+                cardCard.cardNotes.setTextColor (Color.WHITE)
+                cardCard.hideCodes.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.pin.setTextColor (Color.WHITE)
+                cardCard.pinLabel.setTextColor (Color.WHITE)
+                cardCard.securityCode.setTextColor (Color.WHITE)
+                cardCard.securityCodeLabel.setTextColor (Color.WHITE)
+                cardCard.bankNameFront.setTextColor (Color.WHITE)
+                cardCard.bankNameBack.setTextColor (Color.WHITE)
+                cardCard.cardNotes.setTextColor (Color.WHITE)
+                cardCard.cardHolder .setTextColor (Color.WHITE)
+                cardCard.toDate .setTextColor (Color.WHITE)
+                cardCard.toLabel.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.miscText.setTextColor (Color.WHITE)
+                cardCard.tagText.setTextColor (Color.WHITE)
+                cardCard.tagText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.tagText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.miscText.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.miscText.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.cardNotes.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.cardNotes.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.magstripe.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.bankLogoBack.setColorFilter(Color.WHITE)
+                cardCard.bankLogoFront.setColorFilter(Color.WHITE)
+                cardCard.paymentGateway.setColorFilter(Color.WHITE)
+                cardCard.editButton.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.editButton.setTextColor(ColorStateList.valueOf(Color.BLACK))
+                cardCard.editButton.setIconTintResource (R.color.black)
             }
+
+            val paymentGateway = misc.getPaymentGateway(card.cardNumber.toString())
+            var bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, cardCard.cardNumber.currentTextColor) else null
+
+            var gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, cardCard.cardNumber.currentTextColor) else null
 
             thread {
                 if (bankLogo != null && card.iconFile != "bank") {
@@ -1956,11 +2117,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             cardCard.toDate.isEnabled = true
             cardCard.bankNameFront.isEnabled = true
 
-            if (!cardColor.isNullOrEmpty()) {
-                cardCard.cardsCardFrontLayout.setBackgroundColor(Color.parseColor(cardColor))
-                cardCard.cardsCardBackLayout.setBackgroundColor(Color.parseColor(cardColor))
-            }
-
             cardCard.magstripe.isClickable = false
 
             cardCard.editButton.setOnClickListener {
@@ -1982,7 +2138,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             var codesHidden = true
             hideCodes()
-            if (!card.pin.isNullOrBlank()) cardCard.pin.text = card.pin else cardCard.pinLayout.visibility = View.GONE
             cardCard.hideCodes.setOnClickListener {
                 codesHidden = !codesHidden
                 if (codesHidden) {
@@ -2069,7 +2224,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 notes.add(io.decryptNote(encryptedNote))
 
             notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
-            notesRecycler.layoutManager = LinearLayoutManager(this)
+
+            if (configData.getBoolean("notesGrid", true)) notesRecycler.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
+            else notesRecycler.layoutManager = LinearLayoutManager(this)
 
             val adapter = NotesAdapter(notes)
             adapter.setHasStableIds(true)
@@ -2082,14 +2239,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             notesRecycler.scheduleLayoutAnimation()
 
             notesRecycler.setListener(object : SwipeLeftRightCallback.Listener {
-                override fun onSwipedLeft(position: Int) {  // Edit login
-                    crypto.secureStartActivity (
-                        nextActivity = AddNote(),
-                        nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
-                        keyring = keyring,
-                        itemId = notes.elementAt(position).id
-                    )
-                }
+                override fun onSwipedLeft(position: Int) { }
 
                 override fun onSwipedRight(position: Int) {  // Copy password
                     val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
@@ -2112,14 +2262,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             notesScrollView = fragmentView.findViewById(R.id.notes_scrollview)
 
             notesScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollY > oldScrollY + 12) {
+                if (scrollY > oldScrollY + 5) {
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
-                    topBar.animate().translationY(-330f)
+                    topBar.animate().translationY(-350f)
                 }
 
-                if (scrollY < oldScrollY - 12) {
+                if (scrollY < oldScrollY - 5) {
                     fab.show()
                     bottomSheet.visibility = View.VISIBLE
                     bottomSheet.animate().scaleY(1.0f)
@@ -2184,14 +2334,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             cardsScrollView = fragmentView.findViewById(R.id.cards_scrollview)
 
             cardsScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollY > oldScrollY + 12) {
+                if (scrollY > oldScrollY + 5) {
                     fab.hide()
                     bottomSheet.visibility = View.GONE
                     bottomSheet.animate().scaleY(0.0f)
-                    topBar.animate().translationY(-330f)
+                    topBar.animate().translationY(-350f)
                 }
 
-                if (scrollY < oldScrollY - 12) {
+                if (scrollY < oldScrollY - 5) {
                     fab.show()
                     bottomSheet.visibility = View.VISIBLE
                     bottomSheet.animate().scaleY(1.0f)
@@ -2226,7 +2376,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             doneBox = layoutInflater.inflate(R.layout.keyroute_done_screen, null)
             builder.setView(doneBox)
 
-            builder.setCancelable(true)
+            builder.setCancelable(false)
 
             killBottomSheet()
 
@@ -2381,7 +2531,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
 
                     BottomSheetBehavior.STATE_DRAGGING -> {
-                        fab.visibility = View.GONE
+                        fab.hide()
                         fab.isEnabled = false
                         swipeText.text = "Continue swiping..."
                         startCodeScanner()
@@ -2917,17 +3067,16 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     private fun vaultSynchronizer () {
         var refreshInterval: Long = configData.getLong ("refreshInterval", 0L)
 
-        fun grabVault () {
+        suspend fun grabVault () {
 
-            CoroutineScope(Dispatchers.IO).launch {
-                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
                     networkStatus = network.keyspaceStatus().status
                     try {
                         if (networkStatus != "alive") {
-                            connectionStatusDot.visibility = View.VISIBLE
-                            connectionStatusDot.imageTintList = ColorStateList.valueOf(Color.RED)
+                            withContext(Dispatchers.Main) {
+                                connectionStatusDot.visibility = View.VISIBLE
+                                connectionStatusDot.imageTintList = ColorStateList.valueOf(Color.RED)
+                            }
                         } else {
-                            connectionStatusDot.visibility = View.GONE
 
                             lateinit var signedToken: String
 
@@ -2939,23 +3088,28 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
                             val serverVault = network.grabLatestVaultFromBackend (signedToken)
 
-                            connectionStatusDot.visibility = View.GONE
+                            withContext(Dispatchers.Main) {
+                                connectionStatusDot.visibility = View.GONE
+                            }
 
                             if (io.vaultsDiffer(vault, serverVault)) {
                                 io.writeVault(serverVault)
                                 vault = serverVault
-                                when {
-                                    (lastFragment == io.TYPE_LOGIN) -> {
-                                        renderLoginsFragment()
-                                        bottomNavbar.selectedItemId = R.id.logins
-                                    }
-                                    (lastFragment == io.TYPE_NOTE) -> {
-                                        renderNotesFragment()
-                                        bottomNavbar.selectedItemId = R.id.notes
-                                    }
-                                    (lastFragment == io.TYPE_CARD) -> {
-                                        renderCardsFragment()
-                                        bottomNavbar.selectedItemId = R.id.payments
+
+                                withContext(Dispatchers.Main) {
+                                    when {
+                                        (lastFragment == io.TYPE_LOGIN) -> {
+                                            renderLoginsFragment()
+                                            bottomNavbar.selectedItemId = R.id.logins
+                                        }
+                                        (lastFragment == io.TYPE_NOTE) -> {
+                                            renderNotesFragment()
+                                            bottomNavbar.selectedItemId = R.id.notes
+                                        }
+                                        (lastFragment == io.TYPE_CARD) -> {
+                                            renderCardsFragment()
+                                            bottomNavbar.selectedItemId = R.id.payments
+                                        }
                                     }
                                 }
                             }
@@ -2967,8 +3121,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     } catch (noInternet: NullPointerException) {
                         cancel()
                     }
-                }
-            }
+
         }
 
         fun syncVault () {
@@ -2976,14 +3129,13 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             try {
                 CoroutineScope(Dispatchers.IO).launch {
                     kotlin.runCatching {
-                        withContext(Dispatchers.Main) {
-                            network.completeQueueTasks(network.generateSignedToken())
-                        }
+                        network.completeQueueTasks(network.generateSignedToken())
+                        grabVault()
                     }.onFailure {
                         when (it) {
                             is NetworkUtilities.IncorrectCredentialsException -> {
                                 withContext(Dispatchers.Main) {
-                                    showIncorrectCredentialsDialog()
+                                    // showIncorrectCredentialsDialog()
                                 }
                             }
                             else -> throw it
@@ -2991,7 +3143,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     }
                 }
 
-                grabVault()
             } catch (_: Exception) { }
         }
 

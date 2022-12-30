@@ -804,7 +804,6 @@ class AddLogin : AppCompatActivity() {
 
         secretInput.setText(login.loginData.totp!!.secret)
 
-
         backupCodesInput.setText(login.loginData.totp!!.backupCodes?.joinToString(",\n"))
 
         passwordHistoryData = mutableListOf()
@@ -861,8 +860,11 @@ class AddLogin : AppCompatActivity() {
             customFieldsView.scheduleLayoutAnimation()
         }
 
-        iconFileName = login.iconFile
-        if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
+        Handler().postDelayed({ runOnUiThread {
+            iconFileName = login.iconFile
+            if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
+            else siteNameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+        } }, 100)
 
         return true
     }
@@ -1236,7 +1238,7 @@ class AddLogin : AppCompatActivity() {
         override fun onBindViewHolder(passwordHistoryView: ViewHolder, position: Int) {
             val passwordHistory = oldPasswords[passwordHistoryView.adapterPosition]
 
-            val calendar = Calendar.getInstance(Locale.ENGLISH)
+            val calendar = Calendar.getInstance(Locale.getDefault())
             calendar.timeInMillis = passwordHistory.created * 1000L
             val date = DateFormat.format("MMM dd, yyyy",calendar).toString()
             val time = DateFormat.format("HH:mm",calendar).toString()

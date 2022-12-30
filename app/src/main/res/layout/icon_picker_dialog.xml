@@ -24,8 +24,8 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginVertical="5dp"
+                android:layout_height="45dp"
+                android:layout_marginVertical="2.5dp"
                 android:layout_weight="2"
 
                 app:cardBackgroundColor="@color/material_on_surface_stroke"
@@ -36,8 +36,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:strokeColor="@color/cardBorderColor"
-                app:strokeWidth="0.75dp">
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

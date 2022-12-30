@@ -25,8 +25,8 @@
         android:animateLayoutChanges="false"
 
         android:clipToPadding="false"
-        android:paddingBottom="90dp"
-        android:paddingTop="90dp"
+        android:paddingBottom="175dp"
+        android:paddingTop="75dp"
 
         app:leftBgColor="@color/black"
         app:leftImage="@drawable/ic_baseline_key_24"

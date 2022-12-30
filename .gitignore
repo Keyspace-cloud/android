@@ -29,3 +29,4 @@ pkcs11.password
 dev.keystore
 maps.key
 /.idea/
+/.gradle/
