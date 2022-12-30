@@ -7,69 +7,11 @@
     tools:context=".Dashboard"
     android:id="@+id/root">
 
-    <TextView
-        android:id="@+id/arrow_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Swipe up to log in\non your computer"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/arrow2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.023"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <ImageView
-        android:id="@+id/arrow2"
-        android:layout_width="75dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center"
-        android:rotation="-283"
-        android:rotationY="-180"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.104"
-        app:layout_constraintStart_toStartOf="@+id/content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.850"
-        app:srcCompat="@drawable/chalk_arrow" />
-
-    <TextView
-        android:id="@+id/arrow_hint2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Tap to add data"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/arrow"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.891"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <ImageView
-        android:id="@+id/arrow"
-        android:layout_width="75dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center"
-        android:rotation="-345"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.907"
-        app:layout_constraintStart_toStartOf="@+id/content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.795"
-        app:srcCompat="@drawable/chalk_arrow" />
-
     <LinearLayout
         android:id="@+id/content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="100dp"
         android:orientation="vertical"
         android:paddingHorizontal="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -79,8 +21,8 @@
 
         <ImageView
             android:id="@+id/illustration"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="375dp"
+            android:layout_height="225dp"
             android:layout_gravity="center"
             app:srcCompat="@drawable/illustration_no_vault_data" />
 
@@ -89,13 +31,70 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="25dp"
             android:layout_marginBottom="14dp"
             android:gravity="center"
             android:singleLine="false"
             android:text="There's nothing in here"
             android:textSize="18sp"
             android:textStyle="italic" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="150dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/arrow_hint2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:gravity="center"
+            android:text="Tap to\nadd data"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/arrow"
+            android:layout_width="75dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:rotation="-345"
+            app:srcCompat="@drawable/chalk_arrow" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="250dp"
+        android:layout_marginBottom="125dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/arrow_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:gravity="center"
+            android:text="Swipe up to log in\non desktop"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/arrow2"
+            android:layout_width="75dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:rotation="-283"
+            android:rotationY="-180"
+            app:srcCompat="@drawable/chalk_arrow" />
 
     </LinearLayout>
 
