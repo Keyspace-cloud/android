@@ -8,39 +8,47 @@
 
 <img src = "app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" alt = "Keyspace" width = "60dp">
 
-The official Android client for [app.keyspace.cloud](https://app.keyspace.cloud/). A beautiful and secure password manager where you hold the keys.
+The official Android client for [app.keyspace.cloud](https://app.keyspace.cloud/). A beautiful and secure password manager where you hold the keys safe.
 
 <img src="misc_assets/app-previews/readme/banner_github.png" width="400px"  alt="Click to view screenshots">
 
-### Logins
+>### Logins
+Create and store passwords, two-factor authentication codes, backup codes and more. 
 
 <img src="misc_assets/app-previews/readme/mini-login.png" width="200px"  alt="Click to view screenshot">
 
-Create and store passwords, two-factor authentication codes, backup codes and more. 
 
-### Notes
+
+>### Notes
+Secure notes with rich previews and markdown support
 
 <img src="misc_assets/app-previews/readme/notes.png" width="200px"  alt="Click to view screenshot">
 
-Secure notes with rich previews and markdown support
-
-### Payments
+> ### Payments
+Access your credit and debit cards with ease
 
 <img src="misc_assets/app-previews/readme/cards.png" width="200px"  alt="Click to view screenshot">
 
-Access your credit and debit cards with ease
 
-### Keyroute
 
-<img src="misc_assets/app-previews/readme/keyroute-scan.png" width="200px"  alt="Click to view screenshot"><img src="misc_assets/app-previews/readme/keyroute-success.png" width="250px"  alt="Click to view screenshot">
+> ### Keyroute
 
 Swipe up and scan a QR code to instantly log into your desktop
+<table align="center" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+        <tr>
+            <td><img src="misc_assets/app-previews/readme/keyroute-scan.png" width="200px"  alt="Click to view screenshot">               </td>
+            <td><img src="misc_assets/app-previews/readme/keyroute-success.png" width="250px"  alt="Click to view screenshot"></td>
+        </tr>
+    </thead>
+</table>
 
-### Recovery
+> ### Recovery
+All of this is backed up and encrypted with a [12 word recovery phrase](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki).
 
 <img src="misc_assets/app-previews/readme/words.png" width="200px"  alt="Click to view screenshot">
 
-All of this is backed up and encrypted with a [12 word recovery phrase](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki).
+_________________
 
 ## Features
 
@@ -52,7 +60,7 @@ Keyspace uses end-to-end encryption to secure all user data (Logins, Notes, Card
 
 _Read more: [Bitwarden Security White Paper (page 9)](https://bitwarden.com/images/resources/security-white-paper-download.pdf)_
 
-Most password managers transmit a hash of users master password for authentication purposes. Keyspace uses a challenge-response based authentication scheme to eliminate users master password hashes being stored on the backend. The client simply signs cryptographic challenge and sends it to the backend. Password hashes never cross the wire.
+Most password managers transmit a hash of users master password for authentication purposes. <strong>Keyspace uses a challenge-response based authentication scheme to eliminate users master password hashes being stored on the backend.</strong> The client simply signs cryptographic challenge and sends it to the backend. Password hashes never cross the wire.
 
 ### Deterministic Key derivation
 
@@ -79,7 +87,7 @@ Instantly sign out and delete all on-device Keyspace data by tapping the quick s
 
 ### Offline support
 
-On a flight? No problem. Keyspace can do everything offline and sync once you're online.
+On a flight? No problem. <strong>Keyspace can do everything offline and sync once you're online.</strong>
 
 ### Native android app
 
@@ -99,9 +107,9 @@ Keyspace is written in Kotlin. Keyspace is designed to be fast and lightweight i
 
 ### The Keyspace Team
 
-- **Owais Shaikh** - Android App
-- **Nimish Karmali** - Cryptography, Architecture and Infrastructure
-- **Rohan Chaturvedi** - Backend API, Browser and Desktop Apps
+- [**Owais Shaikh**](https://github.com/4f77616973) - Android App
+- [**Nimish Karmali**](https://github.com/nimish-ks)- Cryptography, Architecture and Infrastructure
+- [**Rohan Chaturvedi**](https://github.com/rohan-keyspace) - Backend API, Browser and Desktop Apps
 
 ## License
 
