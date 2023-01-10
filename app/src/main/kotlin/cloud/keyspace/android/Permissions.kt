@@ -139,7 +139,7 @@ class Permissions : AppCompatActivity() {
                             */
 
                             /*
-                            if (!isAccessibilityServiceEnabled (applicationContext, AutofillAccessibilityService::class.java)) {
+                            if (!isAccessibilityServiceEnabled (applicationContext, cloud.keyspace.android.AutofillAccessibilityService::class.java)) {
 
                                 val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this@Permissions).create()
                                 alertDialog.setTitle("Accessibility permissions")
