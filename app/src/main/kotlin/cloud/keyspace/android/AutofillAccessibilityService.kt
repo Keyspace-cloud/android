@@ -30,41 +30,34 @@ import java.util.*
 
 /**
  *  Copyright (c) 2023 Owais Shaikh @ Keyspace (some top notch stuff here)
- *                                      _________________________________________
+ *                                      ._______________________________________.
  *                                      ↓                                       |
  *  START                       Continuously                                    |
  *  AccessibilityService -----> read view --------> Insert each node            |
  *                              nodes on screen     into detector function      |
- *                                                    |                         |
- *                                                    |                         |
  *                                                    ↓                         |
  *                                                    IF                        |
  *                                                    any view node  ELSE ---> mutableListOf<AccessibilityNodeInfo>()
  *                                                    is fillable              .clear()
- *                                                    |
  *                                                    ↓
  *                                            mutableListOf<AccessibilityNodeInfo>()
  *                                            .add()
- *                                                   |
- *                                                   ↓
+ *                                            ↓
  *                                            IF mutableListOf<AccessibilityNodeInfo>() IS NOT empty
  *                                            |
  *                                            ↓             IF          WAIT                     SET
  *                                            Show nub ---> tapped ---> for user to pick ------> IOUtilities.Login? variable
  *                                                                         or autopick                      |
  *                                                                         based on URL / package ID        |
- *                                                                                                          |
  *                                                                                                          ↓
- *                                                                                                          FOR
- *                                                                  IF IOUtilities.Login IS NOT null  <---- node in mutableListOf<AccessibilityNodeInfo>()
- *                                                                  a) AUTOFILL STRING using SET_TEXT
- *                                                                  b) mutableListOf<AccessibilityNodeInfo>().remove(node)
+ *                                                             .------------------------------------------> FOR
+ *                                                             |     IF IOUtilities.Login? IS NOT null  <-- node in mutableListOf<AccessibilityNodeInfo>()
+ *                                                             |    a) AUTOFILL STRING using SET_TEXT
+ *                                                             '--- b) mutableListOf<AccessibilityNodeInfo>().remove(node)
  *                                                                  |
  *                                                                  ON LOOP END
- *                                                                  |
  *                                                                  ↓
  *                                                                  SET IOUtilities.Login? to null
- *                                                                  |
  *                                                                  ↓
  *                                                                  FINISH
  */
