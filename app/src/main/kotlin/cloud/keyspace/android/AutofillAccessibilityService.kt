@@ -57,7 +57,7 @@ import java.util.*
  *                                                                                                          ↓
  *                                                                                                          FOR
  *                                                                  IF IOUtilities.Login IS NOT null  <---- node in mutableListOf<AccessibilityNodeInfo>()
- *                                                                  a) SET relevant items
+ *                                                                  a) AUTOFILL STRING using SET_TEXT
  *                                                                  b) mutableListOf<AccessibilityNodeInfo>().remove(node)
  *                                                                  |
  *                                                                  ↓
