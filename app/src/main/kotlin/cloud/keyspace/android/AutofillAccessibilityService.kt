@@ -5,21 +5,47 @@ import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import java.util.UUID
 
 class AutofillAccessibilityService : AccessibilityService() {
 
-    val fillableTextFields = mutableMapOf<String, String>()
+    val TYPE_LOGIN = "login"
+    val TYPE_CARD = "card"
+
+    var loginData: IOUtilities.Login? = null
 
     init {
-        fillableTextFields["password-field-label"] = "pass123"
+        loginData = IOUtilities.Login (
+            id = UUID.randomUUID().toString(),
+            organizationId = null,
+            type = TYPE_LOGIN,
+            name = "FirstName LastName",
+            notes = "notes",
+            favorite = true,
+            tagId = null,
+            loginData = IOUtilities.LoginData (
+                username = "u53rn4m3",
+                password = "password123",
+                passwordHistory = null,
+                email = "em@il.il",
+                totp = IOUtilities.Totp (
+                    secret = "ASDFGHJKLASDFGHJKL",
+                    backupCodes = mutableListOf("123456", "654321"),
+                ),
+                siteUrls = mutableListOf("https://google.com", "accounts.google.com")
+            ),
+            dateCreated = 1673464321,
+            dateModified = 1673464321,
+            frequencyAccessed = 0L,
+            iconFile = "keyspace",
+            customFields = null
+        )
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val rootNode = rootInActiveWindow ?: return
-        if (fillableTextFields.isNotEmpty()) {
-            for (field in fillableTextFields) {
-                fillData(rootNode, field)
-            }
+        if (loginData != null) {
+            fillLoginData(rootNode)
         }
     }
 
@@ -33,13 +59,14 @@ class AutofillAccessibilityService : AccessibilityService() {
     * f. To autofill, use the nub again
     * */
 
-    private fun fillData(rootNode: AccessibilityNodeInfo, data: MutableMap.MutableEntry<String, String>) {
+    private fun fillLoginData(rootNode: AccessibilityNodeInfo) {
         val editText = rootNode.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return
         val arguments = Bundle()
-        arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, data.value)
+        arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, loginData!!.loginData!!.password)
         editText.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
-        fillableTextFields.remove(data.key)
+        loginData = null
     }
 
     override fun onInterrupt() { }
+
 }
