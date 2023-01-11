@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Toast
 import java.util.UUID
 
 class AutofillAccessibilityService : AccessibilityService() {
@@ -44,9 +45,7 @@ class AutofillAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val rootNode = rootInActiveWindow ?: return
-        if (loginData != null) {
-            fillLoginData(rootNode)
-        }
+        if (loginData != null) fillLoginData(rootNode)
     }
 
     /*
