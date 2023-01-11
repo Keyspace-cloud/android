@@ -60,6 +60,8 @@ import java.util.*
  *                                                                  a) AUTOFILL STRING using SET_TEXT
  *                                                                  b) mutableListOf<AccessibilityNodeInfo>().remove(node)
  *                                                                  |
+ *                                                                  ON LOOP END
+ *                                                                  |
  *                                                                  ↓
  *                                                                  SET IOUtilities.Login? to null
  *                                                                  |
