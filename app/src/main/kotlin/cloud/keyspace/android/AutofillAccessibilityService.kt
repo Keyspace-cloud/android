@@ -28,6 +28,43 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
+/**
+ *  Copyright (c) 2023 Owais Shaikh @ Keyspace (some top notch stuff here)
+ *
+ *
+ *                                      _________________________________________________
+ *                                      ↓                                               |
+ *  START                       Continuously                                            |
+ *  AccessibilityService -----> read view -----> Insert them into detector function     |
+ *                              nodes on screen       |                                 |
+ *                                                    |                                 |
+ *                                                    ↓                                 |
+ *                                               IF                                     |
+ *                                               any view node  ELSE ---> mutableListOf<AccessibilityNodeInfo>()
+ *                                               is fillable              .clear()
+ *                                                  |
+ *                                                  ↓
+ *                                               mutableListOf<AccessibilityNodeInfo>()
+ *                                               .add()
+ *                                                  |
+ *                                                  ↓          IF          WAIT             SET
+ *                                               Show nub ---> tapped ---> for user ------> IOUtilities.Login ----
+ *                                                                         to pick item     to variable          |
+ *                                                                         or autopick                           |
+ *                                                                         based on URL / package ID             |
+ *                                                                                                               |
+ *                                                                                                               ↓
+ *                                                                                                              FOR
+ *                                                                  IF IOUtilities.Login IS NOT null      <---- node in mutableListOf<AccessibilityNodeInfo>()
+ *                                                                  a) SET relevant items
+ *                                                                  b) mutableListOf<AccessibilityNodeInfo>().remove(node)
+ *                                                                  |
+ *                                                                  ↓
+ *                                                                  SET IOUtilities.Login to null
+ *                                                                  |
+ *                                                                  ↓
+ *                                                                  FINISH
+ */
 
 class AutofillAccessibilityService: AccessibilityService() {
 
@@ -523,7 +560,7 @@ class AutofillAccessibilityService: AccessibilityService() {
         val source = event.source ?: return
 
         // For apps like Spotify, where viewIdResourceName = null
-        Log.d("PWDETECT1", source.viewIdResourceName)
+        Log.d("PWDETECT1", source.viewIdResourceName.toString())
         if (source.viewIdResourceName == null) {
 
             Log.d("PWDETECT2", loginData!!.loginData?.password.toString())
