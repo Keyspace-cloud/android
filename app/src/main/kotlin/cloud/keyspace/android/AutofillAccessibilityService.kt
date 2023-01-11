@@ -47,8 +47,8 @@ import java.util.*
  *                                            |
  *                                            ↓             IF          WAIT                     SET
  *                                            Show nub ---> tapped ---> for user to pick ------> IOUtilities.Login? variable
- *                                                                         or autopick                      |
- *                                                                         based on URL / package ID        |
+ *                                                                      or autopick                         |
+ *                                                                      based on URL / package ID           |
  *                                                                                                          ↓
  *                                                             .------------------------------------------> FOR
  *                                                             |     IF IOUtilities.Login? IS NOT null  <-- node in mutableListOf<AccessibilityNodeInfo>()
