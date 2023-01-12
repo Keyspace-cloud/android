@@ -372,7 +372,9 @@ class AddCard : AppCompatActivity() {
             vault.card?.remove(io.getCard(itemId!!, vault))
         }
 
-        if (cardNumberInput.text.toString().length < 16) cardNumberInput.error = "Enter a valid 16 digit card number"
+        if (cardNumberInput.text.toString().replace(" ", "").length < 16) cardNumberInput.error = "Enter a valid 16 digit card number"
+        else if (cardNumberInput.text.toString().replace(" ", "").length in 17..18
+            || cardNumberInput.text.toString().replace(" ", "").length > 19) cardNumberInput.error = "Enter a valid 19 digit card number"
         else if (securityCode.text.toString().length !in 3..4) securityCode.error = "Enter a valid security code"
         else if (toDate.text.toString().isEmpty()) toDate.error = "Enter an expiry date"
         else if (cardholderNameInput.text.toString().isEmpty()) cardholderNameInput.error = "Enter card holder's name"
