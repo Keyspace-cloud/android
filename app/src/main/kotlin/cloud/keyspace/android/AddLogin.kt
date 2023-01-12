@@ -984,7 +984,7 @@ class AddLogin : AppCompatActivity() {
             favorite = favorite,
             tagId = tagPicker.getSelectedTagId() ?: tagId,
             loginData = IOUtilities.LoginData(
-                username = userNameInput.text.toString(),
+                username = if (!emailAsUsername.isChecked) userNameInput.text.toString() else null,
                 password = passwordInput.text.toString(),
                 passwordHistory = if (passwordHistoryData.size > 0) passwordHistoryData else null,
                 email = emailInput.text.toString(),
