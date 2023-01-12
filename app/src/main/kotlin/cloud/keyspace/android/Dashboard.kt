@@ -1086,7 +1086,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             if (!login.loginData?.email.isNullOrEmpty()) {
                 loginCard.usernameText.text = login.loginData!!.email
                 loginCard.usernameText.setCompoundDrawablesRelativeWithIntrinsicBounds (emailIcon, null, null, null)
-            } else if (!login.loginData?.username.isNullOrEmpty()) {
+            } else loginCard.usernameText.visibility = View.GONE
+
+            if (!login.loginData?.username.isNullOrEmpty()) {
                 loginCard.usernameText.text = login.loginData!!.username
                 loginCard.usernameText.setCompoundDrawablesRelativeWithIntrinsicBounds (loginIcon, null, null, null)
             } else loginCard.usernameText.visibility = View.GONE
