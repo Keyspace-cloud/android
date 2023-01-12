@@ -28,6 +28,7 @@ import androidx.core.content.PackageManagerCompat.LOG_TAG
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
+import kotlin.NoSuchElementException
 
 
 /**
@@ -311,7 +312,11 @@ class AutofillAccessibilityService: AccessibilityService() {
 
         isFillableField(nodeInfo)
 
-        Log.v("KeyspaceAccEvent", autofillableElements.size.toString())
+        for (element in autofillableElements) {
+            if (element.isPassword) {
+                Log.d ("KeyspaceAccEvent", "PASSWORD BOX")
+            }
+        }
 
         for (i in 0 until nodeInfo.childCount) {
             logNodeHierarchy(nodeInfo.getChild(i), depth + 1)
@@ -331,14 +336,19 @@ class AutofillAccessibilityService: AccessibilityService() {
             else if (!nodeInfo.contentDescription.isNullOrBlank())  nodeInfo.contentDescription.toString()
             else null
 
+        // Todo: make detectors for passwords, emails, pins, custom fields, etc.
+
         if (!textOnScreen.isNullOrBlank()) {
-
-            // Todo: make detectors for passwords, emails, pins, custom fields, etc.
-            if (textOnScreen.lowercase().contains("password")) {
-                autofillableElements.add(nodeInfo)
-                fillable = true
+            if (textOnScreen.lowercase().contains("email")) {
+                if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
+                    Log.d ("KeyspaceAccEvent", "EMAIL LABEL")
+                }
             }
+        }
 
+        if (nodeInfo.className.toString().lowercase().contains("edittext")) {
+            Log.d ("KeyspaceAccEvent", "EMAIL TEXT INPUT")
+            fillable = true
         }
 
         return fillable
