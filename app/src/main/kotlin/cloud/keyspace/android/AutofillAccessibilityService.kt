@@ -24,9 +24,11 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.PackageManagerCompat.LOG_TAG
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
+
 
 /**
  *  Copyright (c) 2023 Owais Shaikh @ Keyspace (some top notch stuff here)
@@ -64,7 +66,7 @@ import java.util.*
 
 class AutofillAccessibilityService: AccessibilityService() {
 
-    private lateinit var bundle: Bundle
+    private var autofillableElements = mutableListOf<AccessibilityNodeInfo>()
 
     private var windowManager: WindowManager? = null
     var autofillLayout: FrameLayout? = null
@@ -257,7 +259,6 @@ class AutofillAccessibilityService: AccessibilityService() {
     private lateinit var info: AccessibilityServiceInfo
 
     override fun onServiceConnected() {
-        bundle = Bundle()
         powerManager = getSystemService(POWER_SERVICE) as PowerManager
         keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         info = AccessibilityServiceInfo()
@@ -289,6 +290,10 @@ class AutofillAccessibilityService: AccessibilityService() {
     @SuppressLint("UseCompatLoadingForDrawables", "RtlHardcoded")
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
 
+        val viewNode = event.source ?: return
+
+        logNodeHierarchy(viewNode, 3)
+
         val url = getUrlsOnScreen(event)
         if (url != null) {
             val nubSpawned = intelligentlySpawnNub (event)
@@ -296,8 +301,47 @@ class AutofillAccessibilityService: AccessibilityService() {
         }
 
         if (loginData == null) return
-        // Log.d("Autofill data received", autofillableLoginData!!.name.toString())
-        autofillLogin(event, loginData!!)
+
+        //autofillLogin(event, loginData!!)
+
+    }
+
+    private fun logNodeHierarchy(nodeInfo: AccessibilityNodeInfo?, depth: Int) {
+        if (nodeInfo == null) return
+
+        isFillableField(nodeInfo)
+
+        Log.v("KeyspaceAccEvent", autofillableElements.size.toString())
+
+        for (i in 0 until nodeInfo.childCount) {
+            logNodeHierarchy(nodeInfo.getChild(i), depth + 1)
+        }
+
+    }
+
+    private fun isFillableField (nodeInfo: AccessibilityNodeInfo?): Boolean {
+        if (nodeInfo == null) return false
+
+        var fillable = false
+
+        var textOnScreen: String? = null
+
+        textOnScreen =
+            if (!nodeInfo.text.isNullOrBlank()) nodeInfo.text.toString()
+            else if (!nodeInfo.contentDescription.isNullOrBlank())  nodeInfo.contentDescription.toString()
+            else null
+
+        if (!textOnScreen.isNullOrBlank()) {
+
+            // Todo: make detectors for passwords, emails, pins, custom fields, etc.
+            if (textOnScreen.lowercase().contains("password")) {
+                autofillableElements.add(nodeInfo)
+                fillable = true
+            }
+
+        }
+
+        return fillable
 
     }
 
