@@ -14,10 +14,7 @@
 
 *Provide a summary of the changes or features from a user's point of view. If there are breaking changes, provide migration guides using code examples of the affected features.*
 
-### 📝 Testing
+## 📝 Testing
 
 *Which tests were added? Which existing tests were adapted/changed? Which situations are covered, and what edge cases are missing?*
 
-### 👉 Reviewer Nudging
-
-*Where should the reviewer start? what is a good entry point?*
