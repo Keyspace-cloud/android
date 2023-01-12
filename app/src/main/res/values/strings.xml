@@ -17,11 +17,9 @@
 
     <string name="action_settings">Settings</string>
     <string name="accessibility_service_description">
-        Sometimes, Android\'s official Autofill API may not automatically fill-in your passwords in certain places,
-        such as browsers, WebViews, or in apps where the developer hasn\'t integrated Autofill support.
-        This is due to a fragmented implementation of Autofill APIs across multiple platforms in general.\n\nIf
-        you enable this setting, Keyspace can  use the Accessibility Service on your phone to scan for text fields
-        on your screen and manually fill data into username, password and OTP fields, in case the Autofill API isn\'t able to do so.
+        Enabling this lets Keyspace fill in your usernames, passwords, OTP fields, credit card and other data into websites
+        and apps.\n\nKeyspace uses AccessibilityService to autofill rather than the official Autofill API due to a fragmented
+        autofill integration of the official Autofill API across apps and websites.
     </string>
 
     <string name="play_store_web_url">https://play.google.com/store/apps/details?id=</string>
