@@ -67,7 +67,7 @@ import kotlin.NoSuchElementException
 
 class AutofillAccessibilityService: AccessibilityService() {
 
-    private var autofillableElements = mutableListOf<AccessibilityNodeInfo>()
+    private var autofillableElements = mutableMapOf<String, AccessibilityNodeInfo>()
 
     private var windowManager: WindowManager? = null
     var autofillLayout: FrameLayout? = null
@@ -310,13 +310,14 @@ class AutofillAccessibilityService: AccessibilityService() {
     private fun logNodeHierarchy(nodeInfo: AccessibilityNodeInfo?, depth: Int) {
         if (nodeInfo == null) return
 
-        isFillableField(nodeInfo)
-
         for (element in autofillableElements) {
-            if (element.isPassword) {
-                Log.d ("KeyspaceAccEvent", "PASSWORD BOX")
+            if (element.value.isPassword) {
+                Log.d("KeyspaceAccElement-K", element.key)
+                Log.d("KeyspaceAccElement-V", "isPassword?: " + element.value.isPassword.toString())
             }
         }
+
+        isFillableField(nodeInfo)
 
         for (i in 0 until nodeInfo.childCount) {
             logNodeHierarchy(nodeInfo.getChild(i), depth + 1)
@@ -342,12 +343,19 @@ class AutofillAccessibilityService: AccessibilityService() {
             if (textOnScreen.lowercase().contains("email")) {
                 if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
                     Log.d ("KeyspaceAccEvent", "EMAIL LABEL")
+                    autofillableElements [textOnScreen] = nodeInfo
                 }
             }
         }
 
         if (nodeInfo.className.toString().lowercase().contains("edittext")) {
             Log.d ("KeyspaceAccEvent", "EMAIL TEXT INPUT")
+            for (element in autofillableElements) {
+                if (element.key.lowercase().contains("email")) {
+                    element.setValue(nodeInfo)
+                    Log.d ("KeyspaceAccEvent", "EMAIL LABEL MAPPED TO EDITTEXT")
+                }
+            }
             fillable = true
         }
 
