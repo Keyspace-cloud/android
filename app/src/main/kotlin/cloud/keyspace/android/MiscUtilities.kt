@@ -559,12 +559,8 @@ class MiscUtilities (applicationContext: Context) {
     }
 
     fun checkIfListContainsSubstring (list: List<String>, searchTerm: String):  Boolean {
-        val newList = mutableListOf<String>()
         if (searchTerm.isEmpty()) return false
-        val searchTerm = searchTerm.replace(Regex("[^A-Za-z0-9 ]"), "").replace("", "").replace(" ", "").lowercase()
-        for (item in list) newList.add(item.replace(Regex("[^A-Za-z0-9 ]"), "").replace(" ", "").lowercase())
-        for (item in newList) if (item.equals (searchTerm, ignoreCase = true)) return true
-        return false
+        return list.any { searchTerm.replace(Regex("[^A-Za-z0-9 ]"), "").replace(" ", "").contains(it, ignoreCase = true) }
     }
 
     fun stringToNumberedString (string: String): String {

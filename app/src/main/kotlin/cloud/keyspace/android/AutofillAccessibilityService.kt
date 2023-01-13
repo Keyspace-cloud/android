@@ -215,6 +215,20 @@ class AutofillAccessibilityService: AccessibilityService() {
         "pin"
     )
 
+    val twoFactorAuthIdentifiers = listOf (
+        "one time password",
+        "token",
+        "otp",
+        "2fa",
+        "authenticator"
+    )
+
+    val smsOtpIdentifiers = listOf (
+        "sent",
+        "sms",
+        "text message",
+    )
+
     val cvvIdentifiers = listOf (
         "cvv",
         "cccsc"
@@ -239,20 +253,6 @@ class AutofillAccessibilityService: AccessibilityService() {
         "mm",
         "yyyy",
         "exp",
-    )
-
-    val smsOtpIdentifiers = listOf (
-        "sent",
-        "sms",
-        "text message",
-    )
-
-    val twoFactorAuthIdentifiers = listOf (
-        "one time password",
-        "token",
-        "otp",
-        "2fa",
-        "authenticator"
     )
 
     private lateinit var powerManager: PowerManager
@@ -296,10 +296,14 @@ class AutofillAccessibilityService: AccessibilityService() {
         logNodeHierarchy(viewNode, 3)
 
         for (element in autofillableElements) {
-            if (element.key.lowercase().contains("email")) {
-                Log.d("KeyspaceAccElement", element.key + " | isPassword?: " + element.value.isPassword.toString() + " | isEditText?: " + element.value.className.toString().lowercase().contains("edittext"))
-                fillLoginData(element.value)
-            }
+            /*Log.d ("KeyspaceAccElement",
+                      element.key
+                      + " | isPassword?: "
+                      + element.value.isPassword.toString()
+                      + " | isEditText?: " + element.value.className.toString().lowercase().contains("edittext")
+                      + " | fillableNodes: ${autofillableElements.size}"
+            )*/
+            fillLoginData(element.value)
         }
 
         val url = getUrlsOnScreen(event)
@@ -310,14 +314,12 @@ class AutofillAccessibilityService: AccessibilityService() {
 
         if (loginData == null) return
 
-        //autofillLogin(event, loginData!!)
-
     }
 
     private fun logNodeHierarchy(nodeInfo: AccessibilityNodeInfo?, depth: Int) {
         if (nodeInfo == null) return
 
-        isFillableField(nodeInfo)
+        grabFillableFields (nodeInfo)
 
         for (i in 0 until nodeInfo.childCount) {
             logNodeHierarchy(nodeInfo.getChild(i), depth + 1)
@@ -325,46 +327,93 @@ class AutofillAccessibilityService: AccessibilityService() {
 
     }
 
-    private fun isFillableField (nodeInfo: AccessibilityNodeInfo?): Boolean {
-        if (nodeInfo == null) return false
+    private fun grabFillableFields (nodeInfo: AccessibilityNodeInfo?) {
+        if (nodeInfo == null) return
 
-        var fillable = false
-
-        var textOnScreen: String? = null
-
-        textOnScreen =
+        val textOnScreen: String? =
             if (!nodeInfo.text.isNullOrBlank()) nodeInfo.text.toString()
-            else if (!nodeInfo.contentDescription.isNullOrBlank())  nodeInfo.contentDescription.toString()
+            else if (!nodeInfo.contentDescription.isNullOrBlank()) nodeInfo.contentDescription.toString()
             else null
 
-        // Todo: make detectors for passwords, emails, pins, custom fields, etc.
+
+        /** 1. EMAIL GRABBERS */
 
         if (!textOnScreen.isNullOrBlank()) {
-            if (textOnScreen.lowercase().contains("email")) {
-                if (
-                    !nodeInfo.className.toString().lowercase().contains("edittext")
-                ) {
-                    Log.d ("KeyspaceAccEvent", "EMAIL LABEL")
+            if (misc.checkIfListContainsSubstring(emailIdentifiers, textOnScreen)) {
+                if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
                     autofillableElements [textOnScreen] = nodeInfo
                 }
             }
         }
 
-        if (
-            nodeInfo.className.toString().lowercase().contains("edittext")
-            && !nodeInfo.isPassword
-        ) {
-            Log.d ("KeyspaceAccEvent", "EMAIL TEXT INPUT")
+        if (nodeInfo.className.toString().lowercase().contains("edittext") && !nodeInfo.isPassword) {
             for (element in autofillableElements) {
-                if (element.key.lowercase().contains("email")) {
+                if (misc.checkIfListContainsSubstring(emailIdentifiers, element.key)) {
+                    Log.d ("KeyspaceAccEvent", "Found an email box")
                     element.setValue(nodeInfo)
-                    Log.d ("KeyspaceAccEvent", "EMAIL LABEL MAPPED TO EDITTEXT")
                 }
             }
-            fillable = true
         }
 
-        return fillable
+
+        /** 2. USERNAME GRABBERS */
+
+        if (!textOnScreen.isNullOrBlank()) {
+            if (misc.checkIfListContainsSubstring(usernameIdentifiers, textOnScreen)) {
+                if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
+                    autofillableElements [textOnScreen] = nodeInfo
+                }
+            }
+        }
+
+        if (nodeInfo.className.toString().lowercase().contains("edittext") && !nodeInfo.isPassword) {
+            for (element in autofillableElements) {
+                if (misc.checkIfListContainsSubstring(usernameIdentifiers, element.key)) {
+                    Log.d ("KeyspaceAccEvent", "Found a username box")
+                    element.setValue(nodeInfo)
+                }
+            }
+        }
+
+
+        /** 3. PASSWORD GRABBERS */
+
+        if (!textOnScreen.isNullOrBlank()) {
+            if (misc.checkIfListContainsSubstring(passwordIdentifiers, textOnScreen)) {
+                if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
+                    autofillableElements [textOnScreen] = nodeInfo
+                }
+            }
+        }
+
+        if (nodeInfo.className.toString().lowercase().contains("edittext") && nodeInfo.isPassword) {
+            for (element in autofillableElements) {
+                if (misc.checkIfListContainsSubstring(passwordIdentifiers, element.key)) {
+                    Log.d ("KeyspaceAccEvent", "Found a password box")
+                    element.setValue(nodeInfo)
+                }
+            }
+        }
+
+
+        /** 4. 2FA GRABBERS */
+
+        if (!textOnScreen.isNullOrBlank()) {
+            if (misc.checkIfListContainsSubstring(smsOtpIdentifiers, textOnScreen)) {
+                if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
+                    autofillableElements [textOnScreen] = nodeInfo
+                }
+            }
+        }
+
+        if (nodeInfo.className.toString().lowercase().contains("edittext") && nodeInfo.isPassword) {
+            for (element in autofillableElements) {
+                if (misc.checkIfListContainsSubstring(smsOtpIdentifiers, element.key)) {
+                    Log.d ("KeyspaceAccEvent", "Found a 2FA box")
+                    element.setValue(nodeInfo)
+                }
+            }
+        }
 
     }
 
@@ -603,7 +652,7 @@ class AutofillAccessibilityService: AccessibilityService() {
         return null
     }
 
-    private fun getFieldName(event: AccessibilityEvent): String? {
+    private fun getFieldName (event: AccessibilityEvent): String? {
         if (!event.source?.viewIdResourceName.isNullOrBlank()) return event.source?.viewIdResourceName.toString()
         if (event.source?.isPassword == true) return "password"
         if (!event.source?.hintText.isNullOrBlank()) return event.source?.hintText.toString()
@@ -611,176 +660,14 @@ class AutofillAccessibilityService: AccessibilityService() {
         return null
     }
 
-    private fun fillLoginData(rootNode: AccessibilityNodeInfo) {
+    private fun fillLoginData (rootNode: AccessibilityNodeInfo) {
         val editText = rootNode.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return
         val arguments = Bundle()
+
         arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, loginData!!.loginData!!.password) // Todo: change this to actual fillable fields
         editText.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+
         loginData = null
-    }
-
-    private fun autofillLogin (event: AccessibilityEvent, login: IOUtilities.Login) {
-        val source = event.source ?: return
-
-        // For apps like Spotify, where viewIdResourceName = null
-        Log.d("PWDETECT1", source.viewIdResourceName.toString())
-        if (source.viewIdResourceName == null) {
-
-            Log.d("PWDETECT2", loginData!!.loginData?.password.toString())
-            if (source.isPassword) {
-                Log.d("PWDETECT3", loginData!!.loginData?.password.toString())
-                fillLoginData (source)
-
-            } else {
-
-                if (login.loginData!!.username.isNullOrBlank()) fillLoginData (source)
-                else fillLoginData (source)
-            }
-        }
-
-
-        Log.d("PWDETECT4", misc.checkIfListContainsSubstring(passwordIdentifiers, source.viewIdResourceName.toString()).toString())
-        if (misc.checkIfListContainsSubstring(passwordIdentifiers, source.viewIdResourceName.toString()))
-            fillLoginData (source)
-
-        if (misc.checkIfListContainsSubstring(usernameIdentifiers, source.viewIdResourceName.toString()))
-            if (login.loginData!!.username.isNullOrBlank()) fillLoginData (source)
-            else fillLoginData (source)
-
-        if (misc.checkIfListContainsSubstring(emailIdentifiers, source.viewIdResourceName.toString()))
-            fillLoginData (source)
-
-        autofillableFields.remove(source)
-
-    }
-
-    private fun getAutofillableFields(source: AccessibilityNodeInfo, event: AccessibilityEvent): MutableList<AccessibilityNodeInfo> {
-
-        var passwordInVicinity = false
-        var passwordBoxRect: Rect? = null
-        // if there is another text box near the password box
-        //
-        // E.g.:
-        // username=source.boundsInScreen: Rect(42, 396 - 1038, 522),
-        // password=source.boundsInScreen: Rect(42, 737 - 1038, 863),
-        //
-        // then the parallel text box above or beside it must be a username/email box.
-
-        if (event.className != null && event.className.toString().lowercase().contains("edittext")) {
-
-            try {
-                if ((source.isPassword || event.isPassword)) {  // primary check, typically avoids exceptions in apps
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a password box here. 1")
-                    passwordInVicinity = true
-                    passwordBoxRect = getBoundsInScreen(source)
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Keyspace cannot Autofill using AccessibilityService over here.")
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(passwordIdentifiers, source.viewIdResourceName.toString())) {  // secondary check
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a password box here. 2")
-                    passwordInVicinity = true
-                    passwordBoxRect = getBoundsInScreen(source)
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Keyspace cannot Autofill using AccessibilityService over here.")
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(usernameIdentifiers, source.viewIdResourceName.toString())) {
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a username input box here.")
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Trying alternate method.")
-
-                if (passwordInVicinity && passwordBoxRect != null) {
-                    var  usernameBoxRect = getBoundsInScreen(source)
-                    if ((usernameBoxRect.left == passwordBoxRect.left && usernameBoxRect.right == passwordBoxRect.right) // horizontally parallel
-                        || (usernameBoxRect.top == passwordBoxRect.top && usernameBoxRect.right == passwordBoxRect.bottom) // vertically parallel
-                    ) {
-                        Log.i("KeyspaceAccessibility", "Keyspace smells a username input box here.")
-                        if (!autofillableFields.contains(source)) autofillableFields.add(source)
-                    }
-                }
-
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(emailIdentifiers, source.viewIdResourceName.toString())) {
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a email input box here.")
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Trying alternate method.")
-
-                if (passwordInVicinity && passwordBoxRect != null) {
-                    var  emailBoxRect = getBoundsInScreen(source)
-                    if ((emailBoxRect.left == passwordBoxRect.left && emailBoxRect.right == passwordBoxRect.right) // horizontally parallel
-                        || (emailBoxRect.top == passwordBoxRect.top && emailBoxRect.right == passwordBoxRect.bottom) // vertically parallel
-                    ) {
-                        Log.i("KeyspaceAccessibility", "Keyspace smells a email input box here.")
-                        if (!autofillableFields.contains(source)) autofillableFields.add(source)
-                    }
-                }
-                Log.i("KeyspaceAccessibilityBounds",  getBoundsInScreen(source).toString())
-
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(twoFactorAuthIdentifiers, source.viewIdResourceName.toString())) {
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a 2fa box here.")
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Keyspace cannot Autofill using AccessibilityService over here.")
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(twoFactorAuthIdentifiers, source.text.toString())) {
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a 2fa box here.")
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Keyspace cannot Autofill using AccessibilityService over here.")
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(cardNumberIdentifiers, source.viewIdResourceName.toString())) {
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a card number box here.")
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Keyspace cannot Autofill using AccessibilityService over here.")
-            }
-
-            try {
-                if (misc.checkIfListContainsSubstring(cardNumberIdentifiers, source.text.toString())) {
-                    Log.i("KeyspaceAccessibility", "Keyspace smells a card number box here.")
-                    if (!autofillableFields.contains(source)) autofillableFields.add(source)
-
-                }
-            } catch (couldNotFindActivity: NullPointerException) {
-                Log.e("KeyspaceAccessibility",
-                    "Couldn't find the class name of this view. Keyspace cannot Autofill using AccessibilityService over here.")
-            }
-        }
-
-        return autofillableFields
     }
 
     @SuppressLint("ClickableViewAccessibility", "RtlHardcoded")
