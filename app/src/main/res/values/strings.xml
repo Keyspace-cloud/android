@@ -17,9 +17,9 @@
 
     <string name="action_settings">Settings</string>
     <string name="accessibility_service_description">
-        Enabling this lets Keyspace fill in your usernames, passwords, OTP fields, credit card and other data into websites
-        and apps.\n\nKeyspace uses AccessibilityService to autofill rather than the official Autofill API due to a fragmented
-        autofill integration of the official Autofill API across apps and websites.
+        Enabling this lets you use Keyspace to fill in your usernames, passwords, OTP fields, credit card and other data into websites
+        and apps.\n\nKeyspace uses AccessibilityService rather than the official Autofill API due to a fragmented integration of the
+        Autofill API across apps and websites.
     </string>
 
     <string name="play_store_web_url">https://play.google.com/store/apps/details?id=</string>

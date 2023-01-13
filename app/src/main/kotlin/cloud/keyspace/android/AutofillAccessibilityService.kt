@@ -295,6 +295,13 @@ class AutofillAccessibilityService: AccessibilityService() {
 
         logNodeHierarchy(viewNode, 3)
 
+        for (element in autofillableElements) {
+            if (element.key.lowercase().contains("email")) {
+                Log.d("KeyspaceAccElement", element.key + " | isPassword?: " + element.value.isPassword.toString() + " | isEditText?: " + element.value.className.toString().lowercase().contains("edittext"))
+                fillLoginData(element.value)
+            }
+        }
+
         val url = getUrlsOnScreen(event)
         if (url != null) {
             val nubSpawned = intelligentlySpawnNub (event)
@@ -309,13 +316,6 @@ class AutofillAccessibilityService: AccessibilityService() {
 
     private fun logNodeHierarchy(nodeInfo: AccessibilityNodeInfo?, depth: Int) {
         if (nodeInfo == null) return
-
-        for (element in autofillableElements) {
-            if (element.value.isPassword) {
-                Log.d("KeyspaceAccElement-K", element.key)
-                Log.d("KeyspaceAccElement-V", "isPassword?: " + element.value.isPassword.toString())
-            }
-        }
 
         isFillableField(nodeInfo)
 
@@ -341,14 +341,19 @@ class AutofillAccessibilityService: AccessibilityService() {
 
         if (!textOnScreen.isNullOrBlank()) {
             if (textOnScreen.lowercase().contains("email")) {
-                if (!nodeInfo.className.toString().lowercase().contains("edittext")) {
+                if (
+                    !nodeInfo.className.toString().lowercase().contains("edittext")
+                ) {
                     Log.d ("KeyspaceAccEvent", "EMAIL LABEL")
                     autofillableElements [textOnScreen] = nodeInfo
                 }
             }
         }
 
-        if (nodeInfo.className.toString().lowercase().contains("edittext")) {
+        if (
+            nodeInfo.className.toString().lowercase().contains("edittext")
+            && !nodeInfo.isPassword
+        ) {
             Log.d ("KeyspaceAccEvent", "EMAIL TEXT INPUT")
             for (element in autofillableElements) {
                 if (element.key.lowercase().contains("email")) {
