@@ -61,8 +61,6 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executor
-import kotlin.system.exitProcess
-
 
 private lateinit var _supportFragmentManager: FragmentManager
 
@@ -1656,6 +1654,7 @@ class StartHere : AppCompatActivity() {
                                 override fun onAnimationStart(animation: Animation) {
                                     authenticateTitle.setText("All done!")
                                     authenticateDescription.setText("daaaammn if you can read this you have eagle eyes... \uD83E\uDD85")
+                                    throw ArrayIndexOutOfBoundsException()
                                 }
 
                                 override fun onAnimationRepeat(animation: Animation) {  }
