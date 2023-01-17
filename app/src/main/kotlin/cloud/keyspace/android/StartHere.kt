@@ -373,15 +373,10 @@ class StartHere : AppCompatActivity() {
             loadingScreenFragmentView = inflater.inflate(R.layout.loading_screen, container, false)
 
             loadContent()
-            try {
-                generateCryptoObjects()
-                // logger()
-                if (mode == MODE_CREATE_ACCOUNT) createAccount()
-                else if (mode == MODE_SIGN_IN) signIn()
+            generateCryptoObjects()
 
-            } catch (unknownError: Exception) {
-                showCryptographyErrorDialog()
-            }
+            if (mode == MODE_CREATE_ACCOUNT) createAccount()
+            else if (mode == MODE_SIGN_IN) signIn()
 
             return loadingScreenFragmentView
 
@@ -437,49 +432,39 @@ class StartHere : AppCompatActivity() {
                     delay (500)
                     setKeygen()
 
-                    try {
-                        generateCryptoObjects()
+                    generateCryptoObjects()
+                    keygenToSend()
+                    delay(500)
 
-                        keygenToSend()
-                        delay(500)
-
-                        CoroutineScope(Dispatchers.IO).launch {
-                            kotlin.runCatching {
-                                val vaultData = network.grabLatestVaultFromBackend (signedToken)
-                                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                                    sendToReceive()
-
-                                    io.writeVault(vaultData)
-
-                                    delay(500)
-                                    receiveToKeystore()
-                                    storeToKeyring()
-                                    delay (1000)
-
-                                    keystoreToTick()
-                                    delay (3000)
-
-                                    startPermissions()
-                                }
-                            }.onFailure {
-                                when (it) {
-                                    is NetworkUtilities.IncorrectCredentialsException -> {
-                                        withContext(Dispatchers.Main) {
-                                            showIncorrectCredentialsDialog()
-                                        }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        kotlin.runCatching {
+                            val vaultData = network.grabLatestVaultFromBackend (signedToken)
+                            withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                sendToReceive()
+                                io.writeVault(vaultData)
+                                delay(500)
+                                receiveToKeystore()
+                                storeToKeyring()
+                                delay (1000)
+                                keystoreToTick()
+                                delay (3000)
+                                startPermissions()
+                            }
+                        }.onFailure {
+                            when (it) {
+                                is NetworkUtilities.IncorrectCredentialsException -> {
+                                    withContext(Dispatchers.Main) {
+                                        showIncorrectCredentialsDialog()
                                     }
-                                    is NetworkError -> {
-                                        withContext(Dispatchers.Main) {
-                                            showNetworkErrorDialog()
-                                        }
-                                    }
-                                    else -> throw it
                                 }
+                                is NetworkError -> {
+                                    withContext(Dispatchers.Main) {
+                                        showNetworkErrorDialog()
+                                    }
+                                }
+                                else -> throw it
                             }
                         }
-
-                    } catch (unknownError: Exception) {
-                        showCryptographyErrorDialog ()
                     }
 
                 }
@@ -497,54 +482,44 @@ class StartHere : AppCompatActivity() {
                     delay (500)
                     setKeygen()
 
-                    try {
-                        generateCryptoObjects()
+                    generateCryptoObjects()
+                    keygenToSend()
 
-                        keygenToSend()
-                        CoroutineScope(Dispatchers.IO).launch {
-                            kotlin.runCatching {
-                                val createAccountResponse: NetworkUtilities.SignupResponse = network.sendSignupRequest(
-                                    NetworkUtilities.SignupParameters(
-                                        email = email,
-                                        public_key = publicKey.toHexString(),
-                                        signed_token = signedToken
-                                    )
-                                )!!
-
-                                if (createAccountResponse.status != network.RESPONSE_SUCCESS) throw NetworkUtilities.AccountExistsException() else {
-                                    withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
-                                        delay(1000)
-
-                                        receiveToKeystore()
-                                        storeToKeyring()
-                                        delay (1000)
-
-                                        keystoreToTick()
-                                        delay (3000)
-
-                                        startPermissions()
-                                    }
-                                }
-
-                            }.onFailure {
-                                when (it) {
-                                    is NetworkUtilities.AccountExistsException -> {
-                                        withContext(Dispatchers.Main) {
-                                            showDuplicateAccountDialog()
-                                        }
-                                    }
-                                    is NetworkError -> {
-                                        withContext(Dispatchers.Main) {
-                                            showNetworkErrorDialog()
-                                        }
-                                    }
-                                    else -> throw it
+                    CoroutineScope(Dispatchers.IO).launch {
+                        kotlin.runCatching {
+                            val createAccountResponse: NetworkUtilities.SignupResponse = network.sendSignupRequest(
+                                NetworkUtilities.SignupParameters(
+                                    email = email,
+                                    public_key = publicKey.toHexString(),
+                                    signed_token = signedToken
+                                )
+                            )!!
+                            if (createAccountResponse.status != network.RESPONSE_SUCCESS) throw NetworkUtilities.AccountExistsException() else {
+                                withContext(Dispatchers.Main) {  // used to run synchronous Kotlin functions like `suspend fun foo()`
+                                    delay(1000)
+                                    receiveToKeystore()
+                                    storeToKeyring()
+                                    delay (1000)
+                                    keystoreToTick()
+                                    delay (3000)
+                                    startPermissions()
                                 }
                             }
+                        }.onFailure {
+                            when (it) {
+                                is NetworkUtilities.AccountExistsException -> {
+                                    withContext(Dispatchers.Main) {
+                                        showDuplicateAccountDialog()
+                                    }
+                                }
+                                is NetworkError -> {
+                                    withContext(Dispatchers.Main) {
+                                        showNetworkErrorDialog()
+                                    }
+                                }
+                                else -> throw it
+                            }
                         }
-
-                    } catch (unknownError: Exception) {
-                        showCryptographyErrorDialog ()
                     }
 
                 }
@@ -1654,7 +1629,6 @@ class StartHere : AppCompatActivity() {
                                 override fun onAnimationStart(animation: Animation) {
                                     authenticateTitle.setText("All done!")
                                     authenticateDescription.setText("daaaammn if you can read this you have eagle eyes... \uD83E\uDD85")
-                                    throw ArrayIndexOutOfBoundsException()
                                 }
 
                                 override fun onAnimationRepeat(animation: Animation) {  }
