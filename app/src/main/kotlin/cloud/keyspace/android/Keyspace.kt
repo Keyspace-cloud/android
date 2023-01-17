@@ -6,7 +6,6 @@ import org.acra.config.dialog
 import org.acra.config.mailSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
-import java.sql.Time
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
