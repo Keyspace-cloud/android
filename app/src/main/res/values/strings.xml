@@ -115,6 +115,18 @@
     <string name="verify_words_text">Verify that the words are in the <b>exact order</b> as given with proper spelling</string>
     <string name="safeguard_words_text">Store your recovery phrase in a secure location and make sure only you can access it</string>
 
-    <string name="crash_send_logs_description">Keyspace just crashed. Would you like to email crash logs to the team?</string>
+    <string name="crash_send_logs_email_subject">Keyspace Android app crash</string>
+    <string name="crash_send_logs_email_body">This email contains a bug report of a recent crash on Keyspace Android.</string>
+    <string name="crash_send_logs_title">Keyspace</string>
+    <string name="crash_send_positive_button_text">Send email</string>
+    <string name="crash_send_logs_description">Uh oh, Keyspace just crashed. Would you like to send a bug report to the team?\n\n
+
+        This bug report will include:\n\n
+
+        ⋅ Device information (such model, Android version etc.)\n
+        ⋅ App-related crash logs and exceptions\n\n
+
+        This is optional.
+    </string>
 
 </resources>

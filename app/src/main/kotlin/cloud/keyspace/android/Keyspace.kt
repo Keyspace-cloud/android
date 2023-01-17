@@ -2,40 +2,36 @@ package cloud.keyspace.android
 
 import android.app.Application
 import android.content.Context
-import android.widget.Toast
-import org.acra.config.mailSenderConfiguration
-import org.acra.config.toastConfiguration
+import org.acra.config.dialog
+import org.acra.config.mailSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
+import java.sql.Time
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 class Keyspace : Application() {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-
         initAcra {
             buildConfigClass = BuildConfig::class.java
-            reportFormat = StringFormat.JSON
+            reportFormat = StringFormat.KEY_VALUE_LIST
 
-            toastConfiguration { // Todo replace with dialog or notification
-                //required
+            dialog {
                 text = getString(R.string.crash_send_logs_description)
-                //defaults to Toast.LENGTH_LONG
-                length = Toast.LENGTH_LONG
-                enabled = true
+                title = " " + getString(R.string.app_name)
+                positiveButtonText = getString(R.string.crash_send_positive_button_text)
+                negativeButtonText = getString(R.string.exit)
+                resIcon = R.drawable.keyspace
+                resTheme = android.R.style.Theme_Material_Dialog
             }
 
-            mailSenderConfiguration {
-                //required
-                mailTo = "acra@yourserver.com"
-                //defaults to true
+            mailSender {
+                mailTo = getString(R.string.support_email)
                 reportAsFile = true
-                //defaults to ACRA-report.stacktrace
-                reportFileName = "Crash.txt"
-                //defaults to "<applicationId> Crash Report"
-                subject = getString(R.string.crash_send_logs_description)
-                //defaults to empty
-                body = getString(R.string.crash_send_logs_description)
-                enabled = true
+                reportFileName = "bug_report_${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.txt"
+                subject = getString(R.string.crash_send_logs_email_subject)
+                body = getString(R.string.crash_send_logs_email_body)
             }
 
         }
