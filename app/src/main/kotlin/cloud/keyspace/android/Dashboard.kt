@@ -1966,7 +1966,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-            cardCard.cardNumber.text = card.cardNumber?.replace("....".toRegex(), "$0 ")
+            if (card.cardNumber?.length == 16) cardCard.cardNumber.text = card.cardNumber.replace("....".toRegex(), "$0 ")
+            else cardCard.cardNumber.text = card.cardNumber
+
             cardCard.toDate.text = card.expiry
             cardCard.cardHolder.text = card.cardholderName
 
