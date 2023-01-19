@@ -28,7 +28,7 @@ class Keyspace : Application() {
             mailSender {
                 mailTo = getString(R.string.support_email)
                 reportAsFile = true
-                reportFileName = "bug_report_${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.txt"
+                reportFileName = "android_bug_report_${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.txt"
                 subject = getString(R.string.crash_send_logs_email_subject)
                 body = getString(R.string.crash_send_logs_email_body)
             }
