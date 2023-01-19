@@ -195,6 +195,11 @@ class AddLogin : AppCompatActivity() {
                 }
             }
 
+            if (secretInput.text.toString().isNotBlank() && secretInput.text.toString().length < 6) {
+                secretInput.error = "Please enter a valid TOTP secret"
+                return@setOnClickListener
+            }
+
             saveItem()
 
         }
@@ -629,7 +634,7 @@ class AddLogin : AppCompatActivity() {
             override fun afterTextChanged (s: Editable) { }
             override fun beforeTextChanged (s: CharSequence, start: Int, count: Int, after: Int) { }
             override fun onTextChanged (s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.length >= 8) {
+                if (s.length >= 6) {
                     try {
                         otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
                         runOnUiThread { tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ") }
