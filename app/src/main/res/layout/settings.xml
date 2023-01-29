@@ -20,12 +20,21 @@
             android:layout_height="match_parent"
             android:paddingBottom="50dp"
             android:orientation="vertical"
-            android:paddingTop="55dp">
+            android:paddingTop="15dp" >
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                app:srcCompat="@drawable/ic_baseline_arrow_back_24"
+                app:tint="?android:attr/textColorPrimary" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="end"
+                android:layout_marginVertical="12dp"
                 android:layout_marginHorizontal="8dp"
                 android:gravity="end"
                 app:strokeColor="@color/cardBorderColor"
@@ -48,9 +57,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="28dp"
                 android:text="Settings"
-                android:textSize="32sp" />
+                android:textSize="35sp" />
 
             <!--<TextView
                 android:id="@+id/autofillSettingsCategoryLabel"
@@ -253,7 +262,8 @@
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
                 android:paddingStart="22dp"
-                android:paddingTop="10dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="15dp"
                 android:text="User Interface"
                 android:textColor="?attr/colorAccent"
                 android:textStyle="bold" />
@@ -290,16 +300,16 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
                             android:text="Display notes in grid"
-                            android:textStyle="bold" />
+                            android:textSize="20sp" />
 
                         <TextView
                             android:id="@+id/notesGridText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Display your notes in a grid format on the Dashboard like sticky notes." />
+                            android:text="Show notes in a grid, like sticky notes." />
                     </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -347,16 +357,16 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:paddingTop="5dp"
-                            android:text="Instantly edit notes"
-                            android:textStyle="bold" />
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
+                            android:text="Instantly edit notes" />
 
                         <TextView
                             android:id="@+id/notesPreviewText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Tap on a note to directly edit it." />
+                            android:text="Tap a note to directly edit it." />
                     </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -374,11 +384,12 @@
 
             <TextView
                 android:id="@+id/privacyAndSecuritySettingsCategoryLabel2"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
                 android:paddingStart="22dp"
-                android:paddingTop="10dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="15dp"
                 android:text="Privacy and Security"
                 android:textColor="?attr/colorAccent"
                 android:textStyle="bold" />
@@ -419,10 +430,10 @@
                             android:layout_width="match_parent"
                             android:duplicateParentState="true"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Store data in secure hardware"
-                            android:textStyle="bold" />
+                            android:text="Store data in secure hardware" />
 
                         <TextView
                             android:id="@+id/strongBoxText"
@@ -430,7 +441,7 @@
                             android:duplicateParentState="true"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Keyspace is encrypting your keys and tokens using tamper-resistant hardware on your phone." />
+                            android:text="Keys are encrypted using tamper-resistant hardware." />
 
                     </LinearLayout>
 
@@ -478,17 +489,17 @@
                             android:id="@+id/lockAppLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Lock app when minimized (unstable)"
-                            android:textStyle="bold" />
+                            android:text="Lock app when minimized (unstable)" />
 
                         <TextView
                             android:id="@+id/lockAppText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Lock the Keyspace app with your biometrics or PIN, pattern or password when you swipe to switch to another app or go home." />
+                            android:text="Lock Keyspace when you switch to another app or go home." />
                     </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -534,17 +545,17 @@
                             android:id="@+id/allowScreenshotsLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Allow in-app screenshots"
-                            android:textStyle="bold" />
+                            android:text="Allow in-app screenshots" />
 
                         <TextView
                             android:id="@+id/allowScreenshotsText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Disabling screenshots can prevent you from accidentally screen recording your passwords and such." />
+                            android:text="Prevents you from accidentally capturing sensitive data." />
                     </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -564,7 +575,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                android:paddingTop="10dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="15dp"
                 android:textColor="?attr/colorAccent"
                 android:paddingStart="22dp"
                 android:text="Connectivity"
@@ -599,19 +611,19 @@
 
                         <TextView
                             android:id="@+id/syncLabel"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Vault refresh interval"
-                            android:textStyle="bold" />
+                            android:text="Vault refresh interval" />
 
                         <TextView
                             android:id="@+id/syncText"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Control how frequently your vault items synchronize with Keyspace servers" />
+                            android:text="Control how frequently Keyspace synchronizes with the backend" />
 
                         <RadioGroup
                             android:id="@+id/intervalButtonGroup"
@@ -662,7 +674,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                android:paddingTop="10dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="15dp"
                 android:textColor="?attr/colorAccent"
                 android:paddingStart="22dp"
                 android:text="About"
@@ -699,10 +712,10 @@
                             android:id="@+id/buildText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Build version"
-                            android:textStyle="bold" />
+                            android:text="Build version" />
 
                         <TextView
                             android:id="@+id/buildLabel"
@@ -748,10 +761,10 @@
                             android:id="@+id/openSourceLicensesText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Open-source license"
-                            android:textStyle="bold" />
+                            android:text="Open-source license" />
 
                         <TextView
                             android:id="@+id/openSourceLicensesLabel"
@@ -798,10 +811,10 @@
                             android:id="@+id/keyspacerText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5dp"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Developer options"
-                            android:textStyle="bold" />
+                            android:text="Developer options" />
 
                         <TextView
                             android:id="@+id/keyspacerLabel"
