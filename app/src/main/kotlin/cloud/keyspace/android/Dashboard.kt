@@ -2820,6 +2820,12 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         finish()
     }
 
+    private fun openDeletedItems () {
+        val intent = Intent(this, DeletedItems::class.java)
+        startActivity(intent)
+        finish()
+    }
+
     private fun loginInfoDialog() {
         val builder = MaterialAlertDialogBuilder(this)
         builder.setCancelable(true)
@@ -2841,12 +2847,18 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         val signOutButton = loginInfoBox.findViewById<TextView>(R.id.signOutButton)
         val syncButton = loginInfoBox.findViewById<TextView>(R.id.syncButton)
+        val deleteButton = loginInfoBox.findViewById<TextView>(R.id.deleteButton)
         val sendFeedbackButton = loginInfoBox.findViewById<TextView>(R.id.sendFeedbackButton)
         val keyspaceLogoHeader = loginInfoBox.findViewById<ConstraintLayout>(R.id.keyspaceLogoHeader)
         val settingsButton = loginInfoBox.findViewById<TextView>(R.id.settingsButton)
         val closeButton = loginInfoBox.findViewById<ImageView>(R.id.closeButton)
         val privacyPolicyButton = loginInfoBox.findViewById<TextView>(R.id.privacyPolicyButton)
         val termsOfServiceButton = loginInfoBox.findViewById<TextView>(R.id.termsOfServiceButton)
+
+        deleteButton.setOnClickListener {
+            dialog.dismiss()
+            openDeletedItems()
+        }
 
         syncButton.setOnClickListener {
             dialog.dismiss()

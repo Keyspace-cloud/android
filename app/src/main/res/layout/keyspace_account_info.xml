@@ -190,7 +190,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:paddingBottom="2.5dp"
-                            android:text="Will upload 2 items when online"
+                            android:text="Will upload n items when online"
                             android:textSize="12sp" />
 
                         <ProgressBar
@@ -248,6 +248,18 @@
                 android:gravity="center|start"
                 android:paddingHorizontal="15dp"
                 android:text="Send feedback"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/deleteButton"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:drawableStart="@drawable/ic_baseline_delete_24"
+                android:drawablePadding="25dp"
+                android:gravity="center|start"
+                android:paddingHorizontal="15dp"
+                android:text="Deleted items"
                 android:textSize="14sp" />
 
             <TextView
