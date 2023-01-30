@@ -622,7 +622,7 @@
                             android:paddingVertical="3.5dp"
                             android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Vault refresh interval" />
+                            android:text="Vault sync" />
 
                         <TextView
                             android:id="@+id/syncText"
