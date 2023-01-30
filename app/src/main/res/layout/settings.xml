@@ -34,7 +34,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="end"
-                android:layout_marginVertical="12dp"
+                android:layout_marginVertical="10dp"
                 android:layout_marginHorizontal="8dp"
                 android:gravity="end"
                 app:strokeColor="@color/cardBorderColor"
@@ -57,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
-                android:layout_marginBottom="28dp"
+                android:layout_marginBottom="20dp"
                 android:text="Settings"
                 android:textSize="35sp" />
 
@@ -261,9 +261,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                android:paddingStart="22dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="15dp"
+                android:paddingStart="25dp"
+                android:paddingTop="25dp"
+                android:paddingBottom="10dp"
                 android:text="User Interface"
                 android:textColor="?attr/colorAccent"
                 android:textStyle="bold" />
@@ -277,15 +277,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/notesGridIcon"
-                        android:layout_width="175dp"
+                        android:layout_width="165dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_grid_24" />
 
@@ -334,15 +335,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/notesPreviewIcon"
-                        android:layout_width="175dp"
+                        android:layout_width="165dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_edit_note_24" />
 
@@ -387,9 +389,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                android:paddingStart="22dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="15dp"
+                android:paddingStart="25dp"
+                android:paddingTop="25dp"
+                android:paddingBottom="10dp"
                 android:text="Privacy and Security"
                 android:textColor="?attr/colorAccent"
                 android:textStyle="bold" />
@@ -403,18 +405,19 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:duplicateParentState="true"
                     android:enabled="false"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/strongBoxIcon"
-                        android:layout_width="175dp"
+                        android:layout_width="150dp"
                         android:duplicateParentState="true"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_phonelink_lock_24" />
 
@@ -433,7 +436,7 @@
                             android:paddingVertical="3.5dp"
                             android:textSize="20sp"
                             android:paddingHorizontal="5dp"
-                            android:text="Store data in secure hardware" />
+                            android:text="Use secure hardware" />
 
                         <TextView
                             android:id="@+id/strongBoxText"
@@ -467,15 +470,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/lockAppIcon"
-                        android:layout_width="175dp"
+                        android:layout_width="165dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_lock_24" />
 
@@ -523,15 +527,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/allowScreenshotsIcon"
-                        android:layout_width="175dp"
+                        android:layout_width="165dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_screenshot_24" />
 
@@ -575,10 +580,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                android:paddingTop="20dp"
-                android:paddingBottom="15dp"
+                android:paddingTop="25dp"
+                android:paddingBottom="10dp"
                 android:textColor="?attr/colorAccent"
-                android:paddingStart="22dp"
+                android:paddingStart="25dp"
                 android:text="Connectivity"
                 android:textStyle="bold" />
 
@@ -591,15 +596,16 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/syncIcon"
-                        android:layout_width="95dp"
+                        android:layout_width="70dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_sync_24" />
 
@@ -674,10 +680,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
-                android:paddingTop="20dp"
-                android:paddingBottom="15dp"
+                android:paddingTop="25dp"
+                android:paddingBottom="10dp"
                 android:textColor="?attr/colorAccent"
-                android:paddingStart="22dp"
+                android:paddingStart="25dp"
                 android:text="About"
                 android:textStyle="bold" />
 
@@ -690,15 +696,16 @@
                     android:id="@+id/buildVersionLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/buildIcon"
-                        android:layout_width="95dp"
+                        android:layout_width="70dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_outline_info_24" />
 
@@ -710,7 +717,7 @@
 
                         <TextView
                             android:id="@+id/buildText"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingVertical="3.5dp"
                             android:textSize="20sp"
@@ -719,7 +726,7 @@
 
                         <TextView
                             android:id="@+id/buildLabel"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
                             android:text="Version 0.0" />
@@ -739,15 +746,16 @@
                     android:id="@+id/openSourceLicensesLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/openSourceLicensesIcon"
-                        android:layout_width="95dp"
+                        android:layout_width="70dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_baseline_code_24" />
 
@@ -759,7 +767,7 @@
 
                         <TextView
                             android:id="@+id/openSourceLicensesText"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingVertical="3.5dp"
                             android:textSize="20sp"
@@ -768,7 +776,7 @@
 
                         <TextView
                             android:id="@+id/openSourceLicensesLabel"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
                             android:text="Tap to view" />
@@ -785,15 +793,17 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginVertical="10dp"
+                    android:layout_marginVertical="15dp"
+                    android:layout_marginHorizontal="15dp"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/keyspacerIcon"
-                        android:layout_width="90dp"
+                        android:layout_width="60dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
                         android:layout_marginStart="10dp"
@@ -804,23 +814,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginHorizontal="18dp"
+                        android:layout_marginHorizontal="15dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/keyspacerText"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingVertical="3.5dp"
                             android:textSize="20sp"
-                            android:paddingHorizontal="5dp"
                             android:text="Developer options" />
 
                         <TextView
                             android:id="@+id/keyspacerLabel"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingHorizontal="5dp"
                             android:text="Welcome chad!" />
 
                     </LinearLayout>
