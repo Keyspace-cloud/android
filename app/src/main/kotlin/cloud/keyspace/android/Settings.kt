@@ -27,6 +27,9 @@ class Settings : AppCompatActivity() {
 
         val configData = getSharedPreferences (applicationContext.packageName + "_configuration_data", MODE_PRIVATE)
 
+        val backButton: ImageView = findViewById(R.id.backButton)
+        backButton.setOnClickListener { onBackPressed() }
+
         val keyspaceAccountPicture: ImageView = findViewById(R.id.keyspaceAccountPicture)
         keyspaceAccountPicture.setImageDrawable(MiscUtilities(applicationContext).generateProfilePicture(configData.getString("userEmail", null)!!))
 
@@ -59,14 +62,14 @@ class Settings : AppCompatActivity() {
         val strongBoxIcon: ImageView = findViewById(R.id.strongBoxTypeIcon)
 
         if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox / hardware keystore exists
-            strongBoxText.text = "Keyspace is encrypting your keys and tokens using tamper-resistant Strongbox hardware on your phone."
+            strongBoxText.text = "Keys are encrypted using tamper-resistant Strongbox hardware."
             strongBoxIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_chip_24))
         } else {
             if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_HARDWARE_KEYSTORE)) {
-                strongBoxText.text = "Your phone doesn't contain Strongbox hardware. Using Hardware Abstraction Layer (HAL) based Keystore."
+                strongBoxText.text = "Keys are encrypted using Hardware Abstraction Layer (HAL) Keystore."
                 strongBoxIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_code_24))
             } else {
-                strongBoxText.text = "Your phone doesn't contain strongbox hardware. Using container-based Keystore."
+                strongBoxText.text = "Keys are encrypted using container-based Keystore."
                 strongBoxIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_insert_drive_file_24))
             }
         }
