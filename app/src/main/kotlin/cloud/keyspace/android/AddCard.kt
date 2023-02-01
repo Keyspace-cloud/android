@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
@@ -266,11 +267,23 @@ class AddCard : AppCompatActivity() {
                 if (s.isNotEmpty() && s.length % 5 == 0) {
                     val c = s[s.length - 1]
                     if (space == c) s.delete(s.length - 1, s.length)
-                }
-
-                if (s.isNotEmpty() && s.length % 5 == 0) {
-                    val c = s[s.length - 1]
                     if (Character.isDigit(c) && TextUtils.split(s.toString(), space.toString()).size <= 3) s.insert(s.length - 1, space.toString())
+                }
+                if (s.toString().replace(" ", "").length in 0..16) {
+                    cardNumberInput.removeTextChangedListener(this)
+                    cardNumberInput.setText(s.toString().replace(" ", "").replace("....".toRegex(), "$0 ")?.trim())
+                    cardNumberInput.addTextChangedListener(this)
+                    cardNumberInput.setSelection(cardNumberInput.text.toString().length)
+                }
+                if (s.toString().replace(" ", "").length in 17..18) {
+                    for (c in s) {
+                        if (c == ' ') {
+                            s.delete(s.indexOf(c), s.indexOf(c)+1)
+                        }
+                    }
+                }
+                if (s.toString().replace(" ", "").length > 19) {
+                    s.delete(s.length - 1, s.length)
                 }
             }
             override fun beforeTextChanged(cardNumber: CharSequence, start: Int, count: Int, after: Int) { }
@@ -372,7 +385,9 @@ class AddCard : AppCompatActivity() {
             vault.card?.remove(io.getCard(itemId!!, vault))
         }
 
-        if (cardNumberInput.text.toString().length < 16) cardNumberInput.error = "Enter a valid 16 digit card number"
+        if (cardNumberInput.text.toString().replace(" ", "").length < 16) cardNumberInput.error = "Enter a valid 16 digit card number"
+        else if (cardNumberInput.text.toString().replace(" ", "").length in 17..18
+            || cardNumberInput.text.toString().replace(" ", "").length > 19) cardNumberInput.error = "Enter a valid 19 digit card number"
         else if (securityCode.text.toString().length !in 3..4) securityCode.error = "Enter a valid security code"
         else if (toDate.text.toString().isEmpty()) toDate.error = "Enter an expiry date"
         else if (cardholderNameInput.text.toString().isEmpty()) cardholderNameInput.error = "Enter card holder's name"
@@ -438,7 +453,9 @@ class AddCard : AppCompatActivity() {
 
         notesInput.setText(card.notes)
 
-        cardNumberInput.setText(card.cardNumber?.replace("....".toRegex(), "$0 "))
+        if (card.cardNumber?.length!! == 16) cardNumberInput.setText(card.cardNumber.replace("....".toRegex(), "$0 "))
+        else cardNumberInput.setText(card.cardNumber)
+
         toDate.setText(card.expiry)
         securityCode.setText(card.securityCode)
         cardholderNameInput.setText(card.cardholderName)

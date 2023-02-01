@@ -1970,7 +1970,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-            cardCard.cardNumber.text = card.cardNumber?.replace("....".toRegex(), "$0 ")
+            if (card.cardNumber?.length == 16) cardCard.cardNumber.text = card.cardNumber.replace("....".toRegex(), "$0 ")
+            else cardCard.cardNumber.text = card.cardNumber
+
             cardCard.toDate.text = card.expiry
             cardCard.cardHolder.text = card.cardholderName
 
@@ -2132,6 +2134,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 )
             }
 
+            if (!card.pin.isNullOrBlank()) cardCard.pin.text = card.pin else cardCard.pinLayout.visibility = View.GONE
+
             fun hideCodes () {
                 cardCard.pin.text = "●●●●"
                 cardCard.securityCode.text = "●●●"
@@ -2142,6 +2146,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             var codesHidden = true
             hideCodes()
+
             cardCard.hideCodes.setOnClickListener {
                 codesHidden = !codesHidden
                 if (codesHidden) {
