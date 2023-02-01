@@ -629,7 +629,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
-                            android:text="Control how frequently Keyspace synchronizes with the backend" />
+                            android:text="Control how frequently Keyspace synchronizes your vault with the server." />
 
                         <RadioGroup
                             android:id="@+id/intervalButtonGroup"
