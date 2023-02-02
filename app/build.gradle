@@ -11,7 +11,7 @@ android {
         applicationId "cloud.keyspace.android"
         minSdkVersion 27
         targetSdkVersion 33
-        versionCode 141
+        versionCode 142
         versionName "1.4.2"
         multiDexEnabled true
 
