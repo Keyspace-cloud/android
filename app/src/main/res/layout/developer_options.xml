@@ -69,7 +69,7 @@
                             android:paddingStart="5dp"
                             android:paddingTop="25dp"
                             android:paddingBottom="20dp"
-                            android:text="Cryptography testers"
+                            android:text="Cryptography"
                             android:textColor="?attr/colorAccent"
                             android:textStyle="bold" />
 
