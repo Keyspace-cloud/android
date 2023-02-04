@@ -1213,8 +1213,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             fragmentRoot.addView(fragmentView)
 
             logins.clear()
-            for (encryptedLogin in io.getLogins(vault))
-                logins.add(io.decryptLogin(encryptedLogin))
+            for (encryptedLogin in io.getLogins(vault)) if (!encryptedLogin.deleted) logins.add(io.decryptLogin(encryptedLogin))
 
             loginsRecycler = fragmentView.findViewById(R.id.logins_recycler)
             loginsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
@@ -2220,8 +2219,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             fragmentRoot.addView(fragmentView)
 
             notes.clear()
-            for (encryptedNote in io.getNotes(vault))
-                notes.add(io.decryptNote(encryptedNote))
+            for (encryptedNote in io.getNotes(vault)) if (!encryptedNote.deleted)  notes.add(io.decryptNote(encryptedNote))
 
             notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
 
@@ -2315,8 +2313,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             fragmentRoot.addView(fragmentView)
 
             cards.clear()
-            for (encryptedCard in io.getCards(vault))
-                cards.add(io.decryptCard(encryptedCard))
+            for (encryptedCard in io.getCards(vault)) if (!encryptedCard.deleted) cards.add(io.decryptCard(encryptedCard))
 
             cardsRecycler = fragmentView.findViewById(R.id.cards_recycler)
             cardsRecycler.layoutManager = LinearLayoutManager(this)
@@ -2703,6 +2700,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                 name = decoded2faData?.label ?: decoded2faData?.issuer ?: decoded2faData?.account,
                                 notes = null,
                                 favorite = false,
+                                deleted = false,
                                 tagId = null,
                                 loginData = IOUtilities.LoginData(
                                     username = decoded2faData?.account ?: decoded2faData?.label,

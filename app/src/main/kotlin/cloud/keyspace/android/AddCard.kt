@@ -62,6 +62,7 @@ class AddCard : AppCompatActivity() {
     lateinit var doneButton: ImageView
     lateinit var backButton: ImageView
     lateinit var deleteButton: ImageView
+    var deleted: Boolean = false
 
     var cardColor: String? = null
     lateinit var colorButton: ImageView
@@ -156,31 +157,12 @@ class AddCard : AppCompatActivity() {
 
         deleteButton = findViewById (R.id.delete)
         if (itemId != null) {
+            deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener {
-                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-                alertDialog.setTitle("Delete")
-                alertDialog.setMessage("Would you like to delete \"${card.name}\"")
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
-
-                    vault.card!!.remove(io.getCard(itemId!!, vault))
-                    io.writeVault(vault)
-
-                    network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                    crypto.secureStartActivity (
-                        nextActivity = Dashboard(),
-                        nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
-                        keyring = keyring,
-                        itemId = null
-                    )
-
-                }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-                alertDialog.show()
-
+                deleted = !deleted
+                saveItem()
             }
-        } else {
-            deleteButton.visibility = View.GONE
-        }
+        } else deleteButton.visibility = View.GONE
 
         tagButton = findViewById (R.id.tag)
         tagPicker = AddTag (tagId, applicationContext, this@AddCard, keyring)
@@ -388,6 +370,7 @@ class AddCard : AppCompatActivity() {
                 name = nameInput.text.toString(),
                 color = cardColor,
                 favorite = favorite,
+                deleted = deleted,
                 tagId = tagPicker.getSelectedTagId() ?: tagId,
                 dateCreated = dateCreated,
                 dateModified = Instant.now().epochSecond,

@@ -74,11 +74,13 @@ class DeletedItems : AppCompatActivity() {
         vault.tag?.forEach { tags.add(io.decryptTag(it)!!) }
 
         logins = mutableListOf()
-        for (encryptedLogin in io.getLogins(vault)) logins.add(io.decryptLogin(encryptedLogin))
+        for (encryptedLogin in io.getLogins(vault)) if (encryptedLogin.deleted) logins.add(io.decryptLogin(encryptedLogin))
+
         notes = mutableListOf()
-        for (encryptedNote in io.getNotes(vault)) notes.add(io.decryptNote(encryptedNote))
+        for (encryptedNote in io.getNotes(vault)) if (encryptedNote.deleted) notes.add(io.decryptNote(encryptedNote))
+
         cards = mutableListOf()
-        for (encryptedCard in io.getCards(vault)) cards.add(io.decryptCard(encryptedCard))
+        for (encryptedCard in io.getCards(vault)) if (encryptedCard.deleted) cards.add(io.decryptCard(encryptedCard))
 
         val deletedItemsRecycler: RecyclerView = findViewById(R.id.deletedItemsRecycler)
         deletedItemsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
