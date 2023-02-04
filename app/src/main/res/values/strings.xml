@@ -10,6 +10,7 @@
     <string name="title_activity_add_note">AddNote</string>
     <string name="title_activity_add_card">AddCard</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_deleted_items">DeletedItems</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

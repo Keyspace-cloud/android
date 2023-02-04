@@ -30,7 +30,6 @@
                 app:srcCompat="@drawable/ic_baseline_arrow_back_24" />
 
             <TextView
-                android:id="@+id/settingsActivityLabelTop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
@@ -40,7 +39,7 @@
                 android:textSize="34sp" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/cards_recycler"
+                android:id="@+id/deletedItemsRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
@@ -52,11 +51,10 @@
                 android:smoothScrollbar="true"
                 app:textColor="@android:color/white"
                 app:textSize="18sp"
-                tools:itemCount="5"
+                tools:itemCount="2"
                 tools:listitem="@layout/login" />
 
             <TextView
-                android:id="@+id/userInterfaceSettingsCategoryLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
@@ -68,7 +66,7 @@
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:id="@+id/notesGrid"
+                android:id="@+id/deletePermanentlyButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -80,7 +78,6 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:id="@+id/notesGridIcon"
                         android:layout_width="90dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
@@ -95,17 +92,15 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/notesGridLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"
                             android:paddingVertical="3.5dp"
-                            android:text="Delete all"
+                            android:text="Delete permanently"
                             android:textSize="18sp"
                             android:textStyle="normal" />
 
                         <TextView
-                            android:id="@+id/notesGridText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="5dp"

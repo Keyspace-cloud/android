@@ -2129,8 +2129,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             }
 
             fun hideCodes () {
-                cardCard.pin.text = "●●●●"
-                cardCard.securityCode.text = "●●●"
+                cardCard.pin.text = "••••"
+                cardCard.securityCode.text = "•••"
                 cardCard.hideCodes.setImageDrawable(getDrawable(R.drawable.ic_baseline_visibility_off_24))
                 cardCard.pin.setOnClickListener(null)
                 cardCard.securityCode.setOnClickListener(null)
@@ -2821,9 +2821,12 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     }
 
     private fun openDeletedItems () {
-        val intent = Intent(this, DeletedItems::class.java)
-        startActivity(intent)
-        finish()
+        crypto.secureStartActivity (
+            nextActivity = DeletedItems(),
+            nextActivityClassNameAsString = getString(R.string.title_activity_deleted_items),
+            keyring = keyring,
+            itemId = null
+        )
     }
 
     private fun loginInfoDialog() {
