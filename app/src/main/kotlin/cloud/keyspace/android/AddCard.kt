@@ -191,7 +191,7 @@ class AddCard : AppCompatActivity() {
             tagIdGrabber.post(object : Runnable {
                 override fun run() {
                     tagId = tagPicker.getSelectedTagId()
-                    tagIdGrabber.postDelayed(this, 100)
+                    tagIdGrabber.postDelayed(this, 10)
                 }
             })
         }
