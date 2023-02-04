@@ -41,6 +41,7 @@ class IOUtilities(
 
     val file = File(applicationContext.cacheDir, filename!!)
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Tag (
         val id: String,
         val name: String,
@@ -58,22 +59,26 @@ class IOUtilities(
         val card: MutableList<Card>?,
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class CustomField (
         var name: String?,
         var value: String,
         val hidden: Boolean
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Password (
         val password: String,
         val created: Long
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Totp (
         val secret: String?,
         val backupCodes: MutableList<String>?
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class LoginData (
         val username: String?,
         val password: String?,
@@ -84,6 +89,7 @@ class IOUtilities(
         val siteUrls: MutableList<String>?
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Login (
         val id: String?,
         val organizationId: String?,
@@ -101,6 +107,7 @@ class IOUtilities(
         val customFields: MutableList<CustomField>?
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Note (
         val id: String?,
         val organizationId: String?,
@@ -115,6 +122,7 @@ class IOUtilities(
         val tagId: String?,
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Card (
         val id: String?,
         val organizationId: String?,
