@@ -1086,10 +1086,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             if (!login.loginData?.email.isNullOrEmpty()) {
                 loginCard.usernameText.text = login.loginData!!.email
                 loginCard.usernameText.setCompoundDrawablesRelativeWithIntrinsicBounds (emailIcon, null, null, null)
-            } else if (!login.loginData?.username.isNullOrEmpty()) {
+            }
+
+            if (!login.loginData?.username.isNullOrEmpty()) {
                 loginCard.usernameText.text = login.loginData!!.username
                 loginCard.usernameText.setCompoundDrawablesRelativeWithIntrinsicBounds (loginIcon, null, null, null)
-            } else loginCard.usernameText.visibility = View.GONE
+            }
+
+            if (login.loginData?.username.isNullOrEmpty() && login.loginData?.email.isNullOrEmpty()) loginCard.usernameText.visibility = View.GONE
 
             loginCard.miscText.visibility = View.GONE
 
@@ -1965,7 +1969,9 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-            cardCard.cardNumber.text = card.cardNumber?.replace("....".toRegex(), "$0 ")
+            if (card.cardNumber?.length == 16) cardCard.cardNumber.text = card.cardNumber.replace("....".toRegex(), "$0 ")
+            else cardCard.cardNumber.text = card.cardNumber
+
             cardCard.toDate.text = card.expiry
             cardCard.cardHolder.text = card.cardholderName
 
@@ -2127,6 +2133,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 )
             }
 
+            if (!card.pin.isNullOrBlank()) cardCard.pin.text = card.pin else cardCard.pinLayout.visibility = View.GONE
+
             fun hideCodes () {
                 cardCard.pin.text = "••••"
                 cardCard.securityCode.text = "•••"
@@ -2137,6 +2145,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
             var codesHidden = true
             hideCodes()
+
             cardCard.hideCodes.setOnClickListener {
                 codesHidden = !codesHidden
                 if (codesHidden) {
