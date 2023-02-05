@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.keyspace.keyspacemobile.NetworkUtilities
 import com.nulabinc.zxcvbn.Zxcvbn
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
 import kotlin.concurrent.thread
@@ -30,6 +31,7 @@ import kotlin.concurrent.thread
 class DeletedItems : AppCompatActivity() {
 
     lateinit var crypto: CryptoUtilities
+    lateinit var network: NetworkUtilities
     lateinit var misc: MiscUtilities
     lateinit var io: IOUtilities
     lateinit var keyring: CryptoUtilities.Keyring
@@ -37,9 +39,9 @@ class DeletedItems : AppCompatActivity() {
     lateinit var zxcvbn: Zxcvbn
     lateinit var vault: IOUtilities.Vault
     lateinit var tags: MutableList<IOUtilities.Tag>
-    lateinit var logins: MutableList<IOUtilities.Login>
-    lateinit var notes: MutableList<IOUtilities.Note>
-    lateinit var cards: MutableList<IOUtilities.Card>
+    var deletedLogins: MutableList<IOUtilities.Login> = mutableListOf()
+    var deletedNotes: MutableList<IOUtilities.Note> = mutableListOf()
+    var deletedCards: MutableList<IOUtilities.Card> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +59,7 @@ class DeletedItems : AppCompatActivity() {
 
         keyring = intentData.first
 
+        network = NetworkUtilities(applicationContext, this, keyring)
         io = IOUtilities (applicationContext, this, keyring)
 
         val allowScreenshots = configData.getBoolean("allowScreenshots", false)
@@ -71,36 +74,46 @@ class DeletedItems : AppCompatActivity() {
         vault = io.vaultSorter(vault, io.SORT_LAST_EDITED)
 
         tags = mutableListOf()
+
         vault.tag?.forEach { tags.add(io.decryptTag(it)!!) }
-
-        logins = mutableListOf()
-        for (encryptedLogin in io.getLogins(vault)) if (encryptedLogin.deleted) logins.add(io.decryptLogin(encryptedLogin))
-
-        notes = mutableListOf()
-        for (encryptedNote in io.getNotes(vault)) if (encryptedNote.deleted) notes.add(io.decryptNote(encryptedNote))
-
-        cards = mutableListOf()
-        for (encryptedCard in io.getCards(vault)) if (encryptedCard.deleted) cards.add(io.decryptCard(encryptedCard))
+        vault.login?.forEach { if (it.deleted) deletedLogins.add(io.decryptLogin(it)) }
+        vault.note?.forEach { if (it.deleted) deletedNotes.add(io.decryptNote(it)) }
+        vault.card?.forEach { if (it.deleted) deletedCards.add(io.decryptCard(it)) }
 
         val deletedItemsRecycler: RecyclerView = findViewById(R.id.deletedItemsRecycler)
         deletedItemsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
 
-        val adapter = LoginsAdapter(logins)
+        val adapter = LoginsAdapter(deletedLogins)
         adapter.setHasStableIds(true)
         deletedItemsRecycler.adapter = adapter
         deletedItemsRecycler.setItemViewCacheSize(50);
         LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
         deletedItemsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
-        adapter.notifyItemInserted(logins.size)
+        adapter.notifyItemInserted(deletedLogins.size)
         deletedItemsRecycler.isNestedScrollingEnabled = false
 
         val deletePermanentlyButton: LinearLayout = findViewById(R.id.deletePermanentlyButton)
         deletePermanentlyButton.setOnClickListener {
             val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
             alertDialog.setTitle("Delete permanently")
-            alertDialog.setMessage("Would you like to permanently delete these items? This action is irreversible")
+            alertDialog.setMessage("Would you like to permanently delete these items? This action is irreversible.")
 
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete permanently") { dialog, _ ->
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
+                deletePermanently()
+                onBackPressed()
+            }
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+            alertDialog.show()
+        }
+
+        val restoreAllButton: LinearLayout = findViewById(R.id.restoreAllButton)
+        restoreAllButton.setOnClickListener {
+            val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
+            alertDialog.setTitle("Restore all")
+            alertDialog.setMessage("Would you like to restore all of these items?")
+
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Restore") { dialog, _ ->
+                restorePermanently()
                 onBackPressed()
             }
             alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
@@ -117,6 +130,69 @@ class DeletedItems : AppCompatActivity() {
             itemId = null
         )
         super.onBackPressed()
+
+    }
+
+    private fun deletePermanently () {
+
+        val newLogins = mutableListOf<IOUtilities.Login>()
+        val newNotes = mutableListOf<IOUtilities.Note>()
+        val newCards = mutableListOf<IOUtilities.Card>()
+
+        vault.login?.forEach { if (!it.deleted) newLogins.add(it) }
+        vault.note?.forEach { if (!it.deleted) newNotes.add(it) }
+        vault.card?.forEach { if (!it.deleted) newCards.add(it) }
+
+        if (deletedLogins.isNotEmpty()) deletedLogins.forEach { network.writeQueueTask (it.id!!, mode = network.MODE_DELETE) }
+        if (deletedNotes.isNotEmpty()) deletedNotes.forEach { network.writeQueueTask (it.id!!, mode = network.MODE_DELETE) }
+        if (deletedCards.isNotEmpty()) deletedCards.forEach { network.writeQueueTask (it.id!!, mode = network.MODE_DELETE) }
+
+        io.writeVault (
+            IOUtilities.Vault(
+                version = vault.version,
+                tag = vault.tag,
+                login = newLogins,
+                note = newNotes,
+                card = newCards
+            )
+        )
+
+    }
+
+    private fun restorePermanently () {
+
+        val newLogins = mutableListOf<IOUtilities.Login>()
+        val newNotes = mutableListOf<IOUtilities.Note>()
+        val newCards = mutableListOf<IOUtilities.Card>()
+
+        vault.login?.forEach {
+            if (it.deleted) it.deleted = false
+            newLogins.add(it)
+        }
+
+        vault.note?.forEach {
+            if (it.deleted) it.deleted = false
+            newNotes.add(it)
+        }
+
+        vault.card?.forEach {
+            if (it.deleted) it.deleted = false
+            newCards.add(it)
+        }
+
+        newLogins.forEach { network.writeQueueTask (it, mode = network.MODE_PUT) }
+        newNotes.forEach { network.writeQueueTask (it, mode = network.MODE_PUT) }
+        newCards.forEach { network.writeQueueTask (it, mode = network.MODE_PUT) }
+
+        io.writeVault (
+            IOUtilities.Vault(
+                version = vault.version,
+                tag = vault.tag,
+                login = newLogins,
+                note = newNotes,
+                card = newCards
+            )
+        )
 
     }
 

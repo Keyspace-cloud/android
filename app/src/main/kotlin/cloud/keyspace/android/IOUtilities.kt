@@ -97,7 +97,7 @@ class IOUtilities(
         val name: String?,
         val notes: String?,
         val favorite: Boolean,
-        val deleted: Boolean,
+        var deleted: Boolean,
         val tagId: String?,
         val loginData: LoginData?,
         val dateCreated: Long?,
@@ -118,7 +118,7 @@ class IOUtilities(
         val notes: String?,
         val color: String?,
         val favorite: Boolean,
-        val deleted: Boolean,
+        var deleted: Boolean,
         val tagId: String?,
     )
 
@@ -132,7 +132,7 @@ class IOUtilities(
         val expiry: String?,
         val securityCode: String?,
         val favorite: Boolean,
-        val deleted: Boolean,
+        var deleted: Boolean,
         val cardholderName: String?,
         val name: String?,
         val pin: String?,
