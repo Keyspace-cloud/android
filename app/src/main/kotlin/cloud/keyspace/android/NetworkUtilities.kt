@@ -56,6 +56,8 @@ class NetworkUtilities (
         val apiVersion: String,
     )
 
+    val queue = Volley.newRequestQueue(context)
+
     private val queueFileExtension = "queue"
     private val saveFilename = "save"
     private val editFilename = "edit"
@@ -299,7 +301,6 @@ class NetworkUtilities (
      */
     suspend fun synchronousGetRequest (url: String): JSONObject? {
         return suspendCancellableCoroutine { continuation ->
-            val queue = Volley.newRequestQueue(context)
             val jsonObjectRequest = JsonObjectRequest (
                 Request.Method.GET, url, null,
                 { response ->
@@ -329,7 +330,6 @@ class NetworkUtilities (
      */
     suspend fun synchronousGetRequestWithAuthorizationHeader (url: String, signedToken: String): JSONObject? {
         return suspendCancellableCoroutine { continuation ->
-            val queue = Volley.newRequestQueue(context)
 
             val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest (
                 Method.GET, url, JSONObject(),
@@ -378,7 +378,6 @@ class NetworkUtilities (
      */
     suspend fun synchronousJsonPostRequest (url: String, parameters: Map<String, String?>): JSONObject? {
         return suspendCancellableCoroutine { continuation ->
-            val queue = Volley.newRequestQueue(context)
             val jsonObjectRequest = JsonObjectRequest (
                 Request.Method.POST, url, JSONObject(parameters),
                 { response ->
@@ -402,7 +401,6 @@ class NetworkUtilities (
      * TODO: Not use this method via invocation
      */
     private fun asynchronousJsonPostRequest(username: String, password: String) {
-        val myRequestQueue = Volley.newRequestQueue(context)
         val url = signup_endpoint // <----enter your post url here
         val myStringRequest: StringRequest = object : StringRequest(
             Method.POST, url, Response.Listener {
@@ -420,7 +418,7 @@ class NetworkUtilities (
                 return data
             }
         }
-        myRequestQueue.add(myStringRequest)
+        queue.add(myStringRequest)
     }
 
 
@@ -431,7 +429,6 @@ class NetworkUtilities (
     private fun asynchronousGetRequest (url: String): JSONObject? {
         var serverResponse: JSONObject? = null
         try {
-            val requestQueue = Volley.newRequestQueue(context)
             val jsonObjectRequest = JsonObjectRequest(
                 Request.Method.GET, url, null,
                 { response ->
@@ -443,7 +440,7 @@ class NetworkUtilities (
                     }
                 }) { error -> error.printStackTrace() }
 
-            requestQueue.add(jsonObjectRequest)
+            queue.add(jsonObjectRequest)
 
         } catch (noConnection: NoConnectionError) {
             Log.e("Keyspace", "Couldn't connect to $url. Is your device connected to the internet?")
@@ -556,7 +553,6 @@ class NetworkUtilities (
         }
 
         return suspendCancellableCoroutine { continuation ->
-            val queue = Volley.newRequestQueue(context)
 
             val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest (
                 method, vault_items_endpoint, JSONObject(),
