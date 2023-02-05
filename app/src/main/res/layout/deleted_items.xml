@@ -39,113 +39,132 @@
                 android:text="Deleted items"
                 android:textSize="34sp" />
 
-            <ImageView
+            <LinearLayout
                 android:id="@+id/deletedItemsGraphic"
-                android:layout_width="275dp"
-                android:layout_height="225dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="100dp"
-                app:srcCompat="@drawable/illustration_deleted_items" />
-
-            <TextView
-                android:id="@+id/hint"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="14dp"
-                android:gravity="center"
-                android:singleLine="false"
-                android:text="All caught up!"
-                android:textSize="18sp"
-                android:textStyle="italic" />
-
-            <TextView
-                android:id="@+id/deletedLoginsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:duplicateParentState="true"
-                android:paddingStart="22dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="Deleted logins"
-                android:textColor="?attr/colorAccent"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/deletedLoginsRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-
-                android:layout_weight="1"
-
-                android:animateLayoutChanges="false"
-
-                android:clipToPadding="false"
-                android:smoothScrollbar="true"
-                app:textColor="@android:color/white"
-                app:textSize="18sp"
-                tools:itemCount="2"
-                tools:listitem="@layout/login">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <TextView
-                android:id="@+id/deletedNotesLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:duplicateParentState="true"
-                android:paddingStart="22dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="Deleted notes"
-                android:textColor="?attr/colorAccent"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/deletedNotesRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                android:animateLayoutChanges="false"
+                <ImageView
+                    android:layout_width="275dp"
+                    android:layout_height="225dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="100dp"
+                    app:srcCompat="@drawable/illustration_deleted_items" />
 
-                android:clipToPadding="false"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="14dp"
+                    android:gravity="center"
+                    android:singleLine="false"
+                    android:text="All caught up!"
+                    android:textSize="18sp"
+                    android:textStyle="italic" />
 
-                android:smoothScrollbar="true"
-                app:textColor="@android:color/white"
-                app:textSize="18sp"
-                tools:itemCount="2"
-                tools:listitem="@layout/note">
+            </LinearLayout>
 
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <TextView
-                android:id="@+id/deletedCardsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:duplicateParentState="true"
-                android:paddingStart="22dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="Deleted cards"
-                android:textColor="?attr/colorAccent"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/deletedCardsRecycler"
+            <LinearLayout
+                android:id="@+id/deletedItems"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                android:animateLayoutChanges="false"
+                <TextView
+                    android:id="@+id/deletedLoginsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:duplicateParentState="true"
+                    android:paddingStart="22dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="Deleted logins"
+                    android:textColor="?attr/colorAccent"
+                    android:textStyle="bold" />
 
-                android:clipToPadding="false"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"></LinearLayout>
 
-                android:smoothScrollbar="true"
-                app:textColor="@android:color/white"
-                app:textSize="18sp"
-                tools:itemCount="2"
-                tools:listitem="@layout/card">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/deletedLoginsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
 
-            </androidx.recyclerview.widget.RecyclerView>
+                    android:layout_weight="1"
+
+                    android:animateLayoutChanges="false"
+                    android:clipToPadding="false"
+                    android:smoothScrollbar="true"
+                    app:textColor="@android:color/white"
+                    app:textSize="18sp"
+                    tools:itemCount="5"
+                    tools:listitem="@layout/login">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+                <TextView
+                    android:id="@+id/deletedNotesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:duplicateParentState="true"
+                    android:paddingStart="22dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="Deleted notes"
+                    android:textColor="?attr/colorAccent"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/deletedNotesRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="1"
+
+                    android:animateLayoutChanges="false"
+
+                    android:clipToPadding="false"
+                    android:smoothScrollbar="true"
+                    app:textColor="@android:color/white"
+                    app:textSize="18sp"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/note">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+                <TextView
+                    android:id="@+id/deletedCardsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:duplicateParentState="true"
+                    android:paddingStart="22dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="Deleted cards"
+                    android:textColor="?attr/colorAccent"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/deletedCardsRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="1"
+
+                    android:animateLayoutChanges="false"
+
+                    android:clipToPadding="false"
+                    android:smoothScrollbar="true"
+                    app:textColor="@android:color/white"
+                    app:textSize="18sp"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/card">
+
+                </androidx.recyclerview.widget.RecyclerView>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/dangerZoneLayout"

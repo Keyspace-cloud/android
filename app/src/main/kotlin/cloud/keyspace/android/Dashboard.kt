@@ -635,7 +635,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                 loginSearchableData.add(login.loginData?.siteUrls.toString())
                                 val loginSearchableDataString = loginSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
-                                if (loginSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
+                                if (loginSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {
                                     searchTermsList.add(login)
                                 }
 
@@ -1190,6 +1190,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     private fun renderLoginsFragment () {
 
+        vault.login?.forEach { if (!it.deleted) logins.add(it) }
+
         sortBy = configData.getString("sort_by", io.SORT_LAST_EDITED)!!
         vault = io.vaultSorter(vault, sortBy)
 
@@ -1205,7 +1207,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         killBottomSheet()
 
-        if (vault.login.isNullOrEmpty()) {
+        if (logins.isEmpty()) {
             try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
@@ -2198,6 +2200,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     private fun renderNotesFragment () {
 
+        vault.note?.forEach { if (!it.deleted) notes.add(it) }
+
         sortBy = configData.getString("sort_by", io.SORT_LAST_EDITED)!!
         vault = io.vaultSorter(vault, sortBy)
 
@@ -2213,7 +2217,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         killBottomSheet()
 
-        if (io.getNotes(io.getVault()).size == 0) {
+        if (notes.isEmpty()) {
             try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
@@ -2296,6 +2300,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     private fun renderCardsFragment () {
 
+        vault.card?.forEach { if (!it.deleted) cards.add(it) }
+
         sortBy = configData.getString("sort_by", io.SORT_LAST_EDITED)!!
         vault = io.vaultSorter(vault, sortBy)
 
@@ -2310,14 +2316,14 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         }
         killBottomSheet()
 
-        if (vault.card.isNullOrEmpty()) {
-            try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
+        if (cards.isEmpty()) {
+            try { fragmentRoot.removeView(fragmentView) } catch (_: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
             if (coldStart) fragmentView.startAnimation(loadAnimation(applicationContext, android.R.anim.fade_in));
 
         } else {
-            try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
+            try { fragmentRoot.removeView(fragmentView) } catch (_: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.dashboard_fragment_cards, null)
             fragmentRoot.addView(fragmentView)
 

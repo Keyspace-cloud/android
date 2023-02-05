@@ -97,40 +97,15 @@ class DeletedItems : AppCompatActivity() {
             val deletedCardsRecycler: RecyclerView = findViewById(R.id.deletedCardsRecycler)
             deletedCardsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
 
-            if (deletedLogins.isEmpty()) {
-                findViewById<TextView>(R.id.deletedLoginsLabel).visibility = View.GONE
-                deletedLoginsRecycler.visibility = View.GONE
-            } else {
-
-                findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
-
-                val adapter = LoginsAdapter(deletedLogins)
-                adapter.setHasStableIds(true)
-                deletedLoginsRecycler.adapter = adapter
-                deletedLoginsRecycler.setItemViewCacheSize(50);
-                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-                deletedLoginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
-                adapter.notifyItemInserted(deletedLogins.size)
-                deletedLoginsRecycler.isNestedScrollingEnabled = false
-            }
-
-            if (deletedNotes.isEmpty()) {
-                findViewById<TextView>(R.id.deletedNotesLabel).visibility = View.GONE
-                deletedNotesRecycler.visibility = View.GONE
-            } else {
-
-                findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
-
-            }
-
-            if (deletedCards.isEmpty()) {
-                findViewById<TextView>(R.id.deletedCardsLabel).visibility = View.GONE
-                deletedLoginsRecycler.visibility = View.GONE
-            } else {
-
-                findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
-
-            }
+            findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
+            val adapter = LoginsAdapter(deletedLogins)
+            adapter.setHasStableIds(true)
+            deletedLoginsRecycler.adapter = adapter
+            deletedLoginsRecycler.setItemViewCacheSize(50);
+            LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+            deletedLoginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+            adapter.notifyItemInserted(deletedLogins.size)
+            deletedLoginsRecycler.isNestedScrollingEnabled = false
 
             val deletePermanentlyButton: LinearLayout = findViewById(R.id.deletePermanentlyButton)
             deletePermanentlyButton.setOnClickListener {
