@@ -20,116 +20,116 @@
         app:strokeColor="@color/cardBorderColor"
         app:strokeWidth="0.75dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground">
+
+        <LinearLayout
+            android:id="@+id/NoteCardLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
-                android:id="@+id/NoteCardLayout"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="match_parent">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <com.yydcdut.markdown.MarkdownTextView
+                    android:id="@+id/Note"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:editable="false"
+                    android:enabled="true"
+                    android:linksClickable="true"
+                    android:maxHeight="300dp"
+                    android:paddingHorizontal="15dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="5dp"
+                    android:text="- Stand up straight with your shoulfefwedfwedwedwedwedwedwedwedwefwefwefwefwefewfwefewfwefwefwefwefefwfwefewfwefwefwefwefwefwefefwfwfwefwefwefwefewfwefwefwefwfwefwefwefwefwefwefwefwfwefwefwefwefwefwefwfwefwefwefwefwefwefwefwfwefwefwefwefwefwefwefwefwfewfwefwefwefwders straight\n- Treat yourself like someone you are responsible for helping\n- Befriend people who want the best for you"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textColorHint="?android:attr/textColorPrimary"
+                    android:textSize="17sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.yydcdut.markdown.MarkdownTextView
-                        android:id="@+id/Note"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:editable="false"
-                        android:enabled="true"
-                        android:linksClickable="true"
-                        android:maxHeight="300dp"
-                        android:paddingHorizontal="15dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="5dp"
-                        android:text="- Stand up straight with your shoulfefwedfwedwedwedwedwedwedwedwefwefwefwefwefewfwefewfwefwefwefwefefwfwefewfwefwefwefwefwefwefefwfwfwefwefwefwefewfwefwefwefwfwefwefwefwefwefwefwefwfwefwefwefwefwefwefwfwefwefwefwefwefwefwefwfwefwefwefwefwefwefwefwefwfewfwefwefwefwders straight\n- Treat yourself like someone you are responsible for helping\n- Befriend people who want the best for you"
-                        android:textColor="?android:attr/textColorPrimary"
-                        android:textColorHint="?android:attr/textColorPrimary"
-                        android:textSize="17sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                <View
+                    android:id="@+id/line"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.75dp"
+                    android:layout_marginHorizontal="15dp"
+                    android:background="#8B8B8B"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                    <View
-                        android:id="@+id/line"
-                        android:layout_width="match_parent"
-                        android:layout_height="0.75dp"
-                        android:layout_marginHorizontal="15dp"
-                        android:background="#8B8B8B"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginVertical="5dp"
+                android:layoutDirection="rtl">
 
-                <com.google.android.material.chip.ChipGroup
+                <TextView
+                    android:id="@+id/TagText"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_gravity="end"
-                    android:layout_marginHorizontal="15dp"
-                    android:layout_marginVertical="5dp"
-                    android:layoutDirection="rtl">
+                    android:layout_weight="1"
+                    android:drawablePadding="5dp"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:gravity="center|end"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollbars="none"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="Tag"
+                    android:textSize="14sp"
+                    app:drawableEndCompat="@drawable/ic_baseline_circle_24" />
 
-                    <TextView
-                        android:id="@+id/TagText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:drawablePadding="5dp"
-                        android:ellipsize="marquee"
-                        android:fadingEdge="horizontal"
-                        android:gravity="center|end"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollbars="none"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:text="Tag"
-                        android:textSize="14sp"
-                        app:drawableEndCompat="@drawable/ic_baseline_circle_24" />
+                <TextView
+                    android:id="@+id/MiscText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:drawablePadding="5dp"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:gravity="center|end"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollbars="none"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="Misc stuff"
+                    android:textSize="14sp"
+                    android:visibility="visible"
+                    app:drawableEndCompat="@drawable/ic_baseline_help_24" />
 
-                    <TextView
-                        android:id="@+id/MiscText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:drawablePadding="5dp"
-                        android:ellipsize="marquee"
-                        android:fadingEdge="horizontal"
-                        android:gravity="center|end"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollbars="none"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:text="Misc stuff"
-                        android:textSize="14sp"
-                        android:visibility="visible"
-                        app:drawableEndCompat="@drawable/ic_baseline_help_24" />
+                <TextView
+                    android:id="@+id/Date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:foregroundGravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:paddingTop="2.5dp"
+                    android:text="Sept 55, 5555 at 55:55"
+                    android:textSize="14sp" />
 
-                    <TextView
-                        android:id="@+id/Date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:foregroundGravity="center_vertical"
-                        android:gravity="center_vertical"
-                        android:paddingTop="2.5dp"
-                        android:text="Sept 55, 5555 at 55:55"
-                        android:textSize="14sp" />
+            </com.google.android.material.chip.ChipGroup>
 
-                </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
 
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </com.google.android.material.card.MaterialCardView>

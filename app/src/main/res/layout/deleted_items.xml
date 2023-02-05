@@ -83,27 +83,28 @@
                     android:textColor="?attr/colorAccent"
                     android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"></LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/deletedLoginsRecycler"
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
                     android:layout_weight="1"
+                    android:fillViewport="true">
 
-                    android:animateLayoutChanges="false"
-                    android:clipToPadding="false"
-                    android:smoothScrollbar="true"
-                    app:textColor="@android:color/white"
-                    app:textSize="18sp"
-                    tools:itemCount="5"
-                    tools:listitem="@layout/login">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/deletedLoginsRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
 
-                </androidx.recyclerview.widget.RecyclerView>
+                        android:layout_weight="1"
+
+                        android:animateLayoutChanges="false"
+                        android:clipToPadding="false"
+                        android:smoothScrollbar="true"
+                        app:textColor="@android:color/white"
+                        app:textSize="18sp"
+                        tools:itemCount="5"
+                        tools:listitem="@layout/login" />
+
+                </androidx.core.widget.NestedScrollView>
 
                 <TextView
                     android:id="@+id/deletedNotesLabel"
@@ -117,23 +118,29 @@
                     android:textColor="?attr/colorAccent"
                     android:textStyle="bold" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/deletedNotesRecycler"
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:fillViewport="true">
 
-                    android:animateLayoutChanges="false"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/deletedNotesRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
 
-                    android:clipToPadding="false"
-                    android:smoothScrollbar="true"
-                    app:textColor="@android:color/white"
-                    app:textSize="18sp"
-                    tools:itemCount="2"
-                    tools:listitem="@layout/note">
+                        android:layout_weight="1"
 
-                </androidx.recyclerview.widget.RecyclerView>
+                        android:animateLayoutChanges="false"
+
+                        android:clipToPadding="false"
+                        android:smoothScrollbar="true"
+                        app:textColor="@android:color/white"
+                        app:textSize="18sp"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/note" />
+
+                </androidx.core.widget.NestedScrollView>
 
                 <TextView
                     android:id="@+id/deletedCardsLabel"
@@ -147,23 +154,30 @@
                     android:textColor="?attr/colorAccent"
                     android:textStyle="bold" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/deletedCardsRecycler"
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:fillViewport="true">
 
-                    android:animateLayoutChanges="false"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/deletedCardsRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
 
-                    android:clipToPadding="false"
-                    android:smoothScrollbar="true"
-                    app:textColor="@android:color/white"
-                    app:textSize="18sp"
-                    tools:itemCount="2"
-                    tools:listitem="@layout/card">
+                        android:layout_weight="1"
 
-                </androidx.recyclerview.widget.RecyclerView>
+                        android:animateLayoutChanges="false"
+
+                        android:clipToPadding="false"
+                        android:smoothScrollbar="true"
+                        app:textColor="@android:color/white"
+                        app:textSize="18sp"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/card" />
+
+                </androidx.core.widget.NestedScrollView>
+
             </LinearLayout>
 
             <LinearLayout

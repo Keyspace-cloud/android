@@ -10,14 +10,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/CardsCardLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:foregroundGravity="center"
         android:gravity="center"
-        android:minWidth="435dp"
-        android:minHeight="285dp"
         android:maxWidth="435dp"
-        android:maxHeight="285dp">
+        android:maxHeight="285dp"
+        android:minWidth="435dp"
+        android:minHeight="285dp">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/CardsCardBack"
@@ -94,8 +94,8 @@
                         android:gravity="center|end"
                         android:marqueeRepeatLimit="marquee_forever"
                         android:paddingHorizontal="10dp"
-                        android:scrollbars="none"
                         android:paddingEnd="-1.5dp"
+                        android:scrollbars="none"
                         android:scrollHorizontally="true"
                         android:singleLine="true"
                         android:supportsRtl="false"

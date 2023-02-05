@@ -661,10 +661,17 @@ class AddNote : AppCompatActivity() {
 
         deleteButton = findViewById (R.id.delete)
         if (itemId != null) {
-            deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener {
-                deleted = !deleted
-                saveItem()
+                val builder = MaterialAlertDialogBuilder(this@AddNote)
+                    .setTitle("Delete note")
+                    .setCancelable(false)
+                    .setMessage("Would you like to delete this note?")
+                    .setNegativeButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        deleted = !deleted
+                        saveItem()
+                    }
+                builder.show()
             }
         } else deleteButton.visibility = View.GONE
 

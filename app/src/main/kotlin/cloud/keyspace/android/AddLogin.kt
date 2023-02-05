@@ -212,8 +212,16 @@ class AddLogin : AppCompatActivity() {
         if (itemId != null) {
             deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener {
-                deleted = !deleted
-                saveItem()
+                val builder = MaterialAlertDialogBuilder(this@AddLogin)
+                    .setTitle("Delete login")
+                    .setCancelable(false)
+                    .setMessage("Would you like to delete this login?")
+                    .setNegativeButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        deleted = !deleted
+                        saveItem()
+                    }
+                builder.show()
             }
         } else deleteButton.visibility = View.GONE
 
