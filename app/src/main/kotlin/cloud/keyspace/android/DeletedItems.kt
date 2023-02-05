@@ -2,6 +2,7 @@ package cloud.keyspace.android
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -11,10 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.view.animation.AnimationUtils
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -80,44 +79,86 @@ class DeletedItems : AppCompatActivity() {
         vault.note?.forEach { if (it.deleted) deletedNotes.add(io.decryptNote(it)) }
         vault.card?.forEach { if (it.deleted) deletedCards.add(io.decryptCard(it)) }
 
-        val deletedItemsRecycler: RecyclerView = findViewById(R.id.deletedItemsRecycler)
-        deletedItemsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+        val dangerZoneLayout: LinearLayout = findViewById(R.id.dangerZoneLayout)
 
-        val adapter = LoginsAdapter(deletedLogins)
-        adapter.setHasStableIds(true)
-        deletedItemsRecycler.adapter = adapter
-        deletedItemsRecycler.setItemViewCacheSize(50);
-        LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-        deletedItemsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
-        adapter.notifyItemInserted(deletedLogins.size)
-        deletedItemsRecycler.isNestedScrollingEnabled = false
+        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+            dangerZoneLayout.visibility = View.GONE
 
-        val deletePermanentlyButton: LinearLayout = findViewById(R.id.deletePermanentlyButton)
-        deletePermanentlyButton.setOnClickListener {
-            val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-            alertDialog.setTitle("Delete permanently")
-            alertDialog.setMessage("Would you like to permanently delete these items? This action is irreversible.")
+        } else {
 
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
-                deletePermanently()
-                onBackPressed()
+            dangerZoneLayout.visibility = View.VISIBLE
+
+            val deletedLoginsRecycler: RecyclerView = findViewById(R.id.deletedLoginsRecycler)
+            deletedLoginsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+
+            val deletedNotesRecycler: RecyclerView = findViewById(R.id.deletedNotesRecycler)
+            deletedNotesRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+
+            val deletedCardsRecycler: RecyclerView = findViewById(R.id.deletedCardsRecycler)
+            deletedCardsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+
+            if (deletedLogins.isEmpty()) {
+                findViewById<TextView>(R.id.deletedLoginsLabel).visibility = View.GONE
+                deletedLoginsRecycler.visibility = View.GONE
+            } else {
+
+                findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
+
+                val adapter = LoginsAdapter(deletedLogins)
+                adapter.setHasStableIds(true)
+                deletedLoginsRecycler.adapter = adapter
+                deletedLoginsRecycler.setItemViewCacheSize(50);
+                LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+                deletedLoginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+                adapter.notifyItemInserted(deletedLogins.size)
+                deletedLoginsRecycler.isNestedScrollingEnabled = false
             }
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-            alertDialog.show()
-        }
 
-        val restoreAllButton: LinearLayout = findViewById(R.id.restoreAllButton)
-        restoreAllButton.setOnClickListener {
-            val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-            alertDialog.setTitle("Restore all")
-            alertDialog.setMessage("Would you like to restore all of these items?")
+            if (deletedNotes.isEmpty()) {
+                findViewById<TextView>(R.id.deletedNotesLabel).visibility = View.GONE
+                deletedNotesRecycler.visibility = View.GONE
+            } else {
 
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Restore") { dialog, _ ->
-                restorePermanently()
-                onBackPressed()
+                findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
+
             }
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-            alertDialog.show()
+
+            if (deletedCards.isEmpty()) {
+                findViewById<TextView>(R.id.deletedCardsLabel).visibility = View.GONE
+                deletedLoginsRecycler.visibility = View.GONE
+            } else {
+
+                findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
+
+            }
+
+            val deletePermanentlyButton: LinearLayout = findViewById(R.id.deletePermanentlyButton)
+            deletePermanentlyButton.setOnClickListener {
+                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
+                alertDialog.setTitle("Delete permanently")
+                alertDialog.setMessage("Would you like to permanently delete these items? This action is irreversible.")
+
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
+                    deletePermanently()
+                    onBackPressed()
+                }
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+                alertDialog.show()
+            }
+
+            val restoreAllButton: LinearLayout = findViewById(R.id.restoreAllButton)
+            restoreAllButton.setOnClickListener {
+                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
+                alertDialog.setTitle("Restore all")
+                alertDialog.setMessage("Would you like to restore all of these items?")
+
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Restore") { dialog, _ ->
+                    restorePermanently()
+                    onBackPressed()
+                }
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+                alertDialog.show()
+            }
         }
 
     }
