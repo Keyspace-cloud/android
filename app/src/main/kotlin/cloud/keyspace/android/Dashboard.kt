@@ -166,7 +166,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     currentActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                     intent = intent
                 ).first
-
             }
         } catch (themeSwitched: Exception) {
             Toast.makeText(applicationContext, "Restarting app to apply theme", Toast.LENGTH_LONG).show()

@@ -28,7 +28,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                app:srcCompat="@drawable/ic_baseline_arrow_back_24" />
+                app:srcCompat="@drawable/ic_baseline_arrow_back_24"
+                app:tint="?android:attr/textColorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"

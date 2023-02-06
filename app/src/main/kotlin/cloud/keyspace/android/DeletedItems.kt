@@ -86,12 +86,20 @@ class DeletedItems : AppCompatActivity() {
 
         configData = getSharedPreferences (applicationContext.packageName + "_configuration_data", MODE_PRIVATE)
 
-        val intentData = crypto.receiveKeyringFromSecureIntent (
-            currentActivityClassNameAsString = getString(R.string.title_activity_deleted_items),
-            intent = intent
-        )
-
-        keyring = intentData.first
+        try {
+            if (!this::keyring.isInitialized) {
+                keyring = crypto.receiveKeyringFromSecureIntent (
+                    currentActivityClassNameAsString = getString(R.string.title_activity_deleted_items),
+                    intent = intent
+                ).first
+            }
+        } catch (themeSwitched: Exception) {
+            Toast.makeText(applicationContext, "Restarting app to apply theme", Toast.LENGTH_LONG).show()
+            startActivity(Intent(applicationContext, StartHere::class.java))
+            finishAffinity()
+            finish()
+            return
+        }
 
         network = NetworkUtilities(applicationContext, this, keyring)
         io = IOUtilities (applicationContext, this, keyring)
