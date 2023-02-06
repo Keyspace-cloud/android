@@ -696,12 +696,56 @@ class DeletedItems : AppCompatActivity() {
                     .setMessage("Would you like to restore or permanently delete this note?")
                     .setNeutralButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->
+                        val newNotes = mutableListOf<IOUtilities.Note>()
+                        vault.note?.forEach { if (it.id != note.id) newNotes.add(it) }
+                        network.writeQueueTask (note.id!!, mode = network.MODE_DELETE)
+                        io.writeVault (
+                            IOUtilities.Vault(
+                                version = vault.version,
+                                tag = vault.tag,
+                                login = vault.login,
+                                note = newNotes,
+                                card = vault.card
+                            )
+                        )
                         deletedNotes.remove(note)
                         notesAdapter.notifyDataSetChanged()
+                        deletedNotesLabel.text = "Deleted notes" + " (" + deletedNotes.size + ")"
+
+                        if (deletedNotes.isEmpty()) {
+                            deletedNotesRecycler.visibility = View.GONE
+                            deletedNotesLabel.visibility = View.GONE
+                        }
+
                     }
                     .setNegativeButton("Restore") {_, _ ->
+                        val newNotes = mutableListOf<IOUtilities.Note>()
+                        vault.note?.forEach {
+                            if (it.id == note.id)
+                                if (it.deleted) {
+                                    it.deleted = false
+                                }
+                            newNotes.add(it)
+                        }
+                        network.writeQueueTask (note.id!!, mode = network.MODE_PUT)
+                        io.writeVault (
+                            IOUtilities.Vault(
+                                version = vault.version,
+                                tag = vault.tag,
+                                login = vault.login,
+                                note = newNotes,
+                                card = vault.card
+                            )
+                        )
                         deletedNotes.remove(note)
                         notesAdapter.notifyDataSetChanged()
+                        deletedNotesLabel.text = "Deleted notes" + " (" + deletedNotes.size + ")"
+
+                        if (deletedNotes.isEmpty()) {
+                            deletedNotesRecycler.visibility = View.GONE
+                            deletedNotesLabel.visibility = View.GONE
+                        }
+
                     }
                     .show()
             }
