@@ -890,12 +890,56 @@ class DeletedItems : AppCompatActivity() {
                     .setMessage("Would you like to restore or permanently delete \"${cardCard.bankNameFront.text}\"?")
                     .setNeutralButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->
+                        val newCards = mutableListOf<IOUtilities.Card>()
+                        vault.card?.forEach { if (it.id != card.id) newCards.add(it) }
+                        network.writeQueueTask (card.id!!, mode = network.MODE_DELETE)
+                        io.writeVault (
+                            IOUtilities.Vault(
+                                version = vault.version,
+                                tag = vault.tag,
+                                login = vault.login,
+                                note = vault.note,
+                                card = newCards
+                            )
+                        )
                         deletedCards.remove(card)
                         cardsAdapter.notifyDataSetChanged()
+                        deletedCardsLabel.text = "Deleted cards" + " (" + deletedCards.size + ")"
+
+                        if (deletedCards.isEmpty()) {
+                            deletedCardsRecycler.visibility = View.GONE
+                            deletedCardsLabel.visibility = View.GONE
+                        }
+
                     }
                     .setNegativeButton("Restore") {_, _ ->
+                        val newCards = mutableListOf<IOUtilities.Card>()
+                        vault.card?.forEach {
+                            if (it.id == card.id)
+                                if (it.deleted) {
+                                    it.deleted = false
+                                }
+                            newCards.add(it)
+                        }
+                        network.writeQueueTask (card.id!!, mode = network.MODE_PUT)
+                        io.writeVault (
+                            IOUtilities.Vault(
+                                version = vault.version,
+                                tag = vault.tag,
+                                login = vault.login,
+                                note = vault.note,
+                                card = newCards
+                            )
+                        )
                         deletedCards.remove(card)
                         cardsAdapter.notifyDataSetChanged()
+                        deletedCardsLabel.text = "Deleted cards" + " (" + deletedCards.size + ")"
+
+                        if (deletedCards.isEmpty()) {
+                            deletedCardsRecycler.visibility = View.GONE
+                            deletedCardsLabel.visibility = View.GONE
+                        }
+
                     }
                     .show()
             }
