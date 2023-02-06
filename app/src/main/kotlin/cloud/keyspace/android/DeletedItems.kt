@@ -74,6 +74,9 @@ class DeletedItems : AppCompatActivity() {
     lateinit var deletedCardsRecycler: RecyclerView
     lateinit var deletedCardsLabel: TextView
 
+    lateinit var dangerZoneLayout: LinearLayout
+    lateinit var deletedItemsGraphic: LinearLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.deleted_items)
@@ -111,9 +114,8 @@ class DeletedItems : AppCompatActivity() {
         vault.note?.forEach { if (it.deleted) deletedNotes.add(io.decryptNote(it)) }
         vault.card?.forEach { if (it.deleted) deletedCards.add(io.decryptCard(it)) }
 
-        val dangerZoneLayout: LinearLayout = findViewById(R.id.dangerZoneLayout)
-        val deletedItemsGraphic: LinearLayout = findViewById(R.id.deletedItemsGraphic)
-
+        dangerZoneLayout = findViewById(R.id.dangerZoneLayout)
+        deletedItemsGraphic = findViewById(R.id.deletedItemsGraphic)
 
         deletedLoginsRecycler = findViewById(R.id.deletedLoginsRecycler)
         deletedLoginsLabel = findViewById(R.id.deletedLoginsLabel)
@@ -514,6 +516,11 @@ class DeletedItems : AppCompatActivity() {
                             deletedLoginsLabel.visibility = View.GONE
                         }
 
+                        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+                            dangerZoneLayout.visibility = View.GONE
+                            deletedItemsGraphic.visibility = View.VISIBLE
+                        }
+
                     }
                     .show()
             }
@@ -685,7 +692,7 @@ class DeletedItems : AppCompatActivity() {
                                 DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
                                 noteCard.tagText.setCompoundDrawablesWithIntrinsicBounds(null, null, tagIcon, null)
                             }
-                        } catch (noColor: StringIndexOutOfBoundsException) { } catch (noColor: IllegalArgumentException) { }
+                        } catch (_: StringIndexOutOfBoundsException) { } catch (_: IllegalArgumentException) { }
                         break
                     }
                 }
@@ -750,6 +757,11 @@ class DeletedItems : AppCompatActivity() {
                             deletedNotesLabel.visibility = View.GONE
                         }
 
+                        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+                            dangerZoneLayout.visibility = View.GONE
+                            deletedItemsGraphic.visibility = View.VISIBLE
+                        }
+
                     }
                     .show()
             }
@@ -810,8 +822,6 @@ class DeletedItems : AppCompatActivity() {
                 clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
 
                 animatedContactless = getDrawable(R.drawable.lessdistractingflickercontactless)?.mutate() as AnimatedVectorDrawable
-
-                var isBackVisible = false
 
             }
 
@@ -944,6 +954,11 @@ class DeletedItems : AppCompatActivity() {
                         if (deletedCards.isEmpty()) {
                             deletedCardsRecycler.visibility = View.GONE
                             deletedCardsLabel.visibility = View.GONE
+                        }
+
+                        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+                            dangerZoneLayout.visibility = View.GONE
+                            deletedItemsGraphic.visibility = View.VISIBLE
                         }
 
                     }
