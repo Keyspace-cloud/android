@@ -486,14 +486,16 @@ class DeletedItems : AppCompatActivity() {
                     }
                     .setNegativeButton("Restore") {_, _ ->
                         val newLogins = mutableListOf<IOUtilities.Login>()
+                        lateinit var loginToSync: IOUtilities.Login
                         vault.login?.forEach {
                             if (it.id == login.id)
                                 if (it.deleted) {
                                     it.deleted = false
+                                    loginToSync = it
                                 }
                             newLogins.add(it)
                         }
-                        network.writeQueueTask (login.id!!, mode = network.MODE_PUT)
+                        network.writeQueueTask (loginToSync, mode = network.MODE_PUT)
                         io.writeVault (
                             IOUtilities.Vault(
                                 version = vault.version,
@@ -720,14 +722,16 @@ class DeletedItems : AppCompatActivity() {
                     }
                     .setNegativeButton("Restore") {_, _ ->
                         val newNotes = mutableListOf<IOUtilities.Note>()
+                        lateinit var noteToSync: IOUtilities.Note
                         vault.note?.forEach {
                             if (it.id == note.id)
                                 if (it.deleted) {
                                     it.deleted = false
+                                    noteToSync = it
                                 }
                             newNotes.add(it)
                         }
-                        network.writeQueueTask (note.id!!, mode = network.MODE_PUT)
+                        network.writeQueueTask (noteToSync, mode = network.MODE_PUT)
                         io.writeVault (
                             IOUtilities.Vault(
                                 version = vault.version,
@@ -914,14 +918,16 @@ class DeletedItems : AppCompatActivity() {
                     }
                     .setNegativeButton("Restore") {_, _ ->
                         val newCards = mutableListOf<IOUtilities.Card>()
+                        lateinit var cardToSync: IOUtilities.Card
                         vault.card?.forEach {
                             if (it.id == card.id)
                                 if (it.deleted) {
                                     it.deleted = false
+                                    cardToSync = it
                                 }
                             newCards.add(it)
                         }
-                        network.writeQueueTask (card.id!!, mode = network.MODE_PUT)
+                        network.writeQueueTask (cardToSync, mode = network.MODE_PUT)
                         io.writeVault (
                             IOUtilities.Vault(
                                 version = vault.version,
