@@ -664,7 +664,7 @@ class AddNote : AppCompatActivity() {
             deleteButton.setOnClickListener {
                 val builder = MaterialAlertDialogBuilder(this@AddNote)
                     .setTitle("Delete note")
-                    .setCancelable(false)
+                    .setCancelable(true)
                     .setMessage("Would you like to delete this note?")
                     .setNegativeButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->

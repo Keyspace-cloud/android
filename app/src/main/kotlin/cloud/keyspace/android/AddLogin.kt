@@ -214,7 +214,7 @@ class AddLogin : AppCompatActivity() {
             deleteButton.setOnClickListener {
                 val builder = MaterialAlertDialogBuilder(this@AddLogin)
                     .setTitle("Delete login")
-                    .setCancelable(false)
+                    .setCancelable(true)
                     .setMessage("Would you like to delete this login?")
                     .setNegativeButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->

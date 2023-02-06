@@ -161,7 +161,7 @@ class AddCard : AppCompatActivity() {
             deleteButton.setOnClickListener {
                 val builder = MaterialAlertDialogBuilder(this@AddCard)
                     .setTitle("Delete card")
-                    .setCancelable(false)
+                    .setCancelable(true)
                     .setMessage("Would you like to delete this card?")
                     .setNegativeButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->

@@ -881,7 +881,6 @@ class DeletedItems : AppCompatActivity() {
             if (card.rfid == true) {
                 cardCard.rfidIcon.visibility = View.VISIBLE
                 cardCard.rfidIcon.setImageDrawable(animatedContactless)
-                animatedContactless.start()
             }
 
             cardCard.cardsCardLayout.setOnClickListener {
