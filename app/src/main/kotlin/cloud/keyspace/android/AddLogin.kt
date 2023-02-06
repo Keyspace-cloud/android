@@ -615,6 +615,9 @@ class AddLogin : AppCompatActivity() {
             override fun beforeTextChanged (s: CharSequence, start: Int, count: Int, after: Int) { }
             override fun onTextChanged (s: CharSequence, start: Int, before: Int, count: Int) {
                 if (s.length >= 6) {
+
+                    mfaTokenBox.visibility = View.VISIBLE
+
                     try {
                         otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
                         runOnUiThread { tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ") }
@@ -630,9 +633,7 @@ class AddLogin : AppCompatActivity() {
                                 }
                             }
                         }, 0, 1000) // 1000 milliseconds = 1 second
-                    } catch (timerError: IllegalStateException) { }
-
-                    mfaTokenBox.visibility = View.VISIBLE
+                    } catch (_: IllegalStateException) { } catch (_: IllegalArgumentException) { mfaTokenBox.visibility = View.GONE }
 
                 } else {
                     mfaTokenBox.visibility = View.GONE
