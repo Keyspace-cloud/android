@@ -36,32 +36,39 @@ class MiscUtilities (applicationContext: Context) {
     fun getPaymentGateway(cardNumber: String): String? {
         try {
             if (cardNumber.startsWith("4") ||
-                cardNumber.startsWith("4026") ||
-                cardNumber.startsWith("411750") ||
-                cardNumber.startsWith("4508") ||
-                cardNumber.startsWith("4913") ||
-                cardNumber.startsWith("4917") ||
-                cardNumber.startsWith("4844")) {
+                cardNumber.startsWith("40") ||
+                cardNumber.startsWith("411") ||
+                cardNumber.startsWith("45") ||
+                cardNumber.startsWith("49") ||
+                cardNumber.startsWith("49") ||
+                cardNumber.startsWith("48")
+            ) {
                 return "visa"
             } else if (
                 (cardNumber.take(4)).toInt() in 2221..2720 ||
                 (cardNumber.take(2)).toInt() in 51..55 ||
-                (cardNumber.take(4)).toInt() in 5100..5399) {
+                (cardNumber.take(4)).toInt() in 5100..5399 ||
+                cardNumber.startsWith("67")
+            ) {
                 return "mastercard"
             } else if (
                 (cardNumber.take(4)).toInt() in 622126..622925 ||
                 (cardNumber.take(3)).toInt() in 644..649 ||
-                cardNumber.startsWith("66")) {
+                cardNumber.startsWith("66") ||
+                cardNumber.startsWith("601")
+            ) {
                 return "discover"
             } else if (
                 cardNumber.startsWith("60") ||
                 cardNumber.startsWith("6521") ||
                 cardNumber.startsWith("6522") ||
-                cardNumber.startsWith("50")) {
+                cardNumber.startsWith("50")
+            ) {
                 return "rupay"
             } else if (
                 cardNumber.startsWith("34") ||
-                cardNumber.startsWith("37")) {
+                cardNumber.startsWith("37")
+            ) {
                 return "americanExpress"
             } else {
                 return null

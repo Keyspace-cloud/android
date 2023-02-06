@@ -211,7 +211,7 @@
                             android:digits="0123456789 "
                             android:inputType="phone"
                             android:letterSpacing="0.05"
-                            android:maxLength="19" />
+                            android:maxLength="22" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 

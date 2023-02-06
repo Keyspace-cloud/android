@@ -2,10 +2,7 @@ package cloud.keyspace.android
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.goterl.lazysodium.LazySodiumAndroid
@@ -41,6 +38,9 @@ class DeveloperOptions : AppCompatActivity() {
         val blake2bPassphraseInput = findViewById<EditText>(R.id.blake2bPassphraseInput)
         val blake2bWordsInput = findViewById<EditText>(R.id.blake2bWordsInput)
         val blake2bHashButton = findViewById<MaterialButton>(R.id.blake2bHashButton)
+
+        val backButton: ImageView = findViewById(R.id.backButton)
+        backButton.setOnClickListener { onBackPressed() }
 
         blake2bHashButton.setOnClickListener {
             val bip39Seed: ByteArray? = crypto.wordsToSeed(blake2bWordsInput.text.toString().toCharArray(), blake2bPassphraseInput.text.toString().toCharArray())

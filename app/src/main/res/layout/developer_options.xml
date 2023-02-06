@@ -20,7 +20,15 @@
             android:layout_height="match_parent"
             android:paddingBottom="50dp"
             android:orientation="vertical"
-            android:paddingTop="105dp">
+            android:paddingTop="15dp">
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                app:srcCompat="@drawable/ic_baseline_arrow_back_24"
+                app:tint="?android:attr/textColorPrimary" />
 
             <TextView
                 android:id="@+id/developerOptionsActivityLabelTop"
@@ -28,8 +36,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
                 android:layout_marginBottom="20dp"
+                android:layout_marginTop="70dp"
                 android:text="Developer options"
-                android:textSize="32sp" />
+                android:textSize="35sp" />
 
             <LinearLayout
                 android:id="@+id/blake2bSettings"
@@ -54,15 +63,24 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/blake2bLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:duplicateParentState="true"
                             android:paddingStart="5dp"
-                            android:paddingBottom="10dp"
-                            android:text="BLAKE2B tester"
+                            android:paddingTop="25dp"
+                            android:paddingBottom="20dp"
+                            android:text="Cryptography"
                             android:textColor="?attr/colorAccent"
                             android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:duplicateParentState="true"
+                            android:layout_height="wrap_content"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Test BLAKE2B" />
 
                         <TextView
                             android:id="@+id/blake2bDescriptionText"
@@ -102,6 +120,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="BLAKE2B hash"
+                                android:layout_marginTop="10dp"
                                 app:icon="@drawable/ic_baseline_root_24" />
 
                         </LinearLayout>
@@ -143,15 +162,13 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/Argon2iLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
                             android:duplicateParentState="true"
-                            android:paddingStart="5dp"
-                            android:paddingBottom="10dp"
-                            android:text="Argon2i tester"
-                            android:textColor="?attr/colorAccent"
-                            android:textStyle="bold" />
+                            android:layout_height="wrap_content"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Test Argon2i" />
 
                         <TextView
                             android:id="@+id/argon2DescriptionText"
@@ -240,6 +257,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Argon2i hash"
+                                android:layout_marginTop="10dp"
                                 app:icon="@drawable/ic_baseline_root_24" />
 
                         </LinearLayout>
@@ -280,15 +298,13 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/bip39Label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
                             android:duplicateParentState="true"
-                            android:paddingStart="5dp"
-                            android:paddingBottom="10dp"
-                            android:text="BIP39 tester"
-                            android:textColor="?attr/colorAccent"
-                            android:textStyle="bold" />
+                            android:layout_height="wrap_content"
+                            android:paddingVertical="3.5dp"
+                            android:textSize="20sp"
+                            android:paddingHorizontal="5dp"
+                            android:text="Test BIP39" />
 
                         <TextView
                             android:id="@+id/bip39DescriptionText"
@@ -338,6 +354,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="10dp"
                                     android:text="Generate words"
+                                    android:layout_marginTop="10dp"
                                     app:icon="@drawable/ic_baseline_checklist_24" />
 
 

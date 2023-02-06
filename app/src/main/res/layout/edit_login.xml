@@ -216,15 +216,6 @@
                         android:inputType="textFilter" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/emailAsUsername"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="15dp"
-                    android:checked="false"
-                    android:text="Use email as username"
-                    app:thumbTint="@color/cardBorderColor" />
-
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

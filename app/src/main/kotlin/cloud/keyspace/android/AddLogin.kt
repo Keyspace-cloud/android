@@ -74,8 +74,6 @@ class AddLogin : AppCompatActivity() {
     lateinit var emailInputLayout: TextInputLayout
     lateinit var emailInput: TextInputEditText
 
-    lateinit var emailAsUsername: MaterialSwitch
-
     lateinit var passwordInputLayout: TextInputLayout
     lateinit var passwordInput: TextInputEditText
     lateinit var clearButton: ImageView
@@ -195,6 +193,11 @@ class AddLogin : AppCompatActivity() {
                 }
             }
 
+            if (secretInput.text.toString().isNotBlank() && secretInput.text.toString().length < 6) {
+                secretInput.error = "Please enter a valid TOTP secret"
+                return@setOnClickListener
+            }
+
             saveItem()
 
         }
@@ -290,14 +293,6 @@ class AddLogin : AppCompatActivity() {
         userNameInput = findViewById (R.id.userNameInput)
         userNameInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
         userNameInputLayout = findViewById (R.id.userNameInputLayout)
-        userNameInputLayout.visibility = View.GONE
-
-        emailAsUsername = findViewById (R.id.emailAsUsername)
-        emailAsUsername.isChecked = true
-        emailAsUsername.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) userNameInputLayout.visibility = View.GONE
-            else userNameInputLayout.visibility = View.VISIBLE
-        }
 
         emailInput = findViewById (R.id.emailInput)
         emailInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
@@ -629,7 +624,7 @@ class AddLogin : AppCompatActivity() {
             override fun afterTextChanged (s: Editable) { }
             override fun beforeTextChanged (s: CharSequence, start: Int, count: Int, after: Int) { }
             override fun onTextChanged (s: CharSequence, start: Int, before: Int, count: Int) {
-                if (s.length >= 8) {
+                if (s.length >= 6) {
                     try {
                         otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
                         runOnUiThread { tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ") }
@@ -784,10 +779,6 @@ class AddLogin : AppCompatActivity() {
 
         if (!login.loginData!!.username.isNullOrBlank()) {
             userNameInput.setText(login.loginData.username)
-            emailAsUsername.isChecked = false
-        } else {
-            userNameInputLayout.visibility = View.GONE
-            emailAsUsername.isChecked = true
         }
 
         if (!login.loginData.password.isNullOrEmpty()) {
