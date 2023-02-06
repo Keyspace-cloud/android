@@ -293,6 +293,9 @@ class AutofillAccessibilityService: AccessibilityService() {
 
         val viewNode = event.source ?: return
 
+        if (viewNode.packageName == null) return
+        if (misc.checkIfListContainsSubstring(blacklistedPackages, viewNode.packageName.toString())) return
+
         logNodeHierarchy(viewNode, 3)
 
         for (element in autofillableElements) {
@@ -346,11 +349,13 @@ class AutofillAccessibilityService: AccessibilityService() {
             }
         }
 
-        if (nodeInfo.className.toString().lowercase().contains("edittext") && !nodeInfo.isPassword) {
-            for (element in autofillableElements) {
-                if (misc.checkIfListContainsSubstring(emailIdentifiers, element.key)) {
-                    Log.d ("KeyspaceAccEvent", "Found an email box")
-                    element.setValue(nodeInfo)
+        if (nodeInfo.className != null) {
+            if (nodeInfo.className.toString().lowercase().contains("edittext") && !nodeInfo.isPassword) {
+                for (element in autofillableElements) {
+                    if (misc.checkIfListContainsSubstring(emailIdentifiers, element.key)) {
+                        Log.d ("KeyspaceAccEvent", "Found an email box")
+                        element.setValue(nodeInfo)
+                    }
                 }
             }
         }
@@ -824,16 +829,6 @@ class AutofillAccessibilityService: AccessibilityService() {
         intent.flags = 0
 
         return START_STICKY
-    }
-
-    private fun getBoundsInScreen(source: AccessibilityNodeInfo): Rect {
-        val sourceAsString = source.toString().replace(" ", "")
-        val boundsInScreenString = sourceAsString.substringAfter(";boundsInScreen:").substringBefore(";")
-        val boundsInScreenLeft = try { boundsInScreenString.substringAfter("Rect(").substringBefore(",").toInt() } catch (_: Exception) { 0 }
-        val boundsInScreenTop = try { boundsInScreenString.substringAfter(",").substringBefore("-").toInt() } catch (_: Exception) { 0 }
-        val boundsInScreenRight = try { boundsInScreenString.substringAfter("-").substringBefore(",").toInt() } catch (_: Exception) { 0 }
-        val boundsInScreenBottom = try { boundsInScreenString.substringAfterLast(",").substringBefore(")").toInt() } catch (_: Exception) { 0 }
-        return Rect(boundsInScreenLeft, boundsInScreenTop, boundsInScreenRight, boundsInScreenBottom)
     }
 
     override fun onInterrupt() { }
