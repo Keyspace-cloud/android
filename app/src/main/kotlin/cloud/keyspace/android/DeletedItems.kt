@@ -1,13 +1,21 @@
 package cloud.keyspace.android
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.SharedPreferences
+import android.animation.Animator
+import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
+import android.annotation.SuppressLint
+import android.app.ProgressDialog.show
+import android.content.*
+import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,15 +24,27 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.keyspace.keyspacemobile.NetworkUtilities
 import com.nulabinc.zxcvbn.Zxcvbn
+import com.yydcdut.markdown.MarkdownConfiguration
+import com.yydcdut.markdown.MarkdownProcessor
+import com.yydcdut.markdown.callback.OnTodoClickCallback
+import com.yydcdut.markdown.syntax.text.TextFactory
+import com.yydcdut.markdown.theme.Theme
+import com.yydcdut.markdown.theme.ThemeDefault
+import com.yydcdut.markdown.theme.ThemeDesert
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
+import java.util.*
 import kotlin.concurrent.thread
 
 class DeletedItems : AppCompatActivity() {
@@ -36,11 +56,23 @@ class DeletedItems : AppCompatActivity() {
     lateinit var keyring: CryptoUtilities.Keyring
     lateinit var configData: SharedPreferences
     lateinit var zxcvbn: Zxcvbn
+
     lateinit var vault: IOUtilities.Vault
     lateinit var tags: MutableList<IOUtilities.Tag>
     var deletedLogins: MutableList<IOUtilities.Login> = mutableListOf()
     var deletedNotes: MutableList<IOUtilities.Note> = mutableListOf()
     var deletedCards: MutableList<IOUtilities.Card> = mutableListOf()
+
+    lateinit var loginsAdapter: LoginsAdapter
+    lateinit var notesAdapter: NotesAdapter
+    lateinit var cardsAdapter: CardsAdapter
+
+    lateinit var deletedLoginsRecycler: RecyclerView
+    lateinit var deletedLoginsLabel: TextView
+    lateinit var deletedNotesRecycler: RecyclerView
+    lateinit var deletedNotesLabel: TextView
+    lateinit var deletedCardsRecycler: RecyclerView
+    lateinit var deletedCardsLabel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,60 +112,112 @@ class DeletedItems : AppCompatActivity() {
         vault.card?.forEach { if (it.deleted) deletedCards.add(io.decryptCard(it)) }
 
         val dangerZoneLayout: LinearLayout = findViewById(R.id.dangerZoneLayout)
+        val deletedItemsGraphic: LinearLayout = findViewById(R.id.deletedItemsGraphic)
+
+
+        deletedLoginsRecycler = findViewById(R.id.deletedLoginsRecycler)
+        deletedLoginsLabel = findViewById(R.id.deletedLoginsLabel)
+
+        if (deletedLogins.isEmpty()) {
+            deletedLoginsRecycler.visibility = View.GONE
+            deletedLoginsLabel.visibility = View.GONE
+        } else {
+            deletedLoginsRecycler.visibility = View.VISIBLE
+            deletedLoginsLabel.visibility = View.VISIBLE
+            deletedLoginsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+            deletedLoginsLabel.text = deletedLoginsLabel.text.toString() + " (" + deletedLogins.size + ")"
+            loginsAdapter = LoginsAdapter(deletedLogins)
+            loginsAdapter.setHasStableIds(true)
+            deletedLoginsRecycler.adapter = loginsAdapter
+            deletedLoginsRecycler.setItemViewCacheSize(50)
+            LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+            deletedLoginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+            loginsAdapter.notifyItemInserted(deletedLogins.size)
+            deletedLoginsRecycler.isNestedScrollingEnabled = false
+        }
+
+
+        deletedNotesRecycler = findViewById(R.id.deletedNotesRecycler)
+        deletedNotesLabel = findViewById(R.id.deletedNotesLabel)
+
+        if (deletedNotes.isEmpty()) {
+            deletedNotesRecycler.visibility = View.GONE
+            deletedNotesLabel.visibility = View.GONE
+        } else {
+            deletedNotesRecycler.visibility = View.VISIBLE
+            deletedNotesLabel.visibility = View.VISIBLE
+            deletedNotesRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+            deletedNotesLabel.text = deletedNotesLabel.text.toString() + " (" + deletedNotes.size + ")"
+
+            notesAdapter = NotesAdapter(deletedNotes)
+            notesAdapter.setHasStableIds(true)
+            deletedNotesRecycler.adapter = notesAdapter
+            deletedNotesRecycler.setItemViewCacheSize(50)
+            LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+            deletedNotesRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+            notesAdapter.notifyItemInserted(deletedNotes.size)
+            deletedNotesRecycler.isNestedScrollingEnabled = false
+        }
+
+
+        deletedCardsRecycler = findViewById(R.id.deletedCardsRecycler)
+        deletedCardsLabel = findViewById(R.id.deletedCardsLabel)
+
+        if (deletedCards.isEmpty()) {
+            deletedCardsRecycler.visibility = View.GONE
+            deletedCardsLabel.visibility = View.GONE
+        } else {
+            deletedCardsRecycler.visibility = View.VISIBLE
+            deletedCardsLabel.visibility = View.VISIBLE
+            deletedCardsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
+            deletedCardsLabel.text = deletedCardsLabel.text.toString() + " (" + deletedCards.size + ")"
+
+            cardsAdapter = CardsAdapter(deletedCards)
+            cardsAdapter.setHasStableIds(true)
+            deletedCardsRecycler.adapter = cardsAdapter
+            deletedCardsRecycler.setItemViewCacheSize(50)
+            LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
+            deletedCardsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
+            cardsAdapter.notifyItemInserted(deletedCards.size)
+            deletedCardsRecycler.isNestedScrollingEnabled = false
+        }
+
+        val deletePermanentlyButton: LinearLayout = findViewById(R.id.deletePermanentlyButton)
+        deletePermanentlyButton.setOnClickListener {
+            val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
+            alertDialog.setTitle("Delete permanently")
+            alertDialog.setMessage("Would you like to permanently delete these items? This action is irreversible.")
+
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
+                deletePermanently()
+                onBackPressed()
+            }
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+            alertDialog.show()
+        }
+
+        val restoreAllButton: LinearLayout = findViewById(R.id.restoreAllButton)
+        restoreAllButton.setOnClickListener {
+            val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
+            alertDialog.setTitle("Restore all")
+            alertDialog.setMessage("Would you like to restore all of these items?")
+
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Restore") { dialog, _ ->
+                restorePermanently()
+                onBackPressed()
+            }
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+            alertDialog.show()
+        }
 
         if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
             dangerZoneLayout.visibility = View.GONE
+            deletedItemsGraphic.visibility = View.VISIBLE
 
         } else {
-
             dangerZoneLayout.visibility = View.VISIBLE
+            deletedItemsGraphic.visibility = View.GONE
 
-            val deletedLoginsRecycler: RecyclerView = findViewById(R.id.deletedLoginsRecycler)
-            deletedLoginsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
-
-            val deletedNotesRecycler: RecyclerView = findViewById(R.id.deletedNotesRecycler)
-            deletedNotesRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
-
-            val deletedCardsRecycler: RecyclerView = findViewById(R.id.deletedCardsRecycler)
-            deletedCardsRecycler.layoutManager = LinearLayoutManager(this@DeletedItems)
-
-            findViewById<TextView>(R.id.deletedLoginsLabel).text = findViewById<TextView>(R.id.deletedLoginsLabel).text.toString() + " (" + deletedLogins.size + ")"
-            val adapter = LoginsAdapter(deletedLogins)
-            adapter.setHasStableIds(true)
-            deletedLoginsRecycler.adapter = adapter
-            deletedLoginsRecycler.setItemViewCacheSize(50);
-            LinearLayoutManager(applicationContext).apply { isAutoMeasureEnabled = false }
-            deletedLoginsRecycler.recycledViewPool.setMaxRecycledViews(0, 0)
-            adapter.notifyItemInserted(deletedLogins.size)
-            deletedLoginsRecycler.isNestedScrollingEnabled = false
-
-            val deletePermanentlyButton: LinearLayout = findViewById(R.id.deletePermanentlyButton)
-            deletePermanentlyButton.setOnClickListener {
-                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-                alertDialog.setTitle("Delete permanently")
-                alertDialog.setMessage("Would you like to permanently delete these items? This action is irreversible.")
-
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
-                    deletePermanently()
-                    onBackPressed()
-                }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-                alertDialog.show()
-            }
-
-            val restoreAllButton: LinearLayout = findViewById(R.id.restoreAllButton)
-            restoreAllButton.setOnClickListener {
-                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-                alertDialog.setTitle("Restore all")
-                alertDialog.setMessage("Would you like to restore all of these items?")
-
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Restore") { dialog, _ ->
-                    restorePermanently()
-                    onBackPressed()
-                }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-                alertDialog.show()
-            }
         }
 
     }
@@ -258,11 +342,6 @@ class DeletedItems : AppCompatActivity() {
             val loginInformation: LinearLayout = itemView.findViewById(R.id.LoginInformation)
 
             init {
-                usernameText.isSelected = true
-                tagText.isSelected = true
-                miscText.isSelected = true
-                usernameText.isSelected = true
-                siteName.isSelected = true
                 mfaProgress.visibility = View.INVISIBLE
                 mfaText.text = "••• •••"
 
@@ -295,7 +374,7 @@ class DeletedItems : AppCompatActivity() {
             loginCard.siteName.text = login.name
 
             loginCard.tagText.visibility = View.GONE
-            if (tags?.size!! > 0) {
+            if (tags.size > 0) {
                 for (tag in tags) {
                     if (login.tagId == tag.id) {
                         loginCard.tagText.visibility = View.VISIBLE
@@ -334,7 +413,6 @@ class DeletedItems : AppCompatActivity() {
                 loginCard.miscText.text = "2FA only"
             }
 
-            // misc icon data
             if (login.favorite) {
                 loginCard.miscText.visibility = View.VISIBLE
                 loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, star, null)
@@ -369,27 +447,414 @@ class DeletedItems : AppCompatActivity() {
                 }
             }
 
-            var otpCode: String? = null
-            if (!login.loginData?.totp?.secret.isNullOrEmpty()) {
-                try {
-                    thread {
-                        otpCode = GoogleAuthenticator(base32secret = login.loginData?.totp!!.secret!!).generate()
-                    }
-                } catch (_: IllegalStateException) {}
-            } else {
+            if (login.loginData?.totp?.secret.isNullOrEmpty()) {
                 loginCard.mfaText.visibility = View.GONE
                 loginCard.mfaProgress.visibility = View.GONE
             }
 
-            // tap on totp / mfa / 2fa
-            loginCard.mfaText.setOnClickListener {
-                val clip = ClipData.newPlainText("Keyspace", otpCode)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(applicationContext, "Code copied!", Toast.LENGTH_LONG).show()
-            }
-
             if (login.iconFile != null) loginCard.siteIcon.setImageDrawable(misc.getSiteIcon(login.iconFile, loginCard.siteName.currentTextColor))
             else loginCard.siteIcon.setImageDrawable(DrawableCompat.wrap(website))
+
+            loginCard.loginInformation.setOnClickListener {
+                MaterialAlertDialogBuilder(this@DeletedItems)
+                    .setTitle("Delete login")
+                    .setCancelable(true)
+                    .setMessage("Would you like to restore or permanently delete \"${loginCard.siteName.text}\"?")
+                    .setNeutralButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        val newLogins = mutableListOf<IOUtilities.Login>()
+                        vault.login?.forEach { if (it.id != login.id) newLogins.add(it) }
+                        network.writeQueueTask (login.id!!, mode = network.MODE_DELETE)
+                        io.writeVault (
+                            IOUtilities.Vault(
+                                version = vault.version,
+                                tag = vault.tag,
+                                login = newLogins,
+                                note = vault.note,
+                                card = vault.card
+                            )
+                        )
+                        deletedLogins.remove(login)
+                        loginsAdapter.notifyDataSetChanged()
+                        deletedLoginsLabel.text = "Deleted logins" + " (" + deletedLogins.size + ")"
+
+                        if (deletedLogins.isEmpty()) {
+                            deletedLoginsRecycler.visibility = View.GONE
+                            deletedLoginsLabel.visibility = View.GONE
+                        }
+
+                    }
+                    .setNegativeButton("Restore") {_, _ ->
+                        val newLogins = mutableListOf<IOUtilities.Login>()
+                        vault.login?.forEach {
+                            if (it.id == login.id)
+                                if (it.deleted) {
+                                    it.deleted = false
+                                }
+                            newLogins.add(it)
+                        }
+                        network.writeQueueTask (login.id!!, mode = network.MODE_PUT)
+                        io.writeVault (
+                            IOUtilities.Vault(
+                                version = vault.version,
+                                tag = vault.tag,
+                                login = newLogins,
+                                note = vault.note,
+                                card = vault.card
+                            )
+                        )
+                        deletedLogins.remove(login)
+                        loginsAdapter.notifyDataSetChanged()
+                        deletedLoginsLabel.text = "Deleted logins" + " (" + deletedLogins.size + ")"
+
+                        if (deletedLogins.isEmpty()) {
+                            deletedLoginsRecycler.visibility = View.GONE
+                            deletedLoginsLabel.visibility = View.GONE
+                        }
+
+                    }
+                    .show()
+            }
+
+        }
+
+    }
+
+    inner class NotesAdapter (private val notes: MutableList<IOUtilities.Note>) : RecyclerView.Adapter<NotesAdapter.ViewHolder>() {
+
+        lateinit var markdownProcessor: MarkdownProcessor
+        lateinit var calendar: Calendar
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ViewHolder {  // create new views
+            val noteCard: View = LayoutInflater.from(parent.context).inflate(R.layout.note, parent, false)
+            noteCard.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+
+            return ViewHolder(noteCard)
+        }
+
+        @SuppressLint("UseCompatLoadingForDrawables")
+        override fun onBindViewHolder(noteCard: ViewHolder, position: Int) {  // binds the list items to a view
+            bindData(noteCard)
+        }
+
+        override fun getItemCount(): Int {  // return the number of the items in the list
+            return notes.size
+        }
+
+        override fun getItemId (position: Int): Long {
+            return notes[position].id.hashCode().toLong()
+        }
+
+        inner class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {  // Holds the views for adding it to image and text
+            val note: com.yydcdut.markdown.MarkdownTextView = itemView.findViewById(R.id.Note)
+            val noteCardLayout: LinearLayout = itemView.findViewById(R.id.NoteCardLayout)
+            val date: TextView = itemView.findViewById(R.id.Date)
+            val line: View = itemView.findViewById(R.id.line)
+
+            val tagText: TextView = itemView.findViewById(R.id.TagText)
+            val miscText: TextView = itemView.findViewById(R.id.MiscText)
+
+            init {
+
+                note.refreshDrawableState()
+                note.invalidate()
+
+                noteCardLayout.refreshDrawableState()
+                noteCardLayout.invalidate()
+
+                val theme: Theme = when (applicationContext.resources?.configuration?.uiMode?.and(
+                    Configuration.UI_MODE_NIGHT_MASK)) {
+                    Configuration.UI_MODE_NIGHT_YES -> ThemeDesert()
+                    Configuration.UI_MODE_NIGHT_NO -> ThemeDefault()
+                    Configuration.UI_MODE_NIGHT_UNDEFINED -> ThemeDefault()
+                    else -> ThemeDefault()
+                }
+
+                calendar = Calendar.getInstance(Locale.getDefault())
+
+                val markdownConfig = MarkdownConfiguration.Builder(applicationContext)
+                    .setTheme(theme)
+                    .showLinkUnderline(true)
+                    .setOnLinkClickCallback { _, link ->
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                    }
+                    .setLinkFontColor(note.currentTextColor)
+                    .setOnTodoClickCallback(object : OnTodoClickCallback {
+                        override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence {
+                            return ""
+                        }
+                    })
+                    .setDefaultImageSize(480, 240)
+                    .build()
+
+                markdownProcessor = MarkdownProcessor(this@DeletedItems)
+                markdownProcessor.factory(TextFactory.create())
+                markdownProcessor.config(markdownConfig)
+            }
+
+        }
+
+        private fun bindData (noteCard: ViewHolder) {
+            val note = notes[noteCard.adapterPosition]
+
+            noteCard.noteCardLayout.setOnClickListener {
+                crypto.secureStartActivity (
+                    nextActivity = AddNote(),
+                    nextActivityClassNameAsString = getString(R.string.title_activity_add_note),
+                    keyring = keyring,
+                    itemId = note.id
+                )
+            }
+
+            noteCard.note.text = note.notes
+            noteCard.noteCardLayout.setBackgroundColor(0)
+
+            if (!note.notes.isNullOrEmpty()) {
+                thread {
+                    val parsedText = markdownProcessor.parse(note.notes)
+                    runOnUiThread {
+                        noteCard.note.text = parsedText
+                    }
+                }
+            }
+
+            if (note.favorite) {
+                noteCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds(null,null, ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_24),null)
+                noteCard.miscText.text = null
+            } else noteCard.miscText.visibility = View.GONE
+
+            calendar.timeInMillis = note.dateModified?.times(1000L)!!
+            val dateAndTime = DateFormat.format("MMM dd, yyyy ⋅  hh:mm a", calendar).toString()
+            noteCard.date.text = dateAndTime
+
+            noteCard.note.setBackgroundColor(0x00000000)
+            if (!note.color.isNullOrEmpty()) {
+                val noteColor = note.color
+                noteCard.noteCardLayout.setBackgroundColor(Color.parseColor(noteColor))
+                val intColor: Int = noteColor!!.replace("#", "").toInt(16)
+                val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+                if (g >= 200 || b >= 200) {
+                    noteCard.note.setTextColor (Color.BLACK)
+                    noteCard.date .setTextColor (Color.BLACK)
+                    noteCard.miscText.setTextColor (Color.BLACK)
+                    noteCard.tagText.setTextColor (Color.BLACK)
+                    noteCard.line.setBackgroundColor (Color.BLACK)
+
+                    val starIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_star_24)!!)
+                    DrawableCompat.setTint(starIcon, Color.BLACK)
+                    DrawableCompat.setTintMode(starIcon, PorterDuff.Mode.MULTIPLY)
+                    noteCard.miscText.setCompoundDrawablesWithIntrinsicBounds(starIcon, null, null, null)
+
+                    val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
+                    DrawableCompat.setTint(tagIcon, Color.BLACK)
+                    DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
+                    noteCard.tagText.setCompoundDrawablesWithIntrinsicBounds(null, null, tagIcon, null)
+
+                } else {
+                    noteCard.note.setTextColor(Color.WHITE)
+                    noteCard.note.setTextColor(Color.WHITE)
+                    noteCard.date.setTextColor(Color.WHITE)
+                    noteCard.miscText.setTextColor(Color.WHITE)
+                    noteCard.tagText.setTextColor(Color.WHITE)
+                    noteCard.line.setBackgroundColor (Color.WHITE)
+
+                    val starIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_star_24)!!)
+                    DrawableCompat.setTint(starIcon, Color.WHITE)
+                    DrawableCompat.setTintMode(starIcon, PorterDuff.Mode.MULTIPLY)
+                    noteCard.miscText.setCompoundDrawablesWithIntrinsicBounds(starIcon, null, null, null)
+
+                    val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
+                    DrawableCompat.setTint(tagIcon, Color.WHITE)
+                    DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
+                    noteCard.tagText.setCompoundDrawablesWithIntrinsicBounds(null, null, tagIcon, null)
+                }
+            }
+
+            noteCard.tagText.visibility = View.GONE
+            if (tags.size > 0) {
+                for (tag in tags) {
+                    if (note.tagId == tag.id) {
+                        noteCard.tagText.visibility = View.VISIBLE
+                        noteCard.tagText.text = tag.name
+                        try {
+                            if (!tag.color.isNullOrEmpty()) {
+                                val tagIcon = DrawableCompat.wrap(getDrawable(R.drawable.ic_baseline_circle_24)!!)
+                                DrawableCompat.setTint(tagIcon, Color.parseColor(tag.color))
+                                DrawableCompat.setTintMode(tagIcon, PorterDuff.Mode.SRC_IN)
+                                noteCard.tagText.setCompoundDrawablesWithIntrinsicBounds(null, null, tagIcon, null)
+                            }
+                        } catch (noColor: StringIndexOutOfBoundsException) { } catch (noColor: IllegalArgumentException) { }
+                        break
+                    }
+                }
+            }
+
+            noteCard.noteCardLayout.setOnClickListener {
+                MaterialAlertDialogBuilder(this@DeletedItems)
+                    .setTitle("Delete login")
+                    .setCancelable(true)
+                    .setMessage("Would you like to restore or permanently delete this note?")
+                    .setNeutralButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        deletedNotes.remove(note)
+                        notesAdapter.notifyDataSetChanged()
+                    }
+                    .setNegativeButton("Restore") {_, _ ->
+                        deletedNotes.remove(note)
+                        notesAdapter.notifyDataSetChanged()
+                    }
+                    .show()
+            }
+
+        }
+    }
+
+    inner class CardsAdapter (private val cards: MutableList<IOUtilities.Card>) : RecyclerView.Adapter<CardsAdapter.ViewHolder>() {
+
+        lateinit var setRightOut: AnimatorSet
+        lateinit var setLeftIn: AnimatorSet
+        lateinit var animatedContactless: AnimatedVectorDrawable
+
+        lateinit var clipboard: ClipboardManager
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ViewHolder {  // create new views
+            val cardCard: View = LayoutInflater.from(parent.context).inflate(R.layout.card, parent, false)
+            cardCard.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+            return ViewHolder(cardCard)
+        }
+
+        @SuppressLint("ResourceType")
+        override fun onBindViewHolder(cardCard: ViewHolder, position: Int) {  // binds the list items to a view
+            bindData (cardCard)
+        }
+
+        override fun getItemId (position: Int): Long {
+            return cards[position].id.hashCode().toLong()
+        }
+
+        override fun getItemCount(): Int {  // return the number of the items in the list
+            return cards.size
+        }
+
+        @SuppressLint("ResourceType", "ClickableViewAccessibility")
+        inner class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {  // Holds the views for adding it to image and text
+
+            val cardsCardFrontLayout: ConstraintLayout = itemView.findViewById(R.id.CardsCardFrontLayout)
+            val cardsCardLayout: ConstraintLayout = itemView.findViewById(R.id.CardsCardLayout)
+
+            val bankNameFront: TextView = itemView.findViewById(R.id.bankNameFront)
+            val bankLogoFront: ImageView = itemView.findViewById(R.id.bankLogoFront)
+            val rfidIcon: ImageView = itemView.findViewById(R.id.RfidIcon)
+            val cardNumber: TextView = itemView.findViewById(R.id.CardNumber)
+            val toDate: TextView = itemView.findViewById(R.id.toDate)
+            val toLabel: TextView = itemView.findViewById(R.id.toLabel)
+            val cardHolder: TextView = itemView.findViewById(R.id.CardHolder)
+            val paymentGateway: ImageView = itemView.findViewById(R.id.PaymentGateway)
+
+            init {
+
+                rfidIcon.invalidate()
+                rfidIcon.refreshDrawableState()
+
+                setRightOut = AnimatorInflater.loadAnimator(applicationContext, R.anim.flip2) as AnimatorSet
+                setLeftIn = AnimatorInflater.loadAnimator(applicationContext, R.anim.flip1) as AnimatorSet
+
+                clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+                animatedContactless = getDrawable(R.drawable.lessdistractingflickercontactless)?.mutate() as AnimatedVectorDrawable
+
+                var isBackVisible = false
+
+            }
+
+        }
+
+        @SuppressLint("ClickableViewAccessibility", "ResourceType", "UseCompatLoadingForDrawables")
+        fun bindData (cardCard: ViewHolder) {
+            val card = cards[cardCard.adapterPosition]
+
+            if (card.cardNumber?.length == 16) cardCard.cardNumber.text = card.cardNumber.replace("....".toRegex(), "$0 ")
+            else cardCard.cardNumber.text = card.cardNumber
+
+            cardCard.toDate.text = card.expiry
+            cardCard.cardHolder.text = card.cardholderName
+
+            cardCard.bankNameFront.text = card.name
+            cardCard.bankLogoFront.visibility = View.GONE
+
+
+            val cardColor = card.color
+            if (!card.color.isNullOrEmpty()) cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor(cardColor))
+            else cardCard.cardsCardFrontLayout.backgroundTintList = ColorStateList.valueOf(Color.DKGRAY)
+
+            val intColor: Int = try { cardCard.cardsCardFrontLayout.backgroundTintList?.defaultColor!! } catch (_: NullPointerException) { 0 }
+
+            val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+            if (g >= 200 || b >= 200) {
+                cardCard.rfidIcon.setColorFilter(Color.BLACK)
+                cardCard.bankNameFront.setTextColor (Color.BLACK)
+                cardCard.cardHolder.setTextColor (Color.BLACK)
+                cardCard.toDate.setTextColor (Color.BLACK)
+                cardCard.toLabel.setTextColor (Color.BLACK)
+                cardCard.cardNumber.setTextColor (Color.BLACK)
+                cardCard.cardNumber.setTextColor (Color.BLACK)
+                cardCard.bankLogoFront.setColorFilter(Color.BLACK)
+                cardCard.paymentGateway.setColorFilter(Color.BLACK)
+            } else {
+                cardCard.rfidIcon.setColorFilter(Color.WHITE)
+                cardCard.cardHolder .setTextColor (Color.WHITE)
+                cardCard.toDate .setTextColor (Color.WHITE)
+                cardCard.toLabel.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.cardNumber.setTextColor (Color.WHITE)
+                cardCard.rfidIcon.foregroundTintList = ColorStateList.valueOf(Color.WHITE)
+                cardCard.bankLogoFront.setColorFilter(Color.WHITE)
+                cardCard.paymentGateway.setColorFilter(Color.WHITE)
+            }
+
+            val paymentGateway = misc.getPaymentGateway(card.cardNumber.toString())
+            var bankLogo = if (card.iconFile != null) misc.getSiteIcon(card.iconFile, cardCard.cardNumber.currentTextColor) else null
+
+            var gatewayLogo = if (paymentGateway != null) misc.getSiteIcon(paymentGateway, cardCard.cardNumber.currentTextColor) else null
+
+            thread {
+                if (bankLogo != null && card.iconFile != "bank") {
+                    runOnUiThread {
+                        cardCard.bankLogoFront.visibility = View.VISIBLE
+                        cardCard.bankLogoFront.setImageDrawable(DrawableCompat.wrap(bankLogo))
+                    }
+                } else cardCard.bankLogoFront.visibility = View.GONE
+
+                if (paymentGateway != null) {
+                    if (gatewayLogo != null) runOnUiThread { cardCard.paymentGateway.setImageDrawable(gatewayLogo) }
+                    else cardCard.paymentGateway.visibility = View.GONE
+                } else cardCard.paymentGateway.visibility = View.GONE
+
+            }
+
+            cardCard.rfidIcon.visibility = View.GONE
+            if (card.rfid == true) {
+                cardCard.rfidIcon.visibility = View.VISIBLE
+                cardCard.rfidIcon.setImageDrawable(animatedContactless)
+                animatedContactless.start()
+            }
+
+            cardCard.cardsCardLayout.setOnClickListener {
+                MaterialAlertDialogBuilder(this@DeletedItems)
+                    .setTitle("Delete card")
+                    .setCancelable(true)
+                    .setMessage("Would you like to restore or permanently delete \"${cardCard.bankNameFront.text}\"?")
+                    .setNeutralButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        deletedCards.remove(card)
+                        cardsAdapter.notifyDataSetChanged()
+                    }
+                    .setNegativeButton("Restore") {_, _ ->
+                        deletedCards.remove(card)
+                        cardsAdapter.notifyDataSetChanged()
+                    }
+                    .show()
+            }
 
         }
 
