@@ -200,7 +200,7 @@ class DeletedItems : AppCompatActivity() {
         restoreAllButton.setOnClickListener {
             val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
             alertDialog.setTitle("Restore all")
-            alertDialog.setMessage("Would you like to restore all of these items?")
+            alertDialog.setMessage("Would you like to restore these items?")
 
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Restore") { dialog, _ ->
                 restorePermanently()
@@ -459,7 +459,7 @@ class DeletedItems : AppCompatActivity() {
                 MaterialAlertDialogBuilder(this@DeletedItems)
                     .setTitle("Deleted login")
                     .setCancelable(true)
-                    .setMessage("Would you like to restore or permanently delete \"${loginCard.siteName.text}\"?")
+                    .setMessage("What would you like to do with \"${loginCard.siteName.text}\"?")
                     .setNeutralButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->
                         val newLogins = mutableListOf<IOUtilities.Login>()
@@ -695,7 +695,7 @@ class DeletedItems : AppCompatActivity() {
                 MaterialAlertDialogBuilder(this@DeletedItems)
                     .setTitle("Deleted note")
                     .setCancelable(true)
-                    .setMessage("Would you like to restore or permanently delete this note?")
+                    .setMessage("What would you like to do with this note?")
                     .setNeutralButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->
                         val newNotes = mutableListOf<IOUtilities.Note>()
@@ -891,7 +891,7 @@ class DeletedItems : AppCompatActivity() {
                 MaterialAlertDialogBuilder(this@DeletedItems)
                     .setTitle("Deleted card")
                     .setCancelable(true)
-                    .setMessage("Would you like to restore or permanently delete \"${cardCard.bankNameFront.text}\"?")
+                    .setMessage("What would you like to do with \"${cardCard.bankNameFront.text}\"?")
                     .setNeutralButton("Go back"){ _, _ -> }
                     .setPositiveButton("Delete"){ _, _ ->
                         val newCards = mutableListOf<IOUtilities.Card>()
