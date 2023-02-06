@@ -33,7 +33,6 @@
     <string name="blurbDescriptionDeviceLock">Your Vault is kept secure using your device lock and is only decrypted when you unlock Keyspace. If your device has a fingerprint sensor or facial recognition, we recommend setting it up for your convenience.\n\nTap the button below to unlock.</string>
     <string name="blurbDescriptionBiometrics">Your Vault is kept secure using your biometrics and is only decrypted when you unlock Keyspace.\n\nTap the button below to unlock.</string>
 
-    <string></string>
     <string name="passphrase_error">Enter a passphrase</string>
     <string name="subtitlePassphrase">Make sure it\'s strong</string>
     <string name="descriptionPassphrase">Your Keyspace passphrase is an advanced security feature that lets you strengthen your account\'s security.\n\nThis step is optional.</string>
@@ -115,5 +114,19 @@
     <string name="write_down_words_text">Write down these words somewhere, preferably on a piece of paper</string>
     <string name="verify_words_text">Verify that the words are in the <b>exact order</b> as given with proper spelling</string>
     <string name="safeguard_words_text">Store your recovery phrase in a secure location and make sure only you can access it</string>
+
+    <string name="crash_send_logs_email_subject">[KEYSPACE-ANDROID-CRASH] Keyspace Android crashes on my device</string>
+    <string name="crash_send_logs_email_body">This email contains a bug report of a recent crash I encountered on Keyspace Android.</string>
+    <string name="crash_send_logs_title">Keyspace</string>
+    <string name="crash_send_positive_button_text">Send email</string>
+    <string name="crash_send_logs_description">Uh oh, Keyspace just crashed. Would you like to send a bug report to the team?\n\n
+
+        This bug report will include:\n\n
+
+        ⋅ Device information (such as model, Android version etc.)\n
+        ⋅ App-related crash logs and exceptions\n\n
+
+        This is optional.
+    </string>
 
 </resources>

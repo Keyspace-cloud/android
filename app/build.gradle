@@ -11,8 +11,8 @@ android {
         applicationId "cloud.keyspace.android"
         minSdkVersion 27
         targetSdkVersion 33
-        versionCode 141
-        versionName "1.4.1"
+        versionCode 142
+        versionName "1.4.2"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -51,7 +51,7 @@ android {
 dependencies {
     implementation 'com.android.support:multidex:2.0.1' // noinspection GradleDependency
     implementation 'androidx.core:core-ktx:1.9.0' // Default Android stuff
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
@@ -67,8 +67,8 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.9.0'
     testImplementation 'junit:junit:4.13.2' // Testing
     implementation 'androidx.biometric:biometric:1.2.0-alpha05' // Biometrics
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'com.google.android.material:material:1.7.0' // Material design
     implementation 'androidx.fragment:fragment-ktx:1.5.5'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
@@ -99,4 +99,8 @@ dependencies {
     implementation 'com.scottyab:rootbeer-lib:0.1.0' // To check if device is rooted
     implementation "androidx.core:core-splashscreen:1.0.0" // Splash screen library
     implementation 'com.nulab-inc:zxcvbn:1.7.0' // password strength
+
+    // ACRA for crash logging
+    implementation 'ch.acra:acra-mail:5.9.7' // mail component
+    implementation 'ch.acra:acra-dialog:5.9.7' // dialog component
 }
