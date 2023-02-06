@@ -485,6 +485,11 @@ class DeletedItems : AppCompatActivity() {
                             deletedLoginsLabel.visibility = View.GONE
                         }
 
+                        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+                            dangerZoneLayout.visibility = View.GONE
+                            deletedItemsGraphic.visibility = View.VISIBLE
+                        }
+
                     }
                     .setNegativeButton("Restore") {_, _ ->
                         val newLogins = mutableListOf<IOUtilities.Login>()
@@ -726,6 +731,11 @@ class DeletedItems : AppCompatActivity() {
                             deletedNotesLabel.visibility = View.GONE
                         }
 
+                        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+                            dangerZoneLayout.visibility = View.GONE
+                            deletedItemsGraphic.visibility = View.VISIBLE
+                        }
+
                     }
                     .setNegativeButton("Restore") {_, _ ->
                         val newNotes = mutableListOf<IOUtilities.Note>()
@@ -923,6 +933,11 @@ class DeletedItems : AppCompatActivity() {
                         if (deletedCards.isEmpty()) {
                             deletedCardsRecycler.visibility = View.GONE
                             deletedCardsLabel.visibility = View.GONE
+                        }
+
+                        if (deletedLogins.isEmpty() && deletedNotes.isEmpty() && deletedCards.isEmpty()) {
+                            dangerZoneLayout.visibility = View.GONE
+                            deletedItemsGraphic.visibility = View.VISIBLE
                         }
 
                     }
