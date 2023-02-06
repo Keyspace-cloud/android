@@ -846,6 +846,7 @@ class DeletedItems : AppCompatActivity() {
                 cardCard.paymentGateway.setColorFilter(Color.BLACK)
             } else {
                 cardCard.rfidIcon.setColorFilter(Color.WHITE)
+                cardCard.bankNameFront.setTextColor (Color.WHITE)
                 cardCard.cardHolder .setTextColor (Color.WHITE)
                 cardCard.toDate .setTextColor (Color.WHITE)
                 cardCard.toLabel.setTextColor (Color.WHITE)
