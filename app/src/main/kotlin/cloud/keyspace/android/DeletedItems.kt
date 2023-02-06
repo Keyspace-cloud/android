@@ -457,7 +457,7 @@ class DeletedItems : AppCompatActivity() {
 
             loginCard.loginInformation.setOnClickListener {
                 MaterialAlertDialogBuilder(this@DeletedItems)
-                    .setTitle("Delete login")
+                    .setTitle("Deleted login")
                     .setCancelable(true)
                     .setMessage("Would you like to restore or permanently delete \"${loginCard.siteName.text}\"?")
                     .setNeutralButton("Go back"){ _, _ -> }
@@ -691,7 +691,7 @@ class DeletedItems : AppCompatActivity() {
 
             noteCard.noteCardLayout.setOnClickListener {
                 MaterialAlertDialogBuilder(this@DeletedItems)
-                    .setTitle("Delete login")
+                    .setTitle("Deleted note")
                     .setCancelable(true)
                     .setMessage("Would you like to restore or permanently delete this note?")
                     .setNeutralButton("Go back"){ _, _ -> }
@@ -885,7 +885,7 @@ class DeletedItems : AppCompatActivity() {
 
             cardCard.cardsCardLayout.setOnClickListener {
                 MaterialAlertDialogBuilder(this@DeletedItems)
-                    .setTitle("Delete card")
+                    .setTitle("Deleted card")
                     .setCancelable(true)
                     .setMessage("Would you like to restore or permanently delete \"${cardCard.bankNameFront.text}\"?")
                     .setNeutralButton("Go back"){ _, _ -> }
