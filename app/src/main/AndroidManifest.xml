@@ -75,6 +75,12 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".DeletedItems"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.KeyspaceMobile.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".Dashboard"
             android:exported="false"
             android:label="Keyspace"

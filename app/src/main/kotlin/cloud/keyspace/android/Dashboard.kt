@@ -166,7 +166,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                     currentActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                     intent = intent
                 ).first
-
             }
         } catch (themeSwitched: Exception) {
             Toast.makeText(applicationContext, "Restarting app to apply theme", Toast.LENGTH_LONG).show()
@@ -635,7 +634,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                 loginSearchableData.add(login.loginData?.siteUrls.toString())
                                 val loginSearchableDataString = loginSearchableData.filterNotNull().joinToString("").lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() }
 
-                                if (loginSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {  // other search
+                                if (loginSearchableDataString.contains(searchTerms.toString().lowercase(Locale.getDefault()).filter { it.isLetterOrDigit() })) {
                                     searchTermsList.add(login)
                                 }
 
@@ -1190,6 +1189,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     private fun renderLoginsFragment () {
 
+        vault.login?.forEach { if (!it.deleted) logins.add(it) }
+
         sortBy = configData.getString("sort_by", io.SORT_LAST_EDITED)!!
         vault = io.vaultSorter(vault, sortBy)
 
@@ -1205,7 +1206,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         killBottomSheet()
 
-        if (vault.login.isNullOrEmpty()) {
+        if (logins.isEmpty()) {
             try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
@@ -1217,8 +1218,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             fragmentRoot.addView(fragmentView)
 
             logins.clear()
-            for (encryptedLogin in io.getLogins(vault))
-                logins.add(io.decryptLogin(encryptedLogin))
+            for (encryptedLogin in io.getLogins(vault)) if (!encryptedLogin.deleted) logins.add(io.decryptLogin(encryptedLogin))
 
             loginsRecycler = fragmentView.findViewById(R.id.logins_recycler)
             loginsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)
@@ -2137,8 +2137,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             if (!card.pin.isNullOrBlank()) cardCard.pin.text = card.pin else cardCard.pinLayout.visibility = View.GONE
 
             fun hideCodes () {
-                cardCard.pin.text = "●●●●"
-                cardCard.securityCode.text = "●●●"
+                cardCard.pin.text = "••••"
+                cardCard.securityCode.text = "•••"
                 cardCard.hideCodes.setImageDrawable(getDrawable(R.drawable.ic_baseline_visibility_off_24))
                 cardCard.pin.setOnClickListener(null)
                 cardCard.securityCode.setOnClickListener(null)
@@ -2199,6 +2199,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     private fun renderNotesFragment () {
 
+        vault.note?.forEach { if (!it.deleted) notes.add(it) }
+
         sortBy = configData.getString("sort_by", io.SORT_LAST_EDITED)!!
         vault = io.vaultSorter(vault, sortBy)
 
@@ -2214,7 +2216,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         killBottomSheet()
 
-        if (io.getNotes(io.getVault()).size == 0) {
+        if (notes.isEmpty()) {
             try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
@@ -2229,8 +2231,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             fragmentRoot.addView(fragmentView)
 
             notes.clear()
-            for (encryptedNote in io.getNotes(vault))
-                notes.add(io.decryptNote(encryptedNote))
+            for (encryptedNote in io.getNotes(vault)) if (!encryptedNote.deleted)  notes.add(io.decryptNote(encryptedNote))
 
             notesRecycler = fragmentView.findViewById(R.id.notes_recycler)
 
@@ -2298,6 +2299,8 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
     private fun renderCardsFragment () {
 
+        vault.card?.forEach { if (!it.deleted) cards.add(it) }
+
         sortBy = configData.getString("sort_by", io.SORT_LAST_EDITED)!!
         vault = io.vaultSorter(vault, sortBy)
 
@@ -2312,20 +2315,19 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         }
         killBottomSheet()
 
-        if (vault.card.isNullOrEmpty()) {
-            try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
+        if (cards.isEmpty()) {
+            try { fragmentRoot.removeView(fragmentView) } catch (_: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
             if (coldStart) fragmentView.startAnimation(loadAnimation(applicationContext, android.R.anim.fade_in));
 
         } else {
-            try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
+            try { fragmentRoot.removeView(fragmentView) } catch (_: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.dashboard_fragment_cards, null)
             fragmentRoot.addView(fragmentView)
 
             cards.clear()
-            for (encryptedCard in io.getCards(vault))
-                cards.add(io.decryptCard(encryptedCard))
+            for (encryptedCard in io.getCards(vault)) if (!encryptedCard.deleted) cards.add(io.decryptCard(encryptedCard))
 
             cardsRecycler = fragmentView.findViewById(R.id.cards_recycler)
             cardsRecycler.layoutManager = LinearLayoutManager(this)
@@ -2712,6 +2714,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                                 name = decoded2faData?.label ?: decoded2faData?.issuer ?: decoded2faData?.account,
                                 notes = null,
                                 favorite = false,
+                                deleted = false,
                                 tagId = null,
                                 loginData = IOUtilities.LoginData(
                                     username = decoded2faData?.account ?: decoded2faData?.label,
@@ -2829,6 +2832,15 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         finish()
     }
 
+    private fun openDeletedItems () {
+        crypto.secureStartActivity (
+            nextActivity = DeletedItems(),
+            nextActivityClassNameAsString = getString(R.string.title_activity_deleted_items),
+            keyring = keyring,
+            itemId = null
+        )
+    }
+
     private fun loginInfoDialog() {
         val builder = MaterialAlertDialogBuilder(this)
         builder.setCancelable(true)
@@ -2850,12 +2862,18 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         val signOutButton = loginInfoBox.findViewById<TextView>(R.id.signOutButton)
         val syncButton = loginInfoBox.findViewById<TextView>(R.id.syncButton)
+        val deleteButton = loginInfoBox.findViewById<TextView>(R.id.deleteButton)
         val sendFeedbackButton = loginInfoBox.findViewById<TextView>(R.id.sendFeedbackButton)
         val keyspaceLogoHeader = loginInfoBox.findViewById<ConstraintLayout>(R.id.keyspaceLogoHeader)
         val settingsButton = loginInfoBox.findViewById<TextView>(R.id.settingsButton)
         val closeButton = loginInfoBox.findViewById<ImageView>(R.id.closeButton)
         val privacyPolicyButton = loginInfoBox.findViewById<TextView>(R.id.privacyPolicyButton)
         val termsOfServiceButton = loginInfoBox.findViewById<TextView>(R.id.termsOfServiceButton)
+
+        deleteButton.setOnClickListener {
+            dialog.dismiss()
+            openDeletedItems()
+        }
 
         syncButton.setOnClickListener {
             dialog.dismiss()

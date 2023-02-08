@@ -134,6 +134,7 @@ class AddLogin : AppCompatActivity() {
     lateinit var doneButton: ImageView
     lateinit var backButton: ImageView
     lateinit var deleteButton: ImageView
+    var deleted: Boolean = false
 
     lateinit var keyring: CryptoUtilities.Keyring
     private var itemId: String? = null
@@ -209,31 +210,20 @@ class AddLogin : AppCompatActivity() {
 
         deleteButton = findViewById (R.id.delete)
         if (itemId != null) {
+            deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener {
-                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-                alertDialog.setTitle("Delete")
-                alertDialog.setMessage("Would you like to delete \"${login.name}\"")
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
-
-                    vault.login!!.remove(io.getLogin(itemId!!, vault))
-                    io.writeVault(vault)
-
-                    network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                    crypto.secureStartActivity (
-                        nextActivity = Dashboard(),
-                        nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
-                        keyring = keyring,
-                        itemId = null
-                    )
-
-                }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-                alertDialog.show()
-
+                val builder = MaterialAlertDialogBuilder(this@AddLogin)
+                    .setTitle("Delete login")
+                    .setCancelable(true)
+                    .setMessage("Would you like to delete this login?")
+                    .setNegativeButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        deleted = !deleted
+                        saveItem()
+                    }
+                builder.show()
             }
-        } else {
-            deleteButton.visibility = View.GONE
-        }
+        } else deleteButton.visibility = View.GONE
 
         tagButton = findViewById (R.id.tag)
         tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
@@ -625,6 +615,9 @@ class AddLogin : AppCompatActivity() {
             override fun beforeTextChanged (s: CharSequence, start: Int, count: Int, after: Int) { }
             override fun onTextChanged (s: CharSequence, start: Int, before: Int, count: Int) {
                 if (s.length >= 6) {
+
+                    mfaTokenBox.visibility = View.VISIBLE
+
                     try {
                         otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
                         runOnUiThread { tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ") }
@@ -640,9 +633,7 @@ class AddLogin : AppCompatActivity() {
                                 }
                             }
                         }, 0, 1000) // 1000 milliseconds = 1 second
-                    } catch (timerError: IllegalStateException) { }
-
-                    mfaTokenBox.visibility = View.VISIBLE
+                    } catch (_: IllegalStateException) { } catch (_: IllegalArgumentException) { mfaTokenBox.visibility = View.GONE }
 
                 } else {
                     mfaTokenBox.visibility = View.GONE
@@ -973,6 +964,7 @@ class AddLogin : AppCompatActivity() {
             name = siteNameInput.text.toString(),
             notes = notesInput.text.toString(),
             favorite = favorite,
+            deleted = deleted,
             tagId = tagPicker.getSelectedTagId() ?: tagId,
             loginData = IOUtilities.LoginData(
                 username = userNameInput.text.toString(),

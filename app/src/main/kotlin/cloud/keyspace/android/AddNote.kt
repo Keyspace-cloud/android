@@ -84,6 +84,7 @@ class AddNote : AppCompatActivity() {
     lateinit var doneButton: ImageView
     lateinit var backButton: ImageView
     lateinit var deleteButton: ImageView
+    var deleted: Boolean = false
 
     lateinit var noteToolbar: HorizontalScrollView
 
@@ -647,7 +648,7 @@ class AddNote : AppCompatActivity() {
                 alertDialog.setMessage("Note can't be blank")
                 alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
                 alertDialog.show()
-            } else saveNote()
+            } else saveItem()
 
         }
 
@@ -661,30 +662,18 @@ class AddNote : AppCompatActivity() {
         deleteButton = findViewById (R.id.delete)
         if (itemId != null) {
             deleteButton.setOnClickListener {
-                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-                alertDialog.setTitle("Delete")
-                alertDialog.setMessage("Would you like to delete this note?")
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
-
-                    vault.note!!.remove(io.getNote(itemId!!, vault))
-                    io.writeVault(vault)
-
-                    network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                    crypto.secureStartActivity (
-                        nextActivity = Dashboard(),
-                        nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
-                        keyring = keyring,
-                        itemId = null
-                    )
-
-                }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
-                alertDialog.show()
-
+                val builder = MaterialAlertDialogBuilder(this@AddNote)
+                    .setTitle("Delete note")
+                    .setCancelable(true)
+                    .setMessage("Would you like to delete this note?")
+                    .setNegativeButton("Go back"){ _, _ -> }
+                    .setPositiveButton("Delete"){ _, _ ->
+                        deleted = !deleted
+                        saveItem()
+                    }
+                builder.show()
             }
-        } else {
-            deleteButton.visibility = View.GONE
-        }
+        } else deleteButton.visibility = View.GONE
 
         tagButton = findViewById (R.id.tag)
         tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
@@ -867,7 +856,7 @@ class AddNote : AppCompatActivity() {
         return true
     }
 
-    private fun saveNote () {
+    private fun saveItem () {
         var dateCreated = Instant.now().epochSecond
 
         if (itemId != null) {
@@ -882,6 +871,7 @@ class AddNote : AppCompatActivity() {
             notes = noteEditor.text.toString(),
             color = noteColor,
             favorite = favorite,
+            deleted = deleted,
             tagId = tagPicker.getSelectedTagId() ?: tagId,
             dateCreated = dateCreated,
             dateModified = timestamp,

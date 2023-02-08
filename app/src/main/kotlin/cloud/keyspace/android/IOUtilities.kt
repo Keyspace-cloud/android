@@ -41,6 +41,7 @@ class IOUtilities(
 
     val file = File(applicationContext.cacheDir, filename!!)
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Tag (
         val id: String,
         val name: String,
@@ -58,22 +59,26 @@ class IOUtilities(
         val card: MutableList<Card>?,
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class CustomField (
         var name: String?,
         var value: String,
         val hidden: Boolean
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Password (
         val password: String,
         val created: Long
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Totp (
         val secret: String?,
         val backupCodes: MutableList<String>?
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class LoginData (
         val username: String?,
         val password: String?,
@@ -84,6 +89,7 @@ class IOUtilities(
         val siteUrls: MutableList<String>?
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Login (
         val id: String?,
         val organizationId: String?,
@@ -91,6 +97,7 @@ class IOUtilities(
         val name: String?,
         val notes: String?,
         val favorite: Boolean,
+        var deleted: Boolean,
         val tagId: String?,
         val loginData: LoginData?,
         val dateCreated: Long?,
@@ -100,6 +107,7 @@ class IOUtilities(
         val customFields: MutableList<CustomField>?
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Note (
         val id: String?,
         val organizationId: String?,
@@ -110,9 +118,11 @@ class IOUtilities(
         val notes: String?,
         val color: String?,
         val favorite: Boolean,
+        var deleted: Boolean,
         val tagId: String?,
     )
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     data class Card (
         val id: String?,
         val organizationId: String?,
@@ -122,6 +132,7 @@ class IOUtilities(
         val expiry: String?,
         val securityCode: String?,
         val favorite: Boolean,
+        var deleted: Boolean,
         val cardholderName: String?,
         val name: String?,
         val pin: String?,
@@ -336,6 +347,7 @@ class IOUtilities(
             name = try { crypto.kfsDecrypt (login.name, keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) { null } as String?,
             notes = try { crypto.kfsDecrypt (login.notes, keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) { null } as String?,
             favorite = login.favorite,
+            deleted= login.deleted,
             tagId = login.tagId,
             loginData = LoginData (
                 username = try { crypto.kfsDecrypt (login.loginData?.username, keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) { null } as String?,
@@ -985,6 +997,7 @@ class IOUtilities(
             notes = try { crypto.kfsDecrypt (note.notes, keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) {null } as String?,
             color = try { crypto.kfsDecrypt (note.color, keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) {null } as String?,
             favorite = note.favorite,
+            deleted= note.deleted,
             tagId = note.tagId,
             dateCreated = note.dateCreated,
             dateModified = note.dateModified,
@@ -1034,6 +1047,7 @@ class IOUtilities(
             pin = try {crypto.kfsDecrypt (card.pin.toString(), keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) { null} as String?,
             securityCode = try {crypto.kfsDecrypt (card.securityCode.toString(), keyring.XCHACHA_POLY1305_KEY!!)} catch (_: Exception) { null} as String?,
             favorite = card.favorite,
+            deleted= card.deleted,
             tagId = card.tagId,
             dateCreated = card.dateCreated,
             dateModified = card.dateModified,
@@ -1168,6 +1182,7 @@ class IOUtilities(
             name = try {  crypto.kfsEncrypt (login.name, keyring.XCHACHA_POLY1305_KEY!!) } catch (_: Exception) { null },
             notes = try { crypto.kfsEncrypt (login.notes, keyring.XCHACHA_POLY1305_KEY!!) } catch (_: Exception) { null },
             favorite = login.favorite,
+            deleted= login.deleted,
             tagId = login.tagId,
             loginData = LoginData (
                 username = try { crypto.kfsEncrypt (login.loginData?.username, keyring.XCHACHA_POLY1305_KEY!!) } catch (_: Exception) { null },
@@ -1197,6 +1212,7 @@ class IOUtilities(
             notes = try { crypto.kfsEncrypt (note.notes, keyring.XCHACHA_POLY1305_KEY!!) } catch (_: Exception) { null },
             color = try { crypto.kfsEncrypt (note.color, keyring.XCHACHA_POLY1305_KEY!!) } catch (_: Exception) { null },
             favorite = note.favorite,
+            deleted= note.deleted,
             tagId = note.tagId,
             dateCreated = note.dateCreated,
             dateModified = note.dateModified,
@@ -1233,6 +1249,7 @@ class IOUtilities(
             pin = try { crypto.kfsEncrypt (card.pin.toString(), keyring.XCHACHA_POLY1305_KEY!!)  } catch (_: Exception) { null },
             securityCode = try { crypto.kfsEncrypt (card.securityCode.toString(), keyring.XCHACHA_POLY1305_KEY!!)  } catch (_: Exception) { null },
             favorite = card.favorite,
+            deleted= card.deleted,
             tagId = card.tagId,
             dateCreated = card.dateCreated,
             dateModified = card.dateModified,
