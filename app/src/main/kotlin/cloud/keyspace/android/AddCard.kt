@@ -388,11 +388,11 @@ class AddCard : AppCompatActivity() {
         if (cardNumberInput.text.toString().replace(" ", "").length < 16) cardNumberInput.error = "Enter a valid 16 digit card number"
         else if (cardNumberInput.text.toString().replace(" ", "").length in 17..18
             || cardNumberInput.text.toString().replace(" ", "").length > 19) cardNumberInput.error = "Enter a valid 19 digit card number"
-        else if (securityCode.text.toString().length !in 3..5) securityCode.error = "Enter a valid security code"
+        else if (securityCode.text.toString().length !in 3..4) securityCode.error = "Enter a valid security code"
         else if (toDate.text.toString().isEmpty()) toDate.error = "Enter an expiry date"
         else if (cardholderNameInput.text.toString().isEmpty()) cardholderNameInput.error = "Enter card holder's name"
         else if (nameInput.text.toString().isEmpty()) nameInput.error = "Enter a name. This can be your bank's name."
-        else if (isAtmCard.isChecked && atmPinInput.text.toString().length < 4) atmPinInput.error = "Enter a valid Personal Identification Number"
+        else if (isAtmCard.isChecked && atmPinInput.text.toString().length !in 4..6) atmPinInput.error = "Enter a valid Personal Identification Number"
 
         else {
 
@@ -411,7 +411,7 @@ class AddCard : AppCompatActivity() {
                 cardholderName = cardholderNameInput.text.toString(),
                 expiry = toDate.text.toString(),
                 notes = notesInput.text.toString(),
-                pin = if (atmPinInput.text.toString().length == 4 && isAtmCard.isChecked) atmPinInput.text.toString() else "",
+                pin = if (atmPinInput.text.toString().length == 4 && isAtmCard.isChecked) atmPinInput.text.toString() else null,
                 securityCode = securityCode.text.toString(),
                 customFields = customFieldsData,
                 rfid = hasRfidChip.isChecked,
