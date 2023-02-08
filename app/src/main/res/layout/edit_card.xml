@@ -346,7 +346,7 @@
                             android:digits="0123456789"
                             android:fontFamily="monospace"
                             android:inputType="none|phone"
-                            android:maxLength="4" />
+                            android:maxLength="6" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
