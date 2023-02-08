@@ -278,7 +278,7 @@
                             android:fontFamily="monospace"
                             android:inputType="none|phone"
                             android:letterSpacing="0.05"
-                            android:maxLength="4" />
+                            android:maxLength="5" />
 
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
