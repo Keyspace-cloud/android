@@ -3156,7 +3156,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
         }
 
         if (refreshInterval != -1L) {
-            if (refreshInterval == 0L) refreshInterval = 3000L
+            if (refreshInterval == 0L) refreshInterval = 5500L
             vaultSyncTimer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
                     runOnUiThread {
