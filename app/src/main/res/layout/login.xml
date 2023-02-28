@@ -54,19 +54,6 @@
                 android:paddingVertical="7.5dp">
 
                 <TextView
-                    android:id="@+id/mfaText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:alwaysDrawnWithCache="false"
-                    android:animationCache="false"
-                    android:drawingCacheQuality="low"
-                    android:gravity="center|start"
-                    android:paddingHorizontal="8dp"
-                    android:text="@string/_123_456"
-                    android:textSize="32sp"
-                    android:textStyle="normal" />
-
-                <TextView
                     android:id="@+id/SiteName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -106,6 +93,19 @@
                     android:textSize="16sp"
                     android:visibility="visible"
                     app:drawableStartCompat="@drawable/ic_baseline_account_circle_24" />
+
+                <TextView
+                    android:id="@+id/mfaText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:alwaysDrawnWithCache="false"
+                    android:animationCache="false"
+                    android:drawingCacheQuality="low"
+                    android:gravity="center|start"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/_123_456"
+                    android:textSize="32sp"
+                    android:textStyle="normal" />
 
             </LinearLayout>
 
