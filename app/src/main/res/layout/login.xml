@@ -54,19 +54,6 @@
                 android:paddingVertical="7.5dp">
 
                 <TextView
-                    android:id="@+id/mfaText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:alwaysDrawnWithCache="false"
-                    android:animationCache="false"
-                    android:drawingCacheQuality="low"
-                    android:gravity="center|start"
-                    android:paddingHorizontal="8dp"
-                    android:text="123 456"
-                    android:textSize="32sp"
-                    android:textStyle="normal" />
-
-                <TextView
                     android:id="@+id/SiteName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -81,7 +68,7 @@
                     android:scrollbars="none"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="Site Name"
+                    android:text="@string/site_name"
                     android:textSize="22sp" />
 
                 <TextView
@@ -101,11 +88,24 @@
                     android:scrollbars="none"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="Username / Email"
+                    android:text="@string/username_email"
 
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:visibility="visible"
                     app:drawableStartCompat="@drawable/ic_baseline_account_circle_24" />
+
+                <TextView
+                    android:id="@+id/mfaText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:alwaysDrawnWithCache="false"
+                    android:animationCache="false"
+                    android:drawingCacheQuality="low"
+                    android:gravity="center|start"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/_123_456"
+                    android:textSize="32sp"
+                    android:textStyle="normal" />
 
             </LinearLayout>
 
@@ -125,6 +125,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/LoginInformation"
             app:trackColor="@android:color/transparent"
             app:trackThickness="4dp" />
 
@@ -132,7 +133,8 @@
             android:id="@+id/TagText"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginHorizontal="5dp"
+            android:layout_marginVertical="10dp"
+            android:layout_marginHorizontal="10dp"
             android:drawablePadding="5dp"
             android:ellipsize="marquee"
             android:fadingEdge="horizontal"
@@ -140,10 +142,11 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:paddingVertical="10dp"
             android:paddingEnd="5dp"
+            android:paddingStart="5dp"
             android:scrollbars="none"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="Tag"
+            android:text="@string/tag"
             android:textSize="14sp"
             app:drawableEndCompat="@drawable/ic_baseline_circle_24"
             app:layout_constraintEnd_toEndOf="parent"
@@ -153,18 +156,20 @@
             android:id="@+id/MiscText"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginHorizontal="5dp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="10dp"
             android:drawablePadding="5dp"
             android:ellipsize="marquee"
             android:fadingEdge="horizontal"
             android:gravity="center|end"
             android:marqueeRepeatLimit="marquee_forever"
             android:padding="10dp"
+            android:paddingStart="5dp"
             android:paddingEnd="5dp"
             android:scrollbars="none"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="Misc"
+            android:text="@string/misc"
             android:textSize="14sp"
             app:drawableEndCompat="@drawable/ic_baseline_help_24"
             app:layout_constraintBottom_toBottomOf="parent"
