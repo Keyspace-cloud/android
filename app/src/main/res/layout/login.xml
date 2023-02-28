@@ -125,6 +125,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/LoginInformation"
             app:trackColor="@android:color/transparent"
             app:trackThickness="4dp" />
 
@@ -161,8 +162,8 @@
             android:gravity="center|end"
             android:marqueeRepeatLimit="marquee_forever"
             android:padding="10dp"
-            android:paddingEnd="5dp"
             android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:scrollbars="none"
             android:scrollHorizontally="true"
             android:singleLine="true"
