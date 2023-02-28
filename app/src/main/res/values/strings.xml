@@ -128,5 +128,10 @@
 
         This is optional.
     </string>
+    <string name="_123_456">123 456</string>
+    <string name="site_name">Site Name</string>
+    <string name="username_email">Username / Email</string>
+    <string name="tag">Tag</string>
+    <string name="misc">Misc</string>
 
 </resources>

@@ -62,7 +62,7 @@
                     android:drawingCacheQuality="low"
                     android:gravity="center|start"
                     android:paddingHorizontal="8dp"
-                    android:text="123 456"
+                    android:text="@string/_123_456"
                     android:textSize="32sp"
                     android:textStyle="normal" />
 
@@ -81,7 +81,7 @@
                     android:scrollbars="none"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="Site Name"
+                    android:text="@string/site_name"
                     android:textSize="22sp" />
 
                 <TextView
@@ -101,7 +101,7 @@
                     android:scrollbars="none"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="Username / Email"
+                    android:text="@string/username_email"
 
                     android:textSize="16dp"
                     android:visibility="visible"
@@ -143,7 +143,7 @@
             android:scrollbars="none"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="Tag"
+            android:text="@string/tag"
             android:textSize="14sp"
             app:drawableEndCompat="@drawable/ic_baseline_circle_24"
             app:layout_constraintEnd_toEndOf="parent"
@@ -164,7 +164,7 @@
             android:scrollbars="none"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="Misc"
+            android:text="@string/misc"
             android:textSize="14sp"
             app:drawableEndCompat="@drawable/ic_baseline_help_24"
             app:layout_constraintBottom_toBottomOf="parent"
