@@ -104,9 +104,14 @@
 
     <string name="title_activity_permissions_error">PermissionsError</string>
     <string name="title_activity_developer_options">DeveloperOptions</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="title_activity_import_accounts">ImportAccounts</string>
+    <string name="delete_title">Delete</string>
+    <string name="set_color_title">Set color</string>
+    <string name="delete_subtitle">Would you like to delete</string>
+    <string name="go_back_button">Go back</string>
+    <string name="invalid_card_year_blurb">Please enter a valid expiry year</string>
+    <string name="invalid_card_month_blurb">Please enter a valid expiry month</string>
+    <string name="expired_card_blurb">This card has expired</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -128,5 +133,8 @@
 
         This is optional.
     </string>
+
+    <string name="title_import_aegis">Import from Aegis</string>
+    <string name="description_import_aegis">To import your vault from Aegis Authenticator, open Aegis, then go to Settings ➔ Import &amp; Export ➔ Export. \n\nMake sure you\n• Export in JSON format\n• Disable encryption\n• Enable "Export all groups".\n\nOnce you\'re done, use the file picker below to import your vault into Keyspace.</string>
 
 </resources>

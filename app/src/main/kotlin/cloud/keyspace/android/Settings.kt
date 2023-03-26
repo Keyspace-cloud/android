@@ -2,9 +2,7 @@ package cloud.keyspace.android
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -74,13 +72,6 @@ class Settings : AppCompatActivity() {
             }
         }
 
-        val lockAppButton: MaterialSwitch = findViewById(R.id.lockAppButton)
-        lockAppButton.isChecked = configData.getBoolean("lockApp", false)
-        lockAppButton.setOnCheckedChangeListener { _, isChecked ->
-            configData.edit().remove("lockApp").commit()
-            if (isChecked) configData.edit().putBoolean("lockApp", true).commit() else configData.edit().putBoolean("lockApp", false).commit()
-        }
-
         val notesGridButton: MaterialSwitch = findViewById(R.id.notesGridButton)
         notesGridButton.isChecked = configData.getBoolean("notesGrid", true)
         notesGridButton.setOnCheckedChangeListener { _, isChecked ->
@@ -95,11 +86,17 @@ class Settings : AppCompatActivity() {
             if (isChecked) configData.edit().putBoolean("notesPreview", true).commit() else configData.edit().putBoolean("notesPreview", false).commit()
         }
 
-        val appScreenshotsButton: MaterialSwitch = findViewById(R.id.appScreenshotsButton)
-        appScreenshotsButton.isChecked = configData.getBoolean("allowScreenshots", false)
-        appScreenshotsButton.setOnCheckedChangeListener { _, isChecked ->
-            configData.edit().remove("allowScreenshots").commit()
-            if (isChecked) configData.edit().putBoolean("allowScreenshots", true).commit() else configData.edit().putBoolean("allowScreenshots`", false).commit()
+        val importButton: LinearLayout = findViewById(R.id.importButton)
+        importButton.setOnClickListener {
+            val intent = Intent(this, ImportAccounts::class.java)
+            startActivity(intent)
+        }
+
+        val lockAppButton: MaterialSwitch = findViewById(R.id.lockAppButton)
+        lockAppButton.isChecked = configData.getBoolean("lockApp", false)
+        lockAppButton.setOnCheckedChangeListener { _, isChecked ->
+            configData.edit().remove("lockApp").commit()
+            if (isChecked) configData.edit().putBoolean("lockApp", true).commit() else configData.edit().putBoolean("lockApp", false).commit()
         }
 
         val intervalGroup: RadioGroup = findViewById(R.id.intervalButtonGroup)

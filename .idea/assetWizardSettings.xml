@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Android/Sdk/icons/material/materialicons/dashboard/baseline_dashboard_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Android/Sdk/icons/material/materialicons/import_contacts/baseline_import_contacts_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,13 +28,7 @@
                         </option>
                         <option name="values">
                           <map>
-<<<<<<< HEAD
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="illustration_no_results" />
-                            <entry key="sourceFile" value="$USER_HOME$/Downloads/undraw_lost_re_xqjt.svg" />
-=======
-                            <entry key="outputName" value="ic_baseline_grid_24" />
->>>>>>> v1.4.1
+                            <entry key="outputName" value="ic_baseline_import_contacts_24" />
                           </map>
                         </option>
                       </PersistentState>

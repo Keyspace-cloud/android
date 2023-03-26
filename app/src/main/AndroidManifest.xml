@@ -48,6 +48,12 @@
             android:label="@string/title_activity_developer_options"
             android:theme="@style/Theme.KeyspaceMobile.NoActionBar"></activity>
         <activity
+            android:name=".ImportAccounts"
+            android:exported="false"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_import_accounts"
+            android:theme="@style/Theme.KeyspaceMobile.NoActionBar"></activity>
+        <activity
             android:name=".AddCard"
             android:exported="false"
             android:launchMode="singleInstance"

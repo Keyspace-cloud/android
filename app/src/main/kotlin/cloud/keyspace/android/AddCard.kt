@@ -159,9 +159,9 @@ class AddCard : AppCompatActivity() {
         if (itemId != null) {
             deleteButton.setOnClickListener {
                 val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
-                alertDialog.setTitle("Delete")
-                alertDialog.setMessage("Would you like to delete \"${card.name}\"")
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete") { dialog, _ ->
+                alertDialog.setTitle(getString(R.string.delete_title))
+                alertDialog.setMessage("${getString(R.string.delete_subtitle)} \"${card.name}\"")
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.delete_title)) { _, _ ->
 
                     vault.card!!.remove(io.getCard(itemId!!, vault))
                     io.writeVault(vault)
@@ -175,7 +175,7 @@ class AddCard : AppCompatActivity() {
                     )
 
                 }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.go_back_button)) { dialog, _ -> dialog.dismiss() }
                 alertDialog.show()
 
             }
@@ -215,8 +215,8 @@ class AddCard : AppCompatActivity() {
                 .setColors(resources.getStringArray(R.array.vault_item_colors))
                 .setTickColorPerCard(true)
                 .setDefaultColor(cardColor.toString())
-                .setPositiveButton("Set color")
-                .setNegativeButton("Go back")
+                .setPositiveButton(getString(R.string.set_color_title))
+                .setNegativeButton(getString(R.string.go_back_button))
                 .setColorListener(object : ColorListener {
                     override fun onColorSelected(color: Int, colorHex: String) {
                         cardColor = colorHex
@@ -326,10 +326,10 @@ class AddCard : AppCompatActivity() {
                     val month = monthFormat.format(Date()).toString().toInt()
                     if (toDate.text?.takeLast(2).toString().toInt() > year+5) {
                         toDate.text!!.clear()
-                        toDate.error = "Please enter a valid expiry year"
+                        toDate.error = getString(R.string.invalid_card_year_blurb)
                     } else  if ( (toDate.text?.take(2).toString().toInt() <= month && toDate.text?.takeLast(2).toString().toInt() == year) || toDate.text?.takeLast(2).toString().toInt() < year) {
                         toDate.text!!.clear()
-                        toDate.error = "This card has expired"
+                        toDate.error = getString(R.string.expired_card_blurb)
                     }
                 }
             }
@@ -340,7 +340,7 @@ class AddCard : AppCompatActivity() {
                         toDate.text!!.append("/")
                         if (toDate.text?.take(2).toString().toInt() !in 1..12) {
                             toDate.text!!.clear()
-                            toDate.error = "Please enter a valid expiry month"
+                            toDate.error = getString(R.string.invalid_card_month_blurb)
                         }
                     } catch (backspace: java.lang.NumberFormatException) {
                         toDate.text!!.clear()
