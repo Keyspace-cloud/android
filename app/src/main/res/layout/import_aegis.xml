@@ -31,7 +31,7 @@
                 app:tint="?android:attr/textColorPrimary" />
 
             <TextView
-                android:id="@+id/ImportAccountsActivityLabelTop"
+                android:id="@+id/label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
@@ -54,7 +54,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="25dp"

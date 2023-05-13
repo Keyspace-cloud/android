@@ -19,9 +19,21 @@ import java.util.*
 
 
 class Settings : AppCompatActivity() {
+
+    lateinit var crypto: CryptoUtilities
+    lateinit var keyring: CryptoUtilities.Keyring
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings)
+
+        crypto = CryptoUtilities(applicationContext, this)
+
+        val intentData = crypto.receiveKeyringFromSecureIntent (
+            currentActivityClassNameAsString = getString(R.string.title_activity_settings),
+            intent = intent
+        )
+        keyring = intentData.first
 
         val configData = getSharedPreferences (applicationContext.packageName + "_configuration_data", MODE_PRIVATE)
 
@@ -88,8 +100,12 @@ class Settings : AppCompatActivity() {
 
         val importButton: LinearLayout = findViewById(R.id.importButton)
         importButton.setOnClickListener {
-            val intent = Intent(this, ImportAccounts::class.java)
-            startActivity(intent)
+            crypto.secureStartActivity (
+                nextActivity = ImportAccounts(),
+                nextActivityClassNameAsString = getString(R.string.title_activity_import_accounts),
+                keyring = keyring,
+                itemId = null
+            )
         }
 
         val lockAppButton: MaterialSwitch = findViewById(R.id.lockAppButton)

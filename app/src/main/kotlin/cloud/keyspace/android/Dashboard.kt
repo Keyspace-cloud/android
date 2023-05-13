@@ -1129,20 +1129,7 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-            if (login.name!!.lowercase().contains("keyspace")) { // Easter egg
-                if (login.loginData?.password!!.split("-").size == 12 || login.loginData.password.split(" ").size == 12) {
-                    loginCard.miscText.visibility = View.VISIBLE
-                    loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
-                    loginCard.miscText.text = "You were supposed to write them down! "
-                }
-                login.customFields!!.forEach { field ->
-                    if (field.value.split(" ").size == 12 || field.value.split("-").size == 12) {
-                        loginCard.miscText.visibility = View.VISIBLE
-                        loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
-                        loginCard.miscText.text = "You were supposed to write them down! "
-                    }
-                }
-            }
+
 
             var otpCode: String? = null
             if (!login.loginData?.totp?.secret.isNullOrEmpty()) {
@@ -2824,8 +2811,12 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
     }
 
     private fun openSettings () {
-        val intent = Intent(this, Settings::class.java)
-        startActivity(intent)
+        crypto.secureStartActivity (
+            nextActivity = Settings(),
+            nextActivityClassNameAsString = getString(R.string.title_activity_settings),
+            keyring = keyring,
+            itemId = null
+        )
         finish()
     }
 

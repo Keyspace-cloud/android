@@ -103,4 +103,5 @@ dependencies {
     // ACRA for crash logging
     implementation 'ch.acra:acra-mail:5.9.7' // mail component
     implementation 'ch.acra:acra-dialog:5.9.7' // dialog component
+    implementation "com.anggrayudi:storage:1.5.4" // access storage
 }
