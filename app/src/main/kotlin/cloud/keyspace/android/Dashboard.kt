@@ -1129,7 +1129,22 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
                 }
             }
 
-
+            try {
+                if (login.name!!.lowercase().contains("keyspace")) { // Easter egg
+                    if (login.loginData?.password!!.split("-").size == 12 || login.loginData.password.split(" ").size == 12) {
+                        loginCard.miscText.visibility = View.VISIBLE
+                        loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
+                        loginCard.miscText.text = "You were supposed to write them down! "
+                    }
+                    login.customFields!!.forEach { field ->
+                        if (field.value.split(" ").size == 12 || field.value.split("-").size == 12) {
+                            loginCard.miscText.visibility = View.VISIBLE
+                            loginCard.miscText.setCompoundDrawablesRelativeWithIntrinsicBounds (null, null, null, null)
+                            loginCard.miscText.text = "You were supposed to write them down! "
+                        }
+                    }
+                }
+            } catch (_: Exception) { }
 
             var otpCode: String? = null
             if (!login.loginData?.totp?.secret.isNullOrEmpty()) {

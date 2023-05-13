@@ -97,12 +97,13 @@
                     android:fadingEdge="horizontal"
                     android:gravity="center|start"
                     android:marqueeRepeatLimit="marquee_forever"
+                    android:maxWidth="200dp"
                     android:paddingHorizontal="7.5dp"
                     android:scrollbars="none"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="Username / Email"
 
+                    android:text="Username / Email"
                     android:textSize="16dp"
                     android:visibility="visible"
                     app:drawableStartCompat="@drawable/ic_baseline_account_circle_24" />

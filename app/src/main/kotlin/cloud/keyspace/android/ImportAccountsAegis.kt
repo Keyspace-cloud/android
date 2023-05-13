@@ -28,6 +28,7 @@ class ImportAccountsAegis : AppCompatActivity() {
     private lateinit var storageHelper: SimpleStorageHelper
     lateinit var io: IOUtilities
     lateinit var network: NetworkUtilities
+    lateinit var misc: MiscUtilities
     lateinit var vault: IOUtilities.Vault
 
     lateinit var backButton: ImageView
@@ -50,6 +51,7 @@ class ImportAccountsAegis : AppCompatActivity() {
 
         io = IOUtilities(applicationContext, this, keyring)
         network = NetworkUtilities(applicationContext, this, keyring)
+        misc = MiscUtilities(applicationContext)
         vault = io.getVault()
 
         backButton = findViewById(R.id.backButton)
@@ -95,7 +97,7 @@ class ImportAccountsAegis : AppCompatActivity() {
                     setDone(accounts)
                     val vault: IOUtilities.Vault = io.getVault()
                     for (account in accounts) {
-                        var siteName = if (account.issuer.isBlank()) account.name.substringBeforeLast(":")
+                        val siteName = if (account.issuer.isBlank()) account.name.substringBeforeLast(":")
                         else {
                             val accountLabel = account.name.substringAfterLast(":")
                             if (accountLabel.isNotEmpty() && accountLabel != account.issuer) "${account.issuer} (${accountLabel})"
@@ -124,7 +126,7 @@ class ImportAccountsAegis : AppCompatActivity() {
                             dateModified = Instant.now().epochSecond,
                             frequencyAccessed = 0,
                             customFields = null,
-                            iconFile = siteName
+                            iconFile = if (misc.getSiteIcon(siteName, description.currentTextColor) != null) siteName else null
                         )
 
                         val encryptedLogin = io.encryptLogin(data)
