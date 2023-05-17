@@ -1,7 +1,7 @@
 package cloud.keyspace.android
 
 import android.content.Intent
-import android.icu.text.IDNA
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -14,13 +14,11 @@ import com.anggrayudi.storage.SimpleStorageHelper
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.material.button.MaterialButton
-import com.goterl.lazysodium.utils.HexMessageEncoder
 import com.keyspace.keyspacemobile.NetworkUtilities
-import java.time.Instant
 import java.util.*
-import kotlin.collections.ArrayList
 
-class ImportAccountsAegis : AppCompatActivity() {
+
+class ImportAccountsBitwarden : AppCompatActivity() {
 
     lateinit var crypto: CryptoUtilities
     lateinit var keyring: CryptoUtilities.Keyring
@@ -39,12 +37,12 @@ class ImportAccountsAegis : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.import_aegis)
+        setContentView(R.layout.import_bitwarden)
 
         crypto = CryptoUtilities(applicationContext, this)
 
         val intentData = crypto.receiveKeyringFromSecureIntent (
-            currentActivityClassNameAsString = getString(R.string.title_activity_import_aegis),
+            currentActivityClassNameAsString = getString(R.string.title_activity_import_bitwarden),
             intent = intent
         )
         keyring = intentData.first
@@ -80,14 +78,14 @@ class ImportAccountsAegis : AppCompatActivity() {
 
             setImporting(files[0].name.toString())
 
-            var accounts: List<Entry>? = null
+            var vault: ExtractedItems? = null
             val parseThread = Thread {
                 val file = contentResolver.openInputStream(files[0].uri)
                 val fileData = String(file?.readBytes()!!)
                 file.close()
 
                 try {
-                    accounts = parseAegisJsonFile(fileData)
+                    vault = parseBitwardenJsonFile(fileData)
                 } catch (_: Exception) { }
 
             }
@@ -97,54 +95,8 @@ class ImportAccountsAegis : AppCompatActivity() {
                 parseThread.join()
                 // Save to KeyspaceFS
                 try {
-                    if (accounts!!.isEmpty()) setNoData() else {
-                        setDone(accounts!!)
-                        val vault: IOUtilities.Vault = io.getVault()
-
-                        for (account in accounts!!) {
-
-                            val siteName = if (account.issuer.isBlank()) account.name.substringBeforeLast(":")
-                            else {
-                                val accountLabel = account.name.substringAfterLast(":")
-                                if (accountLabel.isNotEmpty() && accountLabel != account.issuer) "${account.issuer} (${accountLabel})"
-                                else account.issuer
-                            }
-
-                            val data = IOUtilities.Login (
-                                id = UUID.randomUUID().toString(),
-                                organizationId = null,
-                                type = io.TYPE_LOGIN,
-                                name = siteName,
-                                notes = account.note,
-                                favorite = account.favorite,
-                                tagId = null,
-                                loginData = IOUtilities.LoginData(
-                                    username = if (!account.name.substringAfterLast(":").contains("@")) account.name.substringAfterLast(":") else null,
-                                    password = null,
-                                    passwordHistory = null,
-                                    email = if (account.name.substringAfterLast(":").contains("@") && account.name.substringAfterLast(":").contains(".")) account.name.substringAfterLast(":") else null,
-                                    totp = IOUtilities.Totp(
-                                        secret = account.info.secret,
-                                        backupCodes = null
-                                    ),
-                                    siteUrls = null
-                                ),
-                                dateCreated = Instant.now().epochSecond,
-                                dateModified = Instant.now().epochSecond,
-                                frequencyAccessed = 0,
-                                customFields = null,
-                                iconFile = if (misc.getSiteIcon(siteName, description.currentTextColor) != null) siteName else null
-                            )
-
-                            val encryptedLogin = io.encryptLogin(data)
-                            vault.login?.add (encryptedLogin)
-
-                            network.writeQueueTask (encryptedLogin, mode = network.MODE_POST)
-
-                        }
-
-                        io.writeVault(vault)
-
+                    if (vault == null) setNoData() else {
+                        Log.d("BWDATA", vault!!.logins[4].name.toString())
                     }
                 } catch (_: Exception) {
                     setNoData()
@@ -162,24 +114,17 @@ class ImportAccountsAegis : AppCompatActivity() {
         filePickerButton.visibility = View.GONE
     }
 
-    private fun setDone(accounts: List<Entry>) {
+    private fun setDone(accounts: List<String>) {
         label.text = "Import successful"
         progressBar.visibility = View.GONE
         description.text = "Imported ${accounts.size} account${if (accounts.size > 1) "s" else ""} successfully! Make sure all your accounts are in the list below"
         description.append ("\n")
-        for (account in accounts) {
-            if (account.issuer.isBlank()) description.append("\n• ${account.name.substringBeforeLast(":")}")
-            else {
-                val accountLabel = account.name.substringAfterLast(":")
-                if (accountLabel.isNotEmpty() && accountLabel != account.issuer) description.append("\n• ${account.issuer} (${accountLabel})")
-                else description.append("\n• ${account.issuer}")
-            }
-        }
+
         filePickerButton.visibility = View.VISIBLE
         filePickerButton.text = "Finish"
         filePickerButton.setOnClickListener {
             crypto.secureStartActivity (
-                nextActivity = ImportAccountsAegis(),
+                nextActivity = ImportAccountsBitwarden(),
                 nextActivityClassNameAsString = getString(R.string.title_activity_settings),
                 keyring = keyring,
                 itemId = null
@@ -191,7 +136,7 @@ class ImportAccountsAegis : AppCompatActivity() {
     private fun setNoData() {
         progressBar.visibility = View.GONE
         label.text = "No data found"
-        description.text = "This file has no accounts to import from. Check if the file contains valid data as prescribed in the previous step and try again."
+        description.text = "This file has no accounts to import from."
         filePickerButton.visibility = View.VISIBLE
         filePickerButton.text = "Quit"
         filePickerButton.setOnClickListener {
@@ -199,40 +144,163 @@ class ImportAccountsAegis : AppCompatActivity() {
         }
     }
 
-    data class Info (
-        val secret: String,
-        val algo: String,
-        val digits: String,
-        val period: String,
+    data class Folder (
+        val id: String,
+        val name: String
     )
 
-    data class Entry (
-        val type: String,
-        val name: String,
-        val issuer: String,
-        val note: String,
-        val favorite: Boolean,
-        val info: Info,
+    data class Uri (
+        val match: String?,
+        val uri: String
     )
 
-    private fun parseAegisJsonFile (fileData: String): List<Entry> {
+    data class Login (
+        val uris: List<Uri>,
+        val username: String?,
+        val password: String?,
+        val totp: String?
+    )
+
+    data class Item1 (
+        val id: String,
+        val organizationId: String?,
+        val folderId: String?,
+        val type: Int,
+        val reprompt: Int,
+        val name: String?,
+        val notes: String?,
+        val favorite: Boolean?,
+        val fields: List<ItemField>?,
+        val login: IOUtilities.Login?,
+        val collectionIds: String?
+    )
+
+    data class ItemField (
+        val name: String?,
+        val value: String?,
+        val type: Int,
+        val linkedId: String?
+    )
+
+    data class SecureNote (
+        val type: Int
+    )
+
+    data class Item2 (
+        val id: String,
+        val organizationId: String?,
+        val folderId: String?,
+        val type: Int,
+        val reprompt: Int,
+        val name: String?,
+        val notes: String?,
+        val favorite: Boolean?,
+        val fields: List<ItemField>?,
+        val secureNote: SecureNote,
+        val collectionIds: String?
+    )
+
+    data class Card (
+        val cardholderName: String?,
+        val brand: String?,
+        val number: String?,
+        val expMonth: String?,
+        val expYear: String?,
+        val code: String?
+    )
+
+    data class Item3 (
+        val id: String,
+        val organizationId: String?,
+        val folderId: String?,
+        val type: Int,
+        val reprompt: Int,
+        val name: String?,
+        val notes: String?,
+        val favorite: Boolean?,
+        val fields: List<ItemField>?,
+        val card: Card,
+        val collectionIds: String?
+    )
+
+    data class Identity (
+        val title: String?,
+        val firstName: String?,
+        val middleName: String?,
+        val lastName: String?,
+        val address1: String?,
+        val address2: String?,
+        val address3: String?,
+        val city: String?,
+        val state: String?,
+        val postalCode: String?,
+        val country: String?,
+        val company: String?,
+        val email: String?,
+        val phone: String?,
+        val ssn: String?,
+        val username: String?,
+        val passportNumber: String?,
+        val licenseNumber: String?
+    )
+
+    data class Item4 (
+        val id: String,
+        val organizationId: String?,
+        val folderId: String?,
+        val type: Int,
+        val reprompt: Int,
+        val name: String?,
+        val notes: String?,
+        val favorite: Boolean?,
+        val fields: List<ItemField>?,
+        val identity: Identity,
+        val collectionIds: String?
+    )
+
+    data class BitwardenVault (
+        val encrypted: Boolean,
+        val folders: List<Folder>,
+        val items: List<Any?>
+    )
+
+    data class ExtractedItems (
+        val logins: MutableList<Item1>,
+        val notes: MutableList<Item2>,
+        val cards: MutableList<Item3>,
+        val identities: MutableList<Item4>,
+        val folders: List<Folder>,
+    )
+
+    private fun parseBitwardenJsonFile (fileData: String): ExtractedItems? {
         val mapper = jacksonObjectMapper()
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-        val vault: Map<*, *> = mapper.readValue (fileData, MutableMap::class.java)
+        val vault: BitwardenVault = mapper.readValue (fileData, BitwardenVault::class.java)
 
-        val db: Map<*, *> = vault["db"] as Map<*, *>
+        if (vault.encrypted) throw NullPointerException()
 
-        val entries = mutableListOf<Entry>()
-        for (item in db["entries"] as ArrayList<*>) {
-            val entry = mapper.readValue (
-                mapper.writer().withDefaultPrettyPrinter().writeValueAsBytes(item),
-                Entry::class.java
+        var extractedItems: ExtractedItems? = null
+
+        if (vault.items.isNotEmpty()) {
+            extractedItems = ExtractedItems (
+                logins = mutableListOf(),
+                notes = mutableListOf(),
+                cards = mutableListOf(),
+                identities = mutableListOf(),
+                folders = vault.folders
             )
-            entries.add(entry)
+            for (item in vault.items) {
+                when (item.toString().substringAfter(", type=").substringBefore(", ").toInt()) {
+                    1 -> extractedItems.logins.add(mapper.convertValue(item, Item1::class.java))
+                    2 -> extractedItems.notes.add(mapper.convertValue(item, Item2::class.java))
+                    3 -> extractedItems.cards.add(mapper.convertValue(item, Item3::class.java))
+                    4 -> extractedItems.identities.add(mapper.convertValue(item, Item4::class.java))
+                }
+            }
         }
 
-        return entries
+        return extractedItems
 
     }
 

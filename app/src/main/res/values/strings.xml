@@ -106,6 +106,7 @@
     <string name="title_activity_developer_options">DeveloperOptions</string>
     <string name="title_activity_import_accounts">ImportAccounts</string>
     <string name="title_activity_import_aegis">ImportAccountsAegis</string>
+    <string name="title_activity_import_bitwarden">ImportAccountsBitwarden</string>
     <string name="delete_title">Delete</string>
     <string name="set_color_title">Set color</string>
     <string name="delete_subtitle">Would you like to delete</string>
@@ -136,6 +137,9 @@
     </string>
 
     <string name="title_import_aegis">Import from Aegis</string>
-    <string name="description_import_aegis">To import your vault from Aegis Authenticator, open Aegis, then go to Settings ➔ Import &amp; Export ➔ Export. \n\nMake sure you\n• Export in JSON format\n• Disable encryption\n• Enable "Export all groups".\n\nOnce you\'re done, use the file picker below to import your vault into Keyspace.</string>
+    <string name="description_import_aegis">To import your vault from Aegis Authenticator, open Aegis, then go to Settings ➔ Import &amp; Export ➔ Export. \n\nMake sure you\n• Export in JSON format\n• Disable encryption\n• Enable "Export all groups".\n\nOnce you\'re done, use the file picker below to import your vault into Keyspace.\n\nPlease note that Keyspace only supports Google Authenticator codes currently.</string>
+
+    <string name="title_import_bitwarden">Import from Bitwarden</string>
+    <string name="description_import_bitwarden">To import your vault from Bitwarden, open Bitwarden, then go to Settings ➔ Tools ➔ Export vault. \n\nMake sure you export in unencrypted JSON format.\n\nOnce you\'re done, use the file picker below to import your vault into Keyspace.\n\nPlease note that some items, such as identity cards and custom fields in notes will be copied over into a Keyspace-compatible format.</string>
 
 </resources>
