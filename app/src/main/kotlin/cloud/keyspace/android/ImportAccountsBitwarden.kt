@@ -480,7 +480,7 @@ class ImportAccountsBitwarden : AppCompatActivity() {
                         Log.w("saveItems", "Failed to parse creation date.", e)
                         null
                     }
-                } ?: note.revisionDate?.let {
+                } ?: note.creationDate?.let {
                     try {
                         OffsetDateTime.parse(it).toEpochSecond()
                     } catch (e: Exception) {
