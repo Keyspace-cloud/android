@@ -1207,7 +1207,16 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
 
         killBottomSheet()
 
-        if (vault.login.isNullOrEmpty()) {
+        logins.clear()
+        for (encryptedLogin in io.getLogins(vault)) {
+            val login = io.decryptLogin(encryptedLogin)
+
+            if (login.id != null) {
+                logins.add(login)
+            }
+        }
+
+        if (logins.isEmpty()) {
             try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.no_vault_data, null)
             fragmentRoot.addView(fragmentView)
@@ -1217,10 +1226,6 @@ class Dashboard : AppCompatActivity(), NavigationView.OnNavigationItemSelectedLi
             try { fragmentRoot.removeView(fragmentView) } catch (uninflated: UninitializedPropertyAccessException) { }
             fragmentView = inflater.inflate(R.layout.dashboard_fragment_logins, null)
             fragmentRoot.addView(fragmentView)
-
-            logins.clear()
-            for (encryptedLogin in io.getLogins(vault))
-                logins.add(io.decryptLogin(encryptedLogin))
 
             loginsRecycler = fragmentView.findViewById(R.id.logins_recycler)
             loginsRecycler.layoutManager = LinearLayoutManager(this@Dashboard)

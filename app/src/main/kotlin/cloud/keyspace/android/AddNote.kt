@@ -28,7 +28,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import com.fasterxml.jackson.module.kotlin.SequenceSerializer.properties
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
@@ -98,19 +97,27 @@ class AddNote : AppCompatActivity() {
 
     lateinit var configData: SharedPreferences
 
+    private lateinit var itemPersistence: ItemPersistence
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.edit_note)
 
-        configData = getSharedPreferences(applicationContext.packageName + "_configuration_data", MODE_PRIVATE)
+        configData = getSharedPreferences(
+            applicationContext.packageName + "_configuration_data",
+            MODE_PRIVATE
+        )
 
         val allowScreenshots = configData.getBoolean("allowScreenshots", false)
-        if (!allowScreenshots) window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        if (!allowScreenshots) window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
 
-        utils = MiscUtilities (applicationContext)
+        utils = MiscUtilities(applicationContext)
         crypto = CryptoUtilities(applicationContext, this)
 
-        utils = MiscUtilities (applicationContext)
+        utils = MiscUtilities(applicationContext)
         crypto = CryptoUtilities(applicationContext, this)
 
         val intent = intent
@@ -120,7 +127,8 @@ class AddNote : AppCompatActivity() {
         if ("android.intent.action.SEND" == action && type != null && "text/plain" == type) {
 
             val biometricPromptThread = Handler(Looper.getMainLooper())
-            val executor: Executor = ContextCompat.getMainExecutor(this@AddNote) // execute on different thread awaiting response
+            val executor: Executor =
+                ContextCompat.getMainExecutor(this@AddNote) // execute on different thread awaiting response
 
             try {
                 val biometricManager = BiometricManager.from(this@AddNote)
@@ -142,18 +150,29 @@ class AddNote : AppCompatActivity() {
                 val decryptingDialog = decryptingDialogBuilder.create()
                 decryptingDialog.show()
 
-                decryptingDialogBox.findViewById<MaterialButton>(R.id.authenticateButton).visibility = View.GONE
-                val authenticateDescription = decryptingDialogBox.findViewById<TextView>(R.id.fingerprint_description)
+                decryptingDialogBox.findViewById<MaterialButton>(R.id.authenticateButton).visibility =
+                    View.GONE
+                val authenticateDescription =
+                    decryptingDialogBox.findViewById<TextView>(R.id.fingerprint_description)
                 authenticateDescription.text = "Enter credentials to continue"
 
-                val authenticationIcon = decryptingDialogBox.findViewById<ImageView>(R.id.fingerprint_icon)
+                val authenticationIcon =
+                    decryptingDialogBox.findViewById<ImageView>(R.id.fingerprint_icon)
                 authenticationIcon.setPadding(0, 50, 0, 0)
 
-                val authenticateTitle = decryptingDialogBox.findViewById<TextView>(R.id.fingerprint_title)
-                val keystoreProgress = decryptingDialogBox.findViewById<ProgressBar>(R.id.keystoreProgress)
+                val authenticateTitle =
+                    decryptingDialogBox.findViewById<TextView>(R.id.fingerprint_title)
+                val keystoreProgress =
+                    decryptingDialogBox.findViewById<ProgressBar>(R.id.keystoreProgress)
 
-                val keyguardToUnlock = AnimatedVectorDrawableCompat.create(applicationContext, R.drawable.keyguardtolock)
-                val fingerprintToUnlock = AnimatedVectorDrawableCompat.create(applicationContext, R.drawable.fingerprinttolock)
+                val keyguardToUnlock = AnimatedVectorDrawableCompat.create(
+                    applicationContext,
+                    R.drawable.keyguardtolock
+                )
+                val fingerprintToUnlock = AnimatedVectorDrawableCompat.create(
+                    applicationContext,
+                    R.drawable.fingerprinttolock
+                )
                 val zoomSpin = loadAnimation(applicationContext, R.anim.zoom_spin)
 
                 val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
@@ -161,10 +180,18 @@ class AddNote : AppCompatActivity() {
 
                         Handler().postDelayed({
                             authenticateDescription.text = "Ed25519 public key"
-                            Handler().postDelayed({ authenticateDescription.text = "Ed25519 private key"
-                                Handler().postDelayed({ authenticateDescription.text = "XChaCha20-Poly1305 symmetric key" }, 50) }, 100) }, 100)
+                            Handler().postDelayed({
+                                authenticateDescription.text = "Ed25519 private key"
+                                Handler().postDelayed({
+                                    authenticateDescription.text =
+                                        "XChaCha20-Poly1305 symmetric key"
+                                }, 50)
+                            }, 100)
+                        }, 100)
 
-                        val keyringThread = Thread { keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!! }
+                        val keyringThread = Thread {
+                            keyring = crypto.retrieveKeys(crypto.getKeystoreMasterKey())!!
+                        }
                         keyringThread.start()
 
                         if (applicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) { // Check if strongbox exists
@@ -173,10 +200,13 @@ class AddNote : AppCompatActivity() {
                             authenticateTitle.text = "Reading HAL Keystore"
                         } else authenticateTitle.text = "Reading Keystore"
 
-                        if (utils.biometricsExist()) authenticationIcon.setImageDrawable(fingerprintToUnlock)
+                        if (utils.biometricsExist()) authenticationIcon.setImageDrawable(
+                            fingerprintToUnlock
+                        )
                         else authenticationIcon.setImageDrawable(keyguardToUnlock)
 
-                        fingerprintToUnlock!!.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                        fingerprintToUnlock!!.registerAnimationCallback(object :
+                            Animatable2Compat.AnimationCallback() {
                             override fun onAnimationEnd(drawable: Drawable) {
                                 authenticationIcon.setImageDrawable(applicationContext.getDrawable(R.drawable.ic_baseline_check_24))
                                 keyringThread.join()
@@ -188,16 +218,24 @@ class AddNote : AppCompatActivity() {
                                         authenticateTitle.text = "All done!"
                                     }
 
-                                    override fun onAnimationRepeat(animation: Animation) {  }
+                                    override fun onAnimationRepeat(animation: Animation) {}
 
                                     @SuppressLint("UseCompatLoadingForDrawables")
                                     override fun onAnimationEnd(animation: Animation) {
 
                                         keyringThread.join()
 
-                                        network = NetworkUtilities(applicationContext, this@AddNote, keyring)
+                                        network = NetworkUtilities(
+                                            applicationContext,
+                                            this@AddNote,
+                                            keyring
+                                        )
 
-                                        network = NetworkUtilities(applicationContext, this@AddNote, keyring)
+                                        network = NetworkUtilities(
+                                            applicationContext,
+                                            this@AddNote,
+                                            keyring
+                                        )
 
                                         io = IOUtilities(applicationContext, this@AddNote, keyring)
 
@@ -207,16 +245,26 @@ class AddNote : AppCompatActivity() {
 
                                         if (itemId != null) {
                                             note = io.decryptNote(io.getNote(itemId!!, vault)!!)
-                                            loadNote (note)
+                                            loadNote(note)
 
                                             frequencyAccessed = note.frequencyAccessed!!
                                         }
+
+                                        itemPersistence = ItemPersistence(
+                                            applicationContext = applicationContext,
+                                            appCompatActivity = this@AddNote,
+                                            keyring = keyring,
+                                            itemId = itemId
+                                        )
 
                                         decryptingDialog.dismiss()
 
                                         biometricPromptThread.removeCallbacksAndMessages(null)
 
-                                        noteEditor.setText(intent.getStringExtra("android.intent.extra.TEXT").toString())
+                                        noteEditor.setText(
+                                            intent.getStringExtra("android.intent.extra.TEXT")
+                                                .toString()
+                                        )
 
                                     }
 
@@ -232,22 +280,34 @@ class AddNote : AppCompatActivity() {
                         Log.d("Keyspace", "Authentication successful")
                     }
 
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { // Authentication error. Verify error code and message
+                    override fun onAuthenticationError(
+                        errorCode: Int,
+                        errString: CharSequence
+                    ) { // Authentication error. Verify error code and message
                         biometricPromptThread.removeCallbacksAndMessages(null)
-                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(
+                            150
+                        )
                         Log.d("Keyspace", "Authentication canceled")
-                        Toast.makeText(applicationContext, "Couldn't unlock Keyspace due to incorrect credentials.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Couldn't unlock Keyspace due to incorrect credentials.",
+                            Toast.LENGTH_LONG
+                        ).show()
                         finishAffinity()
                     }
 
                     override fun onAuthenticationFailed() { // Authentication failed. User may not have been recognized
                         biometricPromptThread.removeCallbacksAndMessages(null)
-                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(150)
+                        (applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(
+                            150
+                        )
                         Log.d("Keyspace", "Incorrect credentials supplied")
                     }
                 }
 
-                val biometricPrompt = BiometricPrompt(this@AddNote, executor, authenticationCallback)
+                val biometricPrompt =
+                    BiometricPrompt(this@AddNote, executor, authenticationCallback)
 
                 val builder = BiometricPrompt.PromptInfo.Builder()
                     .setTitle(resources.getString(R.string.app_name))
@@ -273,7 +333,8 @@ class AddNote : AppCompatActivity() {
                         val timeoutDialog: AlertDialog = timeoutDialogBuilder.create()
                         timeoutDialog.setCancelable(true)
                         timeoutDialog.show()
-                    } catch (_: WindowManager.BadTokenException) { }
+                    } catch (_: WindowManager.BadTokenException) {
+                    }
 
                 }, (crypto.DEFAULT_AUTHENTICATION_DELAY - 2).toLong() * 1000)
 
@@ -315,7 +376,7 @@ class AddNote : AppCompatActivity() {
 
         } else {
 
-            val intentData = crypto.receiveKeyringFromSecureIntent (
+            val intentData = crypto.receiveKeyringFromSecureIntent(
                 currentActivityClassNameAsString = getString(R.string.title_activity_add_note),
                 intent = intent
             )
@@ -338,22 +399,29 @@ class AddNote : AppCompatActivity() {
 
             if (itemId != null) {
                 note = io.decryptNote(io.getNote(itemId!!, vault)!!)
-                loadNote (note)
+                loadNote(note)
 
                 frequencyAccessed = note.frequencyAccessed!!
             }
-        }
 
+            itemPersistence = ItemPersistence(
+                applicationContext = applicationContext,
+                appCompatActivity = this@AddNote,
+                keyring = keyring,
+                itemId = itemId
+            )
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables", "ClickableViewAccessibility", "SetTextI18n")
-    private fun initializeUI (): Boolean {
-        theme = when (applicationContext.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
-            Configuration.UI_MODE_NIGHT_YES -> ThemeDesert()
-            Configuration.UI_MODE_NIGHT_NO -> ThemeDefault()
-            Configuration.UI_MODE_NIGHT_UNDEFINED -> ThemeDefault()
-            else -> ThemeDefault()
-        }
+    private fun initializeUI(): Boolean {
+        theme =
+            when (applicationContext.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                Configuration.UI_MODE_NIGHT_YES -> ThemeDesert()
+                Configuration.UI_MODE_NIGHT_NO -> ThemeDefault()
+                Configuration.UI_MODE_NIGHT_UNDEFINED -> ThemeDefault()
+                else -> ThemeDefault()
+            }
 
         noteEditor = findViewById(R.id.noteEditor)
         noteEditor.isActivated = true
@@ -371,7 +439,13 @@ class AddNote : AppCompatActivity() {
             }
             .setLinkFontColor(noteEditor.currentTextColor)
             .setOnTodoClickCallback(object : OnTodoClickCallback {
-                override fun onTodoClicked(view: View?, line: String?, lineNumber: Int): CharSequence { return "" }
+                override fun onTodoClicked(
+                    view: View?,
+                    line: String?,
+                    lineNumber: Int
+                ): CharSequence {
+                    return ""
+                }
             })
             .setRxMDImageLoader(DefaultLoader(applicationContext))
             .build()
@@ -389,7 +463,11 @@ class AddNote : AppCompatActivity() {
             }
             .setLinkFontColor(noteEditor.currentTextColor)
             .setOnTodoClickCallback(object : OnTodoClickCallback {
-                override fun onTodoClicked(view: View?, text: String?, lineNumber: Int): CharSequence {
+                override fun onTodoClicked(
+                    view: View?,
+                    text: String?,
+                    lineNumber: Int
+                ): CharSequence {
                     return text.toString()
                 }
             })
@@ -412,7 +490,7 @@ class AddNote : AppCompatActivity() {
 
         findViewById<ImageView>(R.id.helpButton).setOnClickListener {
             val inflater = layoutInflater
-            val dialogView: View = inflater.inflate (R.layout.markdown_help, null)
+            val dialogView: View = inflater.inflate(R.layout.markdown_help, null)
             val dialogBuilder = MaterialAlertDialogBuilder(this)
             dialogBuilder
                 .setView(dialogView)
@@ -422,14 +500,16 @@ class AddNote : AppCompatActivity() {
             val markdownDialog = dialogBuilder.show()
 
             val markdownUnrendered = markdownDialog.findViewById<View>(R.id.guide) as TextView
-            val markdownRendered = markdownDialog.findViewById<View>(R.id.guideRendered) as com.yydcdut.markdown.MarkdownEditText
+            val markdownRendered =
+                markdownDialog.findViewById<View>(R.id.guideRendered) as com.yydcdut.markdown.MarkdownEditText
 
             previewMarkdownProcessor.live(markdownRendered)
 
             markdownUnrendered.visibility = View.VISIBLE
             markdownRendered.visibility = View.GONE
             markdownUnrendered.startAnimation(loadAnimation(applicationContext, R.anim.from_top))
-            val renderButton = markdownDialog.findViewById<View>(R.id.renderButton) as MaterialButton
+            val renderButton =
+                markdownDialog.findViewById<View>(R.id.renderButton) as MaterialButton
             var rendered = false
             renderButton.setOnClickListener {
                 if (!rendered) {
@@ -446,7 +526,7 @@ class AddNote : AppCompatActivity() {
                     renderButton.icon = getDrawable(R.drawable.ic_baseline_visibility_24)
                 }
             }
-            val backButton =  markdownDialog.findViewById<View>(R.id.backButton) as MaterialButton
+            val backButton = markdownDialog.findViewById<View>(R.id.backButton) as MaterialButton
             backButton.setOnClickListener { markdownDialog.dismiss() }
             dialogBuilder.create()
         }
@@ -455,7 +535,10 @@ class AddNote : AppCompatActivity() {
             val start = noteEditor.selectionStart.coerceAtLeast(0)
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
-            if (selectedText.isNotEmpty()) noteEditor.setText(noteEditor.text.toString().replace(selectedText, utils.stringToNumberedString(selectedText)))
+            if (selectedText.isNotEmpty()) noteEditor.setText(
+                noteEditor.text.toString()
+                    .replace(selectedText, utils.stringToNumberedString(selectedText))
+            )
             else noteEditor.append(utils.stringToNumberedString(selectedText))
             noteEditor.setSelection(noteEditor.text.toString().length)
         }
@@ -464,7 +547,10 @@ class AddNote : AppCompatActivity() {
             val start = noteEditor.selectionStart.coerceAtLeast(0)
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
-            if (selectedText.isNotEmpty()) noteEditor.setText(noteEditor.text.toString().replace(selectedText, utils.stringToBulletedString(selectedText)))
+            if (selectedText.isNotEmpty()) noteEditor.setText(
+                noteEditor.text.toString()
+                    .replace(selectedText, utils.stringToBulletedString(selectedText))
+            )
             else noteEditor.append(utils.stringToBulletedString(selectedText))
             noteEditor.setSelection(noteEditor.text.toString().length)
         }
@@ -474,12 +560,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "[${selectedText}]()"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length + 2)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "[${selectedText}]()")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length + 2
+                )
             } else {
                 val markdown = "[text](url)"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -491,12 +587,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "_${selectedText}_"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "_${selectedText}_")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length
+                )
             } else {
                 val markdown = "_text_"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -507,7 +613,10 @@ class AddNote : AppCompatActivity() {
             val start = noteEditor.selectionStart.coerceAtLeast(0)
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
-            if (selectedText.isNotEmpty()) noteEditor.setText(noteEditor.text.toString().replace(selectedText, utils.stringToCheckedString(selectedText)))
+            if (selectedText.isNotEmpty()) noteEditor.setText(
+                noteEditor.text.toString()
+                    .replace(selectedText, utils.stringToCheckedString(selectedText))
+            )
             else noteEditor.append(utils.stringToCheckedString(selectedText))
             noteEditor.setSelection(noteEditor.text.toString().length)
         }
@@ -516,7 +625,10 @@ class AddNote : AppCompatActivity() {
             val start = noteEditor.selectionStart.coerceAtLeast(0)
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
-            if (selectedText.isNotEmpty()) noteEditor.setText(noteEditor.text.toString().replace(selectedText, utils.stringToUncheckedString(selectedText)))
+            if (selectedText.isNotEmpty()) noteEditor.setText(
+                noteEditor.text.toString()
+                    .replace(selectedText, utils.stringToUncheckedString(selectedText))
+            )
             else noteEditor.append(utils.stringToUncheckedString(selectedText))
             noteEditor.setSelection(noteEditor.text.toString().length)
         }
@@ -526,12 +638,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "![${selectedText}]()"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length + 2)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "![${selectedText}]()")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length + 2
+                )
             } else {
                 val markdown = "![caption](url)"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -543,12 +665,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "$selectedText\n****"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "$selectedText\n****")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length
+                )
             } else {
                 val markdown = "\n****"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -560,12 +692,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "> $selectedText"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "> $selectedText")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length
+                )
             } else {
                 val markdown = "\n> "
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "> ", 0, "> ".length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        "> ",
+                        0,
+                        "> ".length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -577,12 +719,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "~~$selectedText~~"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "~~$selectedText~~")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length
+                )
             } else {
                 val markdown = "~~text~~"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -594,12 +746,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "\n```\n$selectedText\n```"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "\n```\n$selectedText\n```")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length
+                )
             } else {
                 val markdown = "```\ntext\n```"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), "```\ntext\n```", 0, "```\ntext\n```".length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        "```\ntext\n```",
+                        0,
+                        "```\ntext\n```".length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -611,12 +773,22 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, "**$selectedText**"))
-                noteEditor.setSelection(noteEditor.text.toString().indexOf(selectedText) + selectedText.length)
+                noteEditor.setText(
+                    noteEditor.text.toString().replace(selectedText, "**$selectedText**")
+                )
+                noteEditor.setSelection(
+                    noteEditor.text.toString().indexOf(selectedText) + selectedText.length
+                )
             } else {
                 val markdown = "**text**"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
@@ -628,24 +800,36 @@ class AddNote : AppCompatActivity() {
             val end = noteEditor.selectionEnd.coerceAtLeast(0)
             val selectedText = noteEditor.text.toString().substring(start, end)
             if (selectedText.trim().replace(" ", "").isNotEmpty()) {
-                noteEditor.setText(noteEditor.text.toString().replace(selectedText, utils.stringToTitledStrings(selectedText)))
+                noteEditor.setText(
+                    noteEditor.text.toString()
+                        .replace(selectedText, utils.stringToTitledStrings(selectedText))
+                )
             } else {
                 val markdown = "# Title"
                 try {
-                    noteEditor.text.replace(start.coerceAtMost(end), start.coerceAtLeast(end), markdown, 0, markdown.length)
+                    noteEditor.text.replace(
+                        start.coerceAtMost(end),
+                        start.coerceAtLeast(end),
+                        markdown,
+                        0,
+                        markdown.length
+                    )
                 } catch (_: Exception) {
                     noteEditor.text.append(markdown)
                 }
             }
         }
 
-        doneButton = findViewById (R.id.done)
+        doneButton = findViewById(R.id.done)
         doneButton.setOnClickListener {
             if (noteEditor.text.isNullOrBlank() || noteEditor.text.toString().length <= 1) {
                 val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
                 alertDialog.setTitle("Blank Note")
                 alertDialog.setMessage("Note can't be blank")
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+                alertDialog.setButton(
+                    AlertDialog.BUTTON_NEGATIVE,
+                    "Go back"
+                ) { dialog, _ -> dialog.dismiss() }
                 alertDialog.show()
             } else saveNote()
 
@@ -658,7 +842,7 @@ class AddNote : AppCompatActivity() {
             onBackPressed()
         }
 
-        deleteButton = findViewById (R.id.delete)
+        deleteButton = findViewById(R.id.delete)
         if (itemId != null) {
             deleteButton.setOnClickListener {
                 val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
@@ -669,8 +853,8 @@ class AddNote : AppCompatActivity() {
                     vault.note!!.remove(io.getNote(itemId!!, vault))
                     io.writeVault(vault)
 
-                    network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                    crypto.secureStartActivity (
+                    network.writeQueueTask(itemId!!, mode = network.MODE_DELETE)
+                    crypto.secureStartActivity(
                         nextActivity = Dashboard(),
                         nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                         keyring = keyring,
@@ -678,7 +862,10 @@ class AddNote : AppCompatActivity() {
                     )
 
                 }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+                alertDialog.setButton(
+                    AlertDialog.BUTTON_NEGATIVE,
+                    "Go back"
+                ) { dialog, _ -> dialog.dismiss() }
                 alertDialog.show()
 
             }
@@ -686,8 +873,8 @@ class AddNote : AppCompatActivity() {
             deleteButton.visibility = View.GONE
         }
 
-        tagButton = findViewById (R.id.tag)
-        tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
+        tagButton = findViewById(R.id.tag)
+        tagPicker = AddTag(tagId, applicationContext, this@AddNote, keyring)
 
         tagButton.setOnClickListener {
             tagPicker.showPicker(tagId)
@@ -700,14 +887,29 @@ class AddNote : AppCompatActivity() {
         }
 
         favoriteButton = findViewById(R.id.favoriteButton)
-        favoriteButton.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
+        favoriteButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                applicationContext,
+                R.drawable.ic_baseline_star_border_24
+            )
+        )
         favoriteButton.setOnClickListener {
             favorite = if (!favorite) {
-                favoriteButton.setImageDrawable (ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_24))
+                favoriteButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_star_24
+                    )
+                )
                 favoriteButton.startAnimation(loadAnimation(applicationContext, R.anim.heartbeat))
                 true
             } else {
-                favoriteButton.setImageDrawable (ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
+                favoriteButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_star_border_24
+                    )
+                )
                 false
             }
         }
@@ -726,9 +928,11 @@ class AddNote : AppCompatActivity() {
                         noteEditor.setBackgroundColor(Color.parseColor(noteColor))
                         if (noteColor != null) {
                             val intColor: Int = noteColor!!.replace("#", "").toInt(16)
-                            val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+                            val r = intColor shr 16 and 0xFF;
+                            val g = intColor shr 8 and 0xFF;
+                            val b = intColor shr 0 and 0xFF
                             if (g >= 200 || b >= 200) {
-                                noteEditor.setTextColor (Color.BLACK)
+                                noteEditor.setTextColor(Color.BLACK)
                                 noteEditor.setHintTextColor(Color.BLACK)
                             } else {
                                 noteEditor.setTextColor(Color.WHITE)
@@ -749,7 +953,7 @@ class AddNote : AppCompatActivity() {
 
         previewButton.setOnClickListener {
             notePreview.clear()
-            notePreview.setText (noteData)
+            notePreview.setText(noteData)
             preview = if (preview) {
 
                 var intColor: Int
@@ -758,25 +962,30 @@ class AddNote : AppCompatActivity() {
                     notePreview.setBackgroundColor(Color.parseColor(noteColor))
                     intColor = noteColor!!.replace("#", "").toInt(16)
                 } catch (_: Exception) {
-                    intColor = when (applicationContext.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
-                        Configuration.UI_MODE_NIGHT_YES -> {
-                            notePreview.setBackgroundColor(Color.BLACK)
-                            Color.BLACK
+                    intColor =
+                        when (applicationContext.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                            Configuration.UI_MODE_NIGHT_YES -> {
+                                notePreview.setBackgroundColor(Color.BLACK)
+                                Color.BLACK
+                            }
+
+                            Configuration.UI_MODE_NIGHT_NO or Configuration.COLOR_MODE_HDR_UNDEFINED -> {
+                                notePreview.setBackgroundColor(Color.WHITE)
+                                Color.WHITE
+                            }
+
+                            else -> {
+                                notePreview.setBackgroundColor(Color.WHITE)
+                                Color.WHITE
+                            }
                         }
-                        Configuration.UI_MODE_NIGHT_NO or Configuration.COLOR_MODE_HDR_UNDEFINED -> {
-                            notePreview.setBackgroundColor(Color.WHITE)
-                            Color.WHITE
-                        }
-                        else -> {
-                            notePreview.setBackgroundColor(Color.WHITE)
-                            Color.WHITE
-                        }
-                    }
                 }
 
-                val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+                val r = intColor shr 16 and 0xFF;
+                val g = intColor shr 8 and 0xFF;
+                val b = intColor shr 0 and 0xFF
                 if (g >= 200 || b >= 200) {
-                    notePreview.setTextColor (Color.BLACK)
+                    notePreview.setTextColor(Color.BLACK)
                 } else {
                     notePreview.setTextColor(Color.WHITE)
                 }
@@ -813,16 +1022,26 @@ class AddNote : AppCompatActivity() {
         return true
     }
 
-    private fun loadNote (note: IOUtilities.Note): Boolean {
+    private fun loadNote(note: IOUtilities.Note): Boolean {
 
         favorite = if (note.favorite) {
-            favoriteButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_star_24)); true
+            favoriteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_star_24
+                )
+            ); true
         } else {
-            favoriteButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_star_border_24)); false
+            favoriteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_star_border_24
+                )
+            ); false
         }
 
         tagId = note.tagId
-        tagPicker = AddTag (tagId, applicationContext, this@AddNote, keyring)
+        tagPicker = AddTag(tagId, applicationContext, this@AddNote, keyring)
 
         dateAndTime.visibility = View.VISIBLE
 
@@ -830,19 +1049,22 @@ class AddNote : AppCompatActivity() {
 
         val time = Calendar.getInstance(Locale.getDefault())
         time.timeInMillis = previousTimestamp?.times(1000L)!!
-        dateAndTime.text = "Last edited on " + DateFormat.format("MMM dd, yyyy ⋅  hh:mm a", time).toString()
+        dateAndTime.text =
+            "Last edited on " + DateFormat.format("MMM dd, yyyy ⋅  hh:mm a", time).toString()
 
         if (!note.notes.isNullOrEmpty()) {
-            noteEditor.setText (note.notes)
+            noteEditor.setText(note.notes)
         }
 
         if (!note.color.isNullOrEmpty()) {
             noteColor = note.color
             noteEditor.setBackgroundColor(Color.parseColor(noteColor))
             val intColor: Int = noteColor!!.replace("#", "").toInt(16)
-            val r = intColor shr 16 and 0xFF; val g = intColor shr 8 and 0xFF; val b = intColor shr 0 and 0xFF
+            val r = intColor shr 16 and 0xFF;
+            val g = intColor shr 8 and 0xFF;
+            val b = intColor shr 0 and 0xFF
             if (g >= 200 || b >= 200) {
-                noteEditor.setTextColor (Color.BLACK)
+                noteEditor.setTextColor(Color.BLACK)
                 noteEditor.setHintTextColor(Color.BLACK)
             } else {
                 noteEditor.setTextColor(Color.WHITE)
@@ -867,54 +1089,67 @@ class AddNote : AppCompatActivity() {
         return true
     }
 
-    private fun saveNote () {
-        var dateCreated = Instant.now().epochSecond
-
-        if (itemId != null) {
-            dateCreated = note.dateCreated!!
-            vault.note?.remove(io.getNote(itemId!!, vault))
-        }
-
-        val data = IOUtilities.Note (
-            id = itemId ?: UUID.randomUUID().toString(),
-            organizationId = null,
-            type = io.TYPE_NOTE,
-            notes = noteEditor.text.toString(),
-            color = noteColor,
-            favorite = favorite,
+    private fun saveNote() {
+        itemPersistence.saveNote(
+            note = noteEditor.text.toString(),
+            noteColor = noteColor,
+            isFavorite = favorite,
             tagId = tagPicker.getSelectedTagId() ?: tagId,
-            dateCreated = dateCreated,
-            dateModified = timestamp,
+            timestamp = timestamp,
             frequencyAccessed = frequencyAccessed
         )
+    }
 
-        val encryptedNote = io.encryptNote(data)
+    //region Original saveNote()
+//    private fun saveNote () {
+//        var dateCreated = Instant.now().epochSecond
+//
+//        if (itemId != null) {
+//            dateCreated = note.dateCreated!!
+//            vault.note?.remove(io.getNote(itemId!!, vault))
+//        }
+//
+//        val data = IOUtilities.Note (
+//            id = itemId ?: UUID.randomUUID().toString(),
+//            organizationId = null,
+//            type = io.TYPE_NOTE,
+//            notes = noteEditor.text.toString(),
+//            color = noteColor,
+//            favorite = favorite,
+//            tagId = tagPicker.getSelectedTagId() ?: tagId,
+//            dateCreated = dateCreated,
+//            dateModified = timestamp,
+//            frequencyAccessed = frequencyAccessed
+//        )
+//
+//        val encryptedNote = io.encryptNote(data)
+//
+//        vault.note?.add (encryptedNote)
+//        io.writeVault(vault)
+//
+//        if (itemId != null) network.writeQueueTask (encryptedNote, mode = network.MODE_PUT)
+//        else network.writeQueueTask (encryptedNote, mode = network.MODE_POST)
+//
+//        crypto.secureStartActivity (
+//            nextActivity = Dashboard(),
+//            nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
+//            keyring = keyring,
+//            itemId = null
+//        )
+//
+//    }
+    //endregion Original saveNote()
 
-        vault.note?.add (encryptedNote)
-        io.writeVault(vault)
-
-        if (itemId != null) network.writeQueueTask (encryptedNote, mode = network.MODE_PUT)
-        else network.writeQueueTask (encryptedNote, mode = network.MODE_POST)
-
-        crypto.secureStartActivity (
-            nextActivity = Dashboard(),
-            nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
-            keyring = keyring,
-            itemId = null
-        )
+    private fun getKeyringForShareSheet() {
 
     }
 
-    private fun getKeyringForShareSheet () {
-
-    }
-
-    override fun onBackPressed () {
+    override fun onBackPressed() {
         val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
         alertDialog.setTitle("Confirm exit")
         alertDialog.setMessage("Would you like to go back to the Dashboard?")
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Exit") { dialog, _ ->
-            crypto.secureStartActivity (
+            crypto.secureStartActivity(
                 nextActivity = Dashboard(),
                 nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                 keyring = keyring,
@@ -923,7 +1158,10 @@ class AddNote : AppCompatActivity() {
             super.onBackPressed()
             tagIdGrabber.removeCallbacksAndMessages(null)
         }
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEGATIVE,
+            "Cancel"
+        ) { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
     }
 

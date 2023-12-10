@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
@@ -18,7 +17,6 @@ import android.text.format.DateFormat
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.AnimationUtils.loadAnimation
@@ -28,18 +26,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.budiyev.android.codescanner.*
-import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
-import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
@@ -48,7 +41,6 @@ import com.google.android.material.textfield.TextInputLayout
 import com.keyspace.keyspacemobile.NetworkUtilities
 import dev.turingcomplete.kotlinonetimepassword.GoogleAuthenticator
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread
 import kotlin.math.abs
@@ -146,22 +138,30 @@ class AddLogin : AppCompatActivity() {
 
     lateinit var configData: SharedPreferences
 
+    private lateinit var itemPersistence: ItemPersistence
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.edit_login)
 
-        configData = getSharedPreferences (applicationContext.packageName + "_configuration_data", MODE_PRIVATE)
-        utils = MiscUtilities (applicationContext)
+        configData = getSharedPreferences(
+            applicationContext.packageName + "_configuration_data",
+            MODE_PRIVATE
+        )
+        utils = MiscUtilities(applicationContext)
         crypto = CryptoUtilities(applicationContext, this)
         misc = MiscUtilities(applicationContext)
 
-        val intentData = crypto.receiveKeyringFromSecureIntent (
+        val intentData = crypto.receiveKeyringFromSecureIntent(
             currentActivityClassNameAsString = getString(R.string.title_activity_add_login),
             intent = intent
         )
 
         val allowScreenshots = configData.getBoolean("allowScreenshots", false)
-        if (!allowScreenshots) window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        if (!allowScreenshots) window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
 
         keyring = intentData.first
         network = NetworkUtilities(applicationContext, this, keyring)
@@ -174,32 +174,40 @@ class AddLogin : AppCompatActivity() {
         vault = io.getVault()
         if (itemId != null) {
             login = io.decryptLogin(io.getLogin(itemId!!, vault)!!)
-            loadLogin (login)
+            loadLogin(login)
         }
+
+        itemPersistence = ItemPersistence(
+            applicationContext = applicationContext,
+            appCompatActivity = this,
+            keyring = keyring,
+            itemId = itemId
+        )
     }
 
-    private fun initializeUI (): Boolean {
-        doneButton = findViewById (R.id.done)
+    private fun initializeUI(): Boolean {
+        doneButton = findViewById(R.id.done)
         doneButton.setOnClickListener {
-            if (siteNameInput.text.isNullOrBlank()) {
-                siteNameInput.error = "Please enter a username"
-                return@setOnClickListener
-            }
-
-            if (emailInput.text.toString().isNotBlank()) {
-                if (!misc.isValidEmail(emailInput.text.toString())) {
-                    emailInput.error = "Please enter a valid email"
-                    return@setOnClickListener
-                }
-            }
-
-            if (secretInput.text.toString().isNotBlank() && secretInput.text.toString().length < 6) {
-                secretInput.error = "Please enter a valid TOTP secret"
-                return@setOnClickListener
-            }
+//            if (siteNameInput.text.isNullOrBlank()) {
+//                siteNameInput.error = "Please enter a username"
+//                return@setOnClickListener
+//            }
+//
+//            if (emailInput.text.toString().isNotBlank()) {
+//                if (!misc.isValidEmail(emailInput.text.toString())) {
+//                    emailInput.error = "Please enter a valid email"
+//                    return@setOnClickListener
+//                }
+//            }
+//
+//            if (secretInput.text.toString()
+//                    .isNotBlank() && secretInput.text.toString().length < 6
+//            ) {
+//                secretInput.error = "Please enter a valid TOTP secret"
+//                return@setOnClickListener
+//            }
 
             saveItem()
-
         }
 
         backButton = findViewById(R.id.backButton)
@@ -207,7 +215,7 @@ class AddLogin : AppCompatActivity() {
             onBackPressed()
         }
 
-        deleteButton = findViewById (R.id.delete)
+        deleteButton = findViewById(R.id.delete)
         if (itemId != null) {
             deleteButton.setOnClickListener {
                 val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
@@ -218,8 +226,8 @@ class AddLogin : AppCompatActivity() {
                     vault.login!!.remove(io.getLogin(itemId!!, vault))
                     io.writeVault(vault)
 
-                    network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                    crypto.secureStartActivity (
+                    network.writeQueueTask(itemId!!, mode = network.MODE_DELETE)
+                    crypto.secureStartActivity(
                         nextActivity = Dashboard(),
                         nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                         keyring = keyring,
@@ -227,7 +235,10 @@ class AddLogin : AppCompatActivity() {
                     )
 
                 }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Go back") { dialog, _ -> dialog.dismiss() }
+                alertDialog.setButton(
+                    AlertDialog.BUTTON_NEGATIVE,
+                    "Go back"
+                ) { dialog, _ -> dialog.dismiss() }
                 alertDialog.show()
 
             }
@@ -235,8 +246,8 @@ class AddLogin : AppCompatActivity() {
             deleteButton.visibility = View.GONE
         }
 
-        tagButton = findViewById (R.id.tag)
-        tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
+        tagButton = findViewById(R.id.tag)
+        tagPicker = AddTag(tagId, applicationContext, this@AddLogin, keyring)
         tagButton.setOnClickListener {
             tagPicker.showPicker(tagId)
             tagIdGrabber.post(object : Runnable {
@@ -248,38 +259,66 @@ class AddLogin : AppCompatActivity() {
         }
 
         favoriteButton = findViewById(R.id.favoriteButton)
-        favoriteButton.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
+        favoriteButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                applicationContext,
+                R.drawable.ic_baseline_star_border_24
+            )
+        )
         favoriteButton.setOnClickListener {
             favorite = if (!favorite) {
-                favoriteButton.setImageDrawable (ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_24))
+                favoriteButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_star_24
+                    )
+                )
                 favoriteButton.startAnimation(loadAnimation(applicationContext, R.anim.heartbeat))
                 true
             } else {
-                favoriteButton.setImageDrawable (ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
+                favoriteButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_star_border_24
+                    )
+                )
                 false
             }
         }
 
-        siteNameInput = findViewById (R.id.siteNameInput)
+        siteNameInput = findViewById(R.id.siteNameInput)
         siteNameInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
-        siteNameLayout = findViewById (R.id.siteNameInputLayout)
+        siteNameLayout = findViewById(R.id.siteNameInputLayout)
 
-        siteNameInputIcon = findViewById (R.id.siteNameInputIcon)
+        siteNameInputIcon = findViewById(R.id.siteNameInputIcon)
         siteNameInputIcon.setOnClickListener {
             iconFilePicker()
         }
 
-        siteNameIconPicker = findViewById (R.id.pickIcon)
+        siteNameIconPicker = findViewById(R.id.pickIcon)
         siteNameIconPicker.setOnClickListener {
             iconFilePicker()
         }
 
         siteNameInput.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) { }
-            override fun beforeTextChanged(siteName: CharSequence, start: Int, count: Int, after: Int) { }
-            override fun onTextChanged(siteName: CharSequence, start: Int, before: Int, count: Int) {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(
+                siteName: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                siteName: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
                 thread {
-                    val siteLogo = misc.getSiteIcon(siteName.toString(), siteNameInput.currentTextColor)
+                    val siteLogo =
+                        misc.getSiteIcon(siteName.toString(), siteNameInput.currentTextColor)
                     if (siteLogo != null/* && iconFileName == null*/) {
                         iconFileName = siteName.toString()
                         runOnUiThread {
@@ -290,195 +329,299 @@ class AddLogin : AppCompatActivity() {
             }
         })
 
-        userNameInput = findViewById (R.id.userNameInput)
+        userNameInput = findViewById(R.id.userNameInput)
         userNameInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
-        userNameInputLayout = findViewById (R.id.userNameInputLayout)
+        userNameInputLayout = findViewById(R.id.userNameInputLayout)
 
-        emailInput = findViewById (R.id.emailInput)
+        emailInput = findViewById(R.id.emailInput)
         emailInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
 
-        passwordInput = findViewById (R.id.passwordInput)
+        passwordInput = findViewById(R.id.passwordInput)
         passwordInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
-        passwordHistoryButton = findViewById (R.id.passwordHistoryButton)
-        passwordInputLayout = findViewById (R.id.passwordInputLayout)
+        passwordHistoryButton = findViewById(R.id.passwordHistoryButton)
+        passwordInputLayout = findViewById(R.id.passwordInputLayout)
 
-        secretInput = findViewById (R.id.secretInput)
+        secretInput = findViewById(R.id.secretInput)
         secretInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
 
         backupCodesInput = findViewById(R.id.backupCodesInput)
         backupCodesInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
-        backupCodesHelpButton = findViewById (R.id.backupCodesHelpButton)
+        backupCodesHelpButton = findViewById(R.id.backupCodesHelpButton)
 
-        siteUrlsHelpButton = findViewById (R.id.siteUrlsHelpButton)
+        siteUrlsHelpButton = findViewById(R.id.siteUrlsHelpButton)
 
-        notesInput = findViewById (R.id.notesInput)
+        notesInput = findViewById(R.id.notesInput)
         notesInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
 
-        uppercaseSwitch = findViewById (R.id.uppercaseSwitch)
-        lowercaseSwitch = findViewById (R.id.lowercaseSwitch)
-        numbersSwitch = findViewById (R.id.numbersSwitch)
-        symbolsSwitch = findViewById (R.id.symbolsSwitch)
-        phrasesSwitch = findViewById (R.id.phrasesSwitch)
+        uppercaseSwitch = findViewById(R.id.uppercaseSwitch)
+        lowercaseSwitch = findViewById(R.id.lowercaseSwitch)
+        numbersSwitch = findViewById(R.id.numbersSwitch)
+        symbolsSwitch = findViewById(R.id.symbolsSwitch)
+        phrasesSwitch = findViewById(R.id.phrasesSwitch)
 
-        length = findViewById (R.id.length)
-        refreshPassword = findViewById (R.id.refresh)
-        passwordLength = findViewById (R.id.passwordLength)
+        length = findViewById(R.id.length)
+        refreshPassword = findViewById(R.id.refresh)
+        passwordLength = findViewById(R.id.passwordLength)
 
-        copyPassword = findViewById (R.id.copyPassword)
+        copyPassword = findViewById(R.id.copyPassword)
 
-        mfaTokenBox = findViewById (R.id.mfaTokenBox)
-        tokenPreview = findViewById (R.id.tokenPreview)
-        mfaProgress = findViewById (R.id.mfaProgress)
+        mfaTokenBox = findViewById(R.id.mfaTokenBox)
+        tokenPreview = findViewById(R.id.tokenPreview)
+        mfaProgress = findViewById(R.id.mfaProgress)
 
-        secretInput = findViewById (R.id.secretInput)
+        secretInput = findViewById(R.id.secretInput)
         secretInput.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
         qrCodeButton = findViewById(R.id.qrCodeButton)
 
         passwordHistoryButton.visibility = View.GONE
 
         // password box logic
-        var upper = false; var lower = false; var numbers = false; var symbols = false; var passwordLengthInt = 32
+        var upper = false;
+        var lower = false;
+        var numbers = false;
+        var symbols = false;
+        var passwordLengthInt = 32
 
-            uppercaseSwitch.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    upper = true
-                    phrasesSwitch.isChecked = false
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
-                } else {
-                    uppercaseSwitch.isChecked = false
-                    lowercaseSwitch.isChecked = false
-                    numbersSwitch.isChecked = false
-                    symbolsSwitch.isChecked = false
-                    upper = false
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
+        uppercaseSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                upper = true
+                phrasesSwitch.isChecked = false
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
+                }
+            } else {
+                uppercaseSwitch.isChecked = false
+                lowercaseSwitch.isChecked = false
+                numbersSwitch.isChecked = false
+                symbolsSwitch.isChecked = false
+                upper = false
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
                 }
             }
-            uppercaseSwitch.isChecked = true
+        }
+        uppercaseSwitch.isChecked = true
 
-            lowercaseSwitch.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    uppercaseSwitch.isChecked = true
-                    lower = true
-                    phrasesSwitch.isChecked = false
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
-                } else {
-                    uppercaseSwitch.isChecked = false
-                    lowercaseSwitch.isChecked = false
-                    numbersSwitch.isChecked = false
-                    symbolsSwitch.isChecked = false
-                    lower = false
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
+        lowercaseSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                uppercaseSwitch.isChecked = true
+                lower = true
+                phrasesSwitch.isChecked = false
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
+                }
+            } else {
+                uppercaseSwitch.isChecked = false
+                lowercaseSwitch.isChecked = false
+                numbersSwitch.isChecked = false
+                symbolsSwitch.isChecked = false
+                lower = false
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
                 }
             }
-            lowercaseSwitch.isChecked = true
+        }
+        lowercaseSwitch.isChecked = true
 
-            numbersSwitch.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    uppercaseSwitch.isChecked = true
-                    lowercaseSwitch.isChecked = true
-                    numbers = true
-                    uppercaseSwitch.isEnabled
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
-                } else {
-                    uppercaseSwitch.isChecked = false
-                    lowercaseSwitch.isChecked = false
-                    numbers = false
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
+        numbersSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                uppercaseSwitch.isChecked = true
+                lowercaseSwitch.isChecked = true
+                numbers = true
+                uppercaseSwitch.isEnabled
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
+                }
+            } else {
+                uppercaseSwitch.isChecked = false
+                lowercaseSwitch.isChecked = false
+                numbers = false
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
                 }
             }
+        }
 
-            symbolsSwitch.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    uppercaseSwitch.isChecked = true
-                    lowercaseSwitch.isChecked = true
-                    numbersSwitch.isChecked = true
-                    symbols = true
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
-                } else {
-                    uppercaseSwitch.isChecked = false
-                    lowercaseSwitch.isChecked = false
-                    numbersSwitch.isChecked = false
-                    symbols = false
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
+        symbolsSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                uppercaseSwitch.isChecked = true
+                lowercaseSwitch.isChecked = true
+                numbersSwitch.isChecked = true
+                symbols = true
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
+                }
+            } else {
+                uppercaseSwitch.isChecked = false
+                lowercaseSwitch.isChecked = false
+                numbersSwitch.isChecked = false
+                symbols = false
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
                 }
             }
+        }
 
-            phrasesSwitch.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    uppercaseSwitch.isChecked = false
-                    lowercaseSwitch.isChecked = false
-                    numbersSwitch.isChecked = false
-                    symbolsSwitch.isChecked = false
+        phrasesSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                uppercaseSwitch.isChecked = false
+                lowercaseSwitch.isChecked = false
+                numbersSwitch.isChecked = false
+                symbolsSwitch.isChecked = false
 
-                    passwordLength.valueFrom = 2F
-                    passwordLength.valueTo = 24F
-                    passwordLength.value = 3F
+                passwordLength.valueFrom = 2F
+                passwordLength.valueTo = 24F
+                passwordLength.value = 3F
 
-                    length.text = "${passwordLengthInt} words"
+                length.text = "${passwordLengthInt} words"
 
-                    passwordInput.setText(utils.passphraseGenerator(passwordLengthInt))
-                } else {
-                    uppercaseSwitch.isChecked = true
-                    lowercaseSwitch.isChecked = true
-                    numbersSwitch.isChecked = true
-                    symbolsSwitch.isChecked = true
+                passwordInput.setText(utils.passphraseGenerator(passwordLengthInt))
+            } else {
+                uppercaseSwitch.isChecked = true
+                lowercaseSwitch.isChecked = true
+                numbersSwitch.isChecked = true
+                symbolsSwitch.isChecked = true
 
-                    passwordLength.valueFrom = 4F
-                    passwordLength.valueTo = 128F
-                    passwordLength.value = 16F
+                passwordLength.valueFrom = 4F
+                passwordLength.valueTo = 128F
+                passwordLength.value = 16F
 
-                    length.text = "${passwordLengthInt} characters"
-                    try {
-                        passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
-                    } catch (weirdArgs: IllegalArgumentException) { }
+                length.text = "${passwordLengthInt} characters"
+                try {
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
+                } catch (weirdArgs: IllegalArgumentException) {
                 }
             }
+        }
 
 
 
         passwordInput.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 passwordInput.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(s: Editable) { }
+                    override fun afterTextChanged(s: Editable) {}
 
-                    override fun beforeTextChanged(input: CharSequence, start: Int, count: Int, after: Int) { }
+                    override fun beforeTextChanged(
+                        input: CharSequence,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
 
-                    override fun onTextChanged(input: CharSequence, start: Int, before: Int, count: Int) {
+                    override fun onTextChanged(
+                        input: CharSequence,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
                         length.text = "${input.length} characters"
                     }
                 })
             }
         }
 
-        passwordLength.addOnChangeListener (Slider.OnChangeListener { _, value, _ ->
+        passwordLength.addOnChangeListener(Slider.OnChangeListener { _, value, _ ->
             passwordLengthInt = value.toInt()
             if (phrasesSwitch.isChecked) {
                 passwordLength.valueFrom = 3F
                 passwordLength.valueTo = 24F
                 length.text = "${passwordLengthInt} words"
-                passwordInput.setText(utils.passphraseGenerator (passwordLengthInt))
+                passwordInput.setText(utils.passphraseGenerator(passwordLengthInt))
             } else {
                 passwordLength.valueFrom = 4F
                 passwordLength.valueTo = 128F
                 length.text = "${passwordLengthInt} characters"
                 try {
-                    passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
                 } catch (weirdArgs: IllegalArgumentException) {
                     lowercaseSwitch.isChecked = true
                 }
@@ -491,12 +634,20 @@ class AddLogin : AppCompatActivity() {
             Toast.makeText(applicationContext, "Password changed!", Toast.LENGTH_SHORT).show()
 
             if (phrasesSwitch.isChecked) {
-                passwordInput.setText(utils.passphraseGenerator (passwordLengthInt))
+                passwordInput.setText(utils.passphraseGenerator(passwordLengthInt))
             }
 
             if (!phrasesSwitch.isChecked) {
                 try {
-                    passwordInput.setText(utils.passwordGenerator (passwordLengthInt, upper, lower, numbers, symbols))
+                    passwordInput.setText(
+                        utils.passwordGenerator(
+                            passwordLengthInt,
+                            upper,
+                            lower,
+                            numbers,
+                            symbols
+                        )
+                    )
                 } catch (weirdArgs: IllegalArgumentException) {
                     lowercaseSwitch.isChecked = true
                 }
@@ -519,9 +670,9 @@ class AddLogin : AppCompatActivity() {
             Toast.makeText(applicationContext, "Copied!", Toast.LENGTH_SHORT).show()
         }
 
-        fun codeScannerDialog () {
+        fun codeScannerDialog() {
             val inflater = layoutInflater
-            val dialogView: View = inflater.inflate (R.layout.qr_code_scanner, null)
+            val dialogView: View = inflater.inflate(R.layout.qr_code_scanner, null)
             val dialogBuilder = MaterialAlertDialogBuilder(this)
             dialogBuilder
                 .setView(dialogView)
@@ -551,24 +702,38 @@ class AddLogin : AppCompatActivity() {
 
                         if (decoded2faData?.secret != null) {
                             secretInput.setText(decoded2faData.secret)
-                            if (siteNameInput.text.isNullOrBlank()) siteNameInput.setText(decoded2faData.issuer ?: decoded2faData.account ?: decoded2faData.label )
-                            if (emailInput.text.isNullOrBlank() && misc.isValidEmail(decoded2faData.issuer ?: decoded2faData.account ?: decoded2faData.label)) emailInput.setText(decoded2faData.account)
+                            if (siteNameInput.text.isNullOrBlank()) siteNameInput.setText(
+                                decoded2faData.issuer ?: decoded2faData.account
+                                ?: decoded2faData.label
+                            )
+                            if (emailInput.text.isNullOrBlank() && misc.isValidEmail(
+                                    decoded2faData.issuer ?: decoded2faData.account
+                                    ?: decoded2faData.label
+                                )
+                            ) emailInput.setText(decoded2faData.account)
                             mfaDialog()
                         } else {
                             alertDialog.setTitle("Invalid QR code")
-                            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Go back") { dialog, _ ->
+                            alertDialog.setButton(
+                                AlertDialog.BUTTON_POSITIVE,
+                                "Go back"
+                            ) { dialog, _ ->
                                 dialog.dismiss()
                             }
-                            alertDialog.setMessage ("This QR Code does not contain valid two-factor authentication data.")
+                            alertDialog.setMessage("This QR Code does not contain valid two-factor authentication data.")
                             alertDialog.show()
                         }
                     } catch (noSecret: Exception) {
                         when (noSecret) {
                             is IllegalStateException, is NullPointerException -> {
-                                val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
+                                val alertDialog: AlertDialog =
+                                    MaterialAlertDialogBuilder(this).create()
                                 alertDialog.setTitle("Invalid QR code")
                                 alertDialog.setMessage("This QR Code does not contain valid two-factor authentication data.")
-                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Go back") { _, _ -> alertDialog.dismiss() }
+                                alertDialog.setButton(
+                                    AlertDialog.BUTTON_POSITIVE,
+                                    "Go back"
+                                ) { _, _ -> alertDialog.dismiss() }
                                 alertDialog.show()
                                 secretInput.text = null
                             }
@@ -593,12 +758,19 @@ class AddLogin : AppCompatActivity() {
                 qrCodeDialog.dismiss()
             }
 
-            qrCodeDialog.setOnDismissListener (object : PopupMenu.OnDismissListener, DialogInterface.OnDismissListener {
-                override fun onDismiss(menu: PopupMenu?) { qrCodeDialog.dismiss() }
-                override fun onDismiss(p0: DialogInterface?) { qrCodeDialog.dismiss() }
+            qrCodeDialog.setOnDismissListener(object : PopupMenu.OnDismissListener,
+                DialogInterface.OnDismissListener {
+                override fun onDismiss(menu: PopupMenu?) {
+                    qrCodeDialog.dismiss()
+                }
+
+                override fun onDismiss(p0: DialogInterface?) {
+                    qrCodeDialog.dismiss()
+                }
             })
 
-            qrCodeDialog.setOnDismissListener (object : PopupMenu.OnDismissListener, DialogInterface.OnDismissListener {
+            qrCodeDialog.setOnDismissListener(object : PopupMenu.OnDismissListener,
+                DialogInterface.OnDismissListener {
                 override fun onDismiss(menu: PopupMenu?) {
                     codeScanner.stopPreview()
                     codeScanner.releaseResources()
@@ -612,7 +784,7 @@ class AddLogin : AppCompatActivity() {
         }
 
         qrCodeButton.setOnClickListener {
-            codeScannerDialog ()
+            codeScannerDialog()
         }
 
         mfaTokenBox.visibility = View.GONE
@@ -620,27 +792,40 @@ class AddLogin : AppCompatActivity() {
             mfaDialog()
         }
 
-        secretInput.addTextChangedListener (object : TextWatcher {
-            override fun afterTextChanged (s: Editable) { }
-            override fun beforeTextChanged (s: CharSequence, start: Int, count: Int, after: Int) { }
-            override fun onTextChanged (s: CharSequence, start: Int, before: Int, count: Int) {
+        secretInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if (s.length >= 6) {
                     try {
-                        otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
-                        runOnUiThread { tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ") }
+                        otpCode =
+                            GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
+                        runOnUiThread {
+                            tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ")
+                        }
                         timer.scheduleAtFixedRate(object : TimerTask() {
                             override fun run() {
-                                val currentSeconds = SimpleDateFormat("s", Locale.getDefault()).format(Date()).toInt()
-                                var halfMinuteElapsed = abs((60-currentSeconds))
+                                val currentSeconds =
+                                    SimpleDateFormat("s", Locale.getDefault()).format(Date())
+                                        .toInt()
+                                var halfMinuteElapsed = abs((60 - currentSeconds))
                                 if (halfMinuteElapsed >= 30) halfMinuteElapsed -= 30
-                                try { mfaProgress.progress = halfMinuteElapsed } catch (_: Exception) {  }
+                                try {
+                                    mfaProgress.progress = halfMinuteElapsed
+                                } catch (_: Exception) {
+                                }
                                 if (halfMinuteElapsed == 30) {
-                                    otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
-                                    runOnUiThread { tokenPreview.text = otpCode!!.replace("...".toRegex(), "$0 ") }
+                                    otpCode =
+                                        GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
+                                    runOnUiThread {
+                                        tokenPreview.text =
+                                            otpCode!!.replace("...".toRegex(), "$0 ")
+                                    }
                                 }
                             }
                         }, 0, 1000) // 1000 milliseconds = 1 second
-                    } catch (timerError: IllegalStateException) { }
+                    } catch (timerError: IllegalStateException) {
+                    }
 
                     mfaTokenBox.visibility = View.VISIBLE
 
@@ -654,7 +839,10 @@ class AddLogin : AppCompatActivity() {
             val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
             alertDialog.setTitle("Backup codes")
             alertDialog.setMessage("Some websites give you a set of backup 2FA codes in case you lose your 2FA-capable device.\n\nJust drag your cursor across them, then copy and paste them into this box. You can also manually type them in.\n\nKeyspace will auto-trim any whitespaces, numbers and commas.")
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+            alertDialog.setButton(
+                AlertDialog.BUTTON_POSITIVE,
+                "Got it"
+            ) { _, _ -> alertDialog.dismiss() }
             alertDialog.show()
         }
 
@@ -666,7 +854,10 @@ class AddLogin : AppCompatActivity() {
             override fun onPaste() {
                 val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                 var pasteData = ""
-                if (clipboard.hasPrimaryClip() && clipboard.primaryClipDescription!!.hasMimeType(MIMETYPE_TEXT_PLAIN)) {
+                if (clipboard.hasPrimaryClip() && clipboard.primaryClipDescription!!.hasMimeType(
+                        MIMETYPE_TEXT_PLAIN
+                    )
+                ) {
                     val item = clipboard.primaryClip!!.getItemAt(0)
                     pasteData = item.text.toString()
                 }
@@ -674,12 +865,24 @@ class AddLogin : AppCompatActivity() {
                 if (pasteData.length > 8) {
                     val trimmedBackupCodes = utils.backup2faCodesToList(pasteData)
                     backupCodesAlertDialog.setTitle("Backup codes")
-                    backupCodesAlertDialog.setMessage("Confirm before saving:\n\n${trimmedBackupCodes.joinToString("\n\n")}")
-                    backupCodesAlertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Trim and paste") { dialog, _ ->
+                    backupCodesAlertDialog.setMessage(
+                        "Confirm before saving:\n\n${
+                            trimmedBackupCodes.joinToString(
+                                "\n\n"
+                            )
+                        }"
+                    )
+                    backupCodesAlertDialog.setButton(
+                        AlertDialog.BUTTON_POSITIVE,
+                        "Trim and paste"
+                    ) { dialog, _ ->
                         backupCodesInput.setText(trimmedBackupCodes.joinToString(",\n"))
                         dialog.dismiss()
                     }
-                    backupCodesAlertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Paste without trimming") { dialog, _ ->
+                    backupCodesAlertDialog.setButton(
+                        AlertDialog.BUTTON_NEGATIVE,
+                        "Paste without trimming"
+                    ) { dialog, _ ->
                         backupCodesInput.setText(pasteData)
                         dialog.dismiss()
                     }
@@ -692,7 +895,7 @@ class AddLogin : AppCompatActivity() {
         customFieldsView.layoutManager = LinearLayoutManager(this)
 
         customFieldsData = mutableListOf()
-        customFieldsAdapter = CustomFieldsAdapter (customFieldsData)
+        customFieldsAdapter = CustomFieldsAdapter(customFieldsData)
         customFieldsView.adapter = customFieldsAdapter
 
         addCustomFieldButton = findViewById(R.id.addCustomFieldButton)
@@ -708,14 +911,21 @@ class AddLogin : AppCompatActivity() {
         siteUrlsHelpButton.setOnClickListener {
             val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
             alertDialog.setTitle("Site URLs")
-            alertDialog.setMessage(Html.fromHtml("""
+            alertDialog.setMessage(
+                Html.fromHtml(
+                    """
                 Keyspace will automatically fill in your credentials on the websites in this list. By default, Keyspace uses an exact URL match.<br><br>
                 You can also use regular expressions to do specific matches. For example, 
                     <br><br><tt>[a-zA-Z0-9]*.?google.com</tt><br><br>
                 will match <tt>google.com</tt>, <tt>mail.google.com</tt>, and so on.<br><br>
                 <a href="https://github.com/ziishaned/learn-regex/blob/master/README.md">Tap here</a> to learn more about regular expressions.
-                """.trimIndent()))
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Got it") { _, _ -> alertDialog.dismiss() }
+                """.trimIndent()
+                )
+            )
+            alertDialog.setButton(
+                AlertDialog.BUTTON_POSITIVE,
+                "Got it"
+            ) { _, _ -> alertDialog.dismiss() }
             alertDialog.show()
             val textView: TextView = alertDialog.findViewById(android.R.id.message)!!
             textView.movementMethod = LinkMovementMethod.getInstance()
@@ -725,7 +935,7 @@ class AddLogin : AppCompatActivity() {
         siteUrlsView.layoutManager = LinearLayoutManager(this)
 
         siteUrlsData = mutableListOf()
-        siteUrlsAdapter = SiteUrlsAdapter (siteUrlsData)
+        siteUrlsAdapter = SiteUrlsAdapter(siteUrlsData)
         siteUrlsView.adapter = siteUrlsAdapter
 
         addSiteUrlButton = findViewById(R.id.addSiteUrlButton)
@@ -765,13 +975,23 @@ class AddLogin : AppCompatActivity() {
     private fun loadLogin(login: IOUtilities.Login): Boolean {
 
         favorite = if (login.favorite) {
-            favoriteButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_star_24)); true
+            favoriteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_star_24
+                )
+            ); true
         } else {
-            favoriteButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_star_border_24)); false
+            favoriteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_star_border_24
+                )
+            ); false
         }
 
         tagId = login.tagId
-        tagPicker = AddTag (tagId, applicationContext, this@AddLogin, keyring)
+        tagPicker = AddTag(tagId, applicationContext, this@AddLogin, keyring)
 
         siteNameInput.setText(login.name)
 
@@ -811,12 +1031,18 @@ class AddLogin : AppCompatActivity() {
                 val passwordHistoryBox: View = inflater.inflate(R.layout.password_history, null)
                 builder.setView(passwordHistoryBox)
 
-                passwordHistoryBox.startAnimation(loadAnimation(applicationContext, R.anim.from_top))
+                passwordHistoryBox.startAnimation(
+                    loadAnimation(
+                        applicationContext,
+                        R.anim.from_top
+                    )
+                )
 
-                passwordHistoryView = passwordHistoryBox.findViewById(R.id.passwordHistoryRecycler) as RecyclerView
+                passwordHistoryView =
+                    passwordHistoryBox.findViewById(R.id.passwordHistoryRecycler) as RecyclerView
                 passwordHistoryView.layoutManager = LinearLayoutManager(this)
 
-                passwordHistoryAdapter = PasswordHistoryAdapter (passwordHistoryData)
+                passwordHistoryAdapter = PasswordHistoryAdapter(passwordHistoryData)
                 passwordHistoryView.adapter = passwordHistoryAdapter
                 passwordHistoryAdapter.notifyItemInserted(passwordHistoryData.size)
                 passwordHistoryView.invalidate()
@@ -831,7 +1057,7 @@ class AddLogin : AppCompatActivity() {
 
         if (login.loginData.siteUrls != null) {
             siteUrlsData = login.loginData.siteUrls
-            siteUrlsAdapter = SiteUrlsAdapter (siteUrlsData)
+            siteUrlsAdapter = SiteUrlsAdapter(siteUrlsData)
             siteUrlsView.adapter = siteUrlsAdapter
             siteUrlsAdapter.notifyItemInserted(siteUrlsData.size)
             siteUrlsView.invalidate()
@@ -843,7 +1069,7 @@ class AddLogin : AppCompatActivity() {
 
         if (login.customFields != null) {
             customFieldsData = login.customFields
-            customFieldsAdapter = CustomFieldsAdapter (customFieldsData)
+            customFieldsAdapter = CustomFieldsAdapter(customFieldsData)
             customFieldsView.adapter = customFieldsAdapter
             customFieldsAdapter.notifyItemInserted(customFieldsData.size)
             customFieldsView.invalidate()
@@ -851,16 +1077,23 @@ class AddLogin : AppCompatActivity() {
             customFieldsView.scheduleLayoutAnimation()
         }
 
-        Handler().postDelayed({ runOnUiThread {
-            iconFileName = login.iconFile
-            if (iconFileName != null) siteNameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, siteNameInput.currentTextColor))
-            else siteNameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
-        } }, 100)
+        Handler().postDelayed({
+            runOnUiThread {
+                iconFileName = login.iconFile
+                if (iconFileName != null) siteNameInputIcon.setImageDrawable(
+                    misc.getSiteIcon(
+                        iconFileName!!,
+                        siteNameInput.currentTextColor
+                    )
+                )
+                else siteNameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+            }
+        }, 100)
 
         return true
     }
 
-    private fun mfaDialog () {
+    private fun mfaDialog() {
         if (secretInput.text.toString().trim().isNotEmpty()) {
             var otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
 
@@ -873,14 +1106,16 @@ class AddLogin : AppCompatActivity() {
             val qrCode = accountInfoBox.findViewById<ImageView>(R.id.qrCode)
 
             val mfaLabel = accountInfoBox.findViewById<TextView>(R.id.mfaLabel)
-            if (siteNameInput.text.toString().trim().isNotEmpty()) mfaLabel.text = siteNameInput.text
-            else  mfaLabel.visibility = View.GONE
+            if (siteNameInput.text.toString().trim().isNotEmpty()) mfaLabel.text =
+                siteNameInput.text
+            else mfaLabel.visibility = View.GONE
 
             val mfaCode = accountInfoBox.findViewById<TextView>(R.id.mfaCode)
             mfaCode.text = otpCode.replace("...".toRegex(), "$0 ")
 
             val accountName = accountInfoBox.findViewById<TextView>(R.id.accountName)
-            if (emailInput.text.toString().trim().isNotEmpty()) accountName.text = emailInput.text.toString()
+            if (emailInput.text.toString().trim().isNotEmpty()) accountName.text =
+                emailInput.text.toString()
             else accountName.visibility = View.GONE
 
             val secret = accountInfoBox.findViewById<TextView>(R.id.secret)
@@ -892,17 +1127,23 @@ class AddLogin : AppCompatActivity() {
                 runOnUiThread { mfaCode.text = otpCode!!.replace("...".toRegex(), "$0 ") }
                 timer.scheduleAtFixedRate(object : TimerTask() {
                     override fun run() {
-                        val currentSeconds = SimpleDateFormat("s", Locale.getDefault()).format(Date()).toInt()
-                        var halfMinuteElapsed = abs((60-currentSeconds))
+                        val currentSeconds =
+                            SimpleDateFormat("s", Locale.getDefault()).format(Date()).toInt()
+                        var halfMinuteElapsed = abs((60 - currentSeconds))
                         if (halfMinuteElapsed >= 30) halfMinuteElapsed -= 30
-                        try { mfaProgress.progress = halfMinuteElapsed } catch (_: Exception) {  }
+                        try {
+                            mfaProgress.progress = halfMinuteElapsed
+                        } catch (_: Exception) {
+                        }
                         if (halfMinuteElapsed == 30) {
-                            otpCode = GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
+                            otpCode =
+                                GoogleAuthenticator(base32secret = secretInput.text.toString()).generate()
                             runOnUiThread { mfaCode.text = otpCode.replace("...".toRegex(), "$0 ") }
                         }
                     }
                 }, 0, 1000) // 1000 milliseconds = 1 second
-            } catch (timerError: IllegalStateException) { }
+            } catch (timerError: IllegalStateException) {
+            }
 
             val mfaMode = accountInfoBox.findViewById<TextView>(R.id.mfaMode)
             mfaMode.visibility = View.GONE
@@ -911,7 +1152,7 @@ class AddLogin : AppCompatActivity() {
                 siteNameInput.text.toString()
             } else if (emailInput.text.toString().trim().isNotEmpty()) {
                 emailInput.text.toString()
-            } else  {
+            } else {
                 "Unknown account"
             }
 
@@ -936,87 +1177,118 @@ class AddLogin : AppCompatActivity() {
         }
     }
 
-    private fun saveItem () {
-        var dateCreated = Instant.now().epochSecond
-
-        if (itemId != null) {
-            dateCreated = io.getLogin(itemId!!, vault)?.dateCreated!!
-            vault.login?.remove(io.getLogin(itemId!!, vault))
-
-            if (login.loginData != null) {
-                if (!login.loginData!!.password.isNullOrEmpty()) {
-                    if (passwordInput.text.toString() != login.loginData?.password) {
-                        passwordHistoryData.add (
-                            IOUtilities.Password(
-                                password = passwordInput.text.toString(),
-                                created = Instant.now().epochSecond
-                            )
-                        )
-                    }
-                }
-            }
-
-        } else {
+    private fun saveItem() {
+        if (!::passwordHistoryData.isInitialized) {
             passwordHistoryData = mutableListOf()
-            passwordHistoryData.add (
-                IOUtilities.Password(
-                    password = passwordInput.text.toString(),
-                    created = Instant.now().epochSecond
-                )
-            )
         }
 
-        val data = IOUtilities.Login(
-            id = itemId ?: UUID.randomUUID().toString(),
-            organizationId = null,
-            type = io.TYPE_LOGIN,
-            name = siteNameInput.text.toString(),
-            notes = notesInput.text.toString(),
-            favorite = favorite,
+        itemPersistence.saveLogin(
+            siteName = siteNameInput.text.toString(),
+            siteUrlsData = siteUrlsData,
+            userName = userNameInput.text.toString(),
+            email = emailInput.text.toString(),
+            password = passwordInput.text.toString(),
+            passwordHistoryData = passwordHistoryData,
+            secret = secretInput.text.toString(),
+            backupCodes = backupCodesInput.text.toString(),
+            iconFileName = iconFileName,
+            isFavorite = favorite,
             tagId = tagPicker.getSelectedTagId() ?: tagId,
-            loginData = IOUtilities.LoginData(
-                username = userNameInput.text.toString(),
-                password = passwordInput.text.toString(),
-                passwordHistory = if (passwordHistoryData.size > 0) passwordHistoryData else null,
-                email = emailInput.text.toString(),
-                totp = IOUtilities.Totp(
-                    secret = secretInput.text.toString(),
-                    backupCodes = backupCodesInput.text?.toString()?.replace("\n", "")?.split(",")?.toMutableList()
-                ),
-                siteUrls = if (siteUrlsData.size > 0) siteUrlsData else null
-            ),
-            dateCreated = dateCreated,
-            dateModified = Instant.now().epochSecond,
-            frequencyAccessed = 0,
-            customFields = customFieldsData,
-            iconFile = iconFileName
-        )
-
-        val encryptedLogin = io.encryptLogin(data)
-
-        vault.login?.add (encryptedLogin)
-        io.writeVault(vault)
-
-        if (itemId != null) network.writeQueueTask (encryptedLogin, mode = network.MODE_PUT)
-        else network.writeQueueTask (encryptedLogin, mode = network.MODE_POST)
-
-        crypto.secureStartActivity (
-            nextActivity = Dashboard(),
-            nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
-            keyring = keyring,
-            itemId = null
-        )
-
+            notes = notesInput.text.toString(),
+            customFieldsData = customFieldsData
+        ) { error ->
+            siteNameInput.error = error.siteNameError
+            emailInput.error = error.emailError
+            secretInput.error = error.secretError
+        }
     }
 
-    override fun onBackPressed () {
-        try { qrCodeDialog.dismiss() } catch (qrCodeBoxUninitialized: UninitializedPropertyAccessException) {  }
+    //region Original saveItem()
+//    private fun saveItem () {
+//        var dateCreated = Instant.now().epochSecond
+//
+//        if (itemId != null) {
+//            dateCreated = io.getLogin(itemId!!, vault)?.dateCreated!!
+//            vault.login?.remove(io.getLogin(itemId!!, vault))
+//
+//            if (login.loginData != null) {
+//                if (!login.loginData!!.password.isNullOrEmpty()) {
+//                    if (passwordInput.text.toString() != login.loginData?.password) {
+//                        passwordHistoryData.add (
+//                            IOUtilities.Password(
+//                                password = passwordInput.text.toString(),
+//                                created = Instant.now().epochSecond
+//                            )
+//                        )
+//                    }
+//                }
+//            }
+//
+//        } else {
+//            passwordHistoryData = mutableListOf()
+//            passwordHistoryData.add (
+//                IOUtilities.Password(
+//                    password = passwordInput.text.toString(),
+//                    created = Instant.now().epochSecond
+//                )
+//            )
+//        }
+//
+//        val data = IOUtilities.Login(
+//            id = itemId ?: UUID.randomUUID().toString(),
+//            organizationId = null,
+//            type = io.TYPE_LOGIN,
+//            name = siteNameInput.text.toString(),
+//            notes = notesInput.text.toString(),
+//            favorite = favorite,
+//            tagId = tagPicker.getSelectedTagId() ?: tagId,
+//            loginData = IOUtilities.LoginData(
+//                username = userNameInput.text.toString(),
+//                password = passwordInput.text.toString(),
+//                passwordHistory = if (passwordHistoryData.size > 0) passwordHistoryData else null,
+//                email = emailInput.text.toString(),
+//                totp = IOUtilities.Totp(
+//                    secret = secretInput.text.toString(),
+//                    backupCodes = backupCodesInput.text?.toString()?.replace("\n", "")?.split(",")?.toMutableList()
+//                ),
+//                siteUrls = if (siteUrlsData.size > 0) siteUrlsData else null
+//            ),
+//            dateCreated = dateCreated,
+//            dateModified = Instant.now().epochSecond,
+//            frequencyAccessed = 0,
+//            customFields = customFieldsData,
+//            iconFile = iconFileName
+//        )
+//
+//        val encryptedLogin = io.encryptLogin(data)
+//
+//        vault.login?.add (encryptedLogin)
+//        io.writeVault(vault)
+//
+//        if (itemId != null) network.writeQueueTask (encryptedLogin, mode = network.MODE_PUT)
+//        else network.writeQueueTask (encryptedLogin, mode = network.MODE_POST)
+//
+//        crypto.secureStartActivity (
+//            nextActivity = Dashboard(),
+//            nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
+//            keyring = keyring,
+//            itemId = null
+//        )
+//
+//    }
+    //endregion Original saveItem()
+
+    override fun onBackPressed() {
+        try {
+            qrCodeDialog.dismiss()
+        } catch (qrCodeBoxUninitialized: UninitializedPropertyAccessException) {
+        }
 
         val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
         alertDialog.setTitle("Confirm exit")
         alertDialog.setMessage("Would you like to go back to the Dashboard?")
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Exit") { dialog, _ ->
-            crypto.secureStartActivity (
+            crypto.secureStartActivity(
                 nextActivity = Dashboard(),
                 nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                 keyring = keyring,
@@ -1025,7 +1297,10 @@ class AddLogin : AppCompatActivity() {
             super.onBackPressed()
             tagIdGrabber.removeCallbacksAndMessages(null)
         }
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEGATIVE,
+            "Cancel"
+        ) { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
     }
 
@@ -1043,7 +1318,10 @@ class AddLogin : AppCompatActivity() {
         System.gc()
         finish()
         finishAffinity()
-        try { qrCodeDialog.dismiss() } catch (qrCodeBoxUninitialized: UninitializedPropertyAccessException) {  }
+        try {
+            qrCodeDialog.dismiss()
+        } catch (qrCodeBoxUninitialized: UninitializedPropertyAccessException) {
+        }
     }
 
     override fun onPause() {
@@ -1084,10 +1362,18 @@ class AddLogin : AppCompatActivity() {
         super.onUserLeaveHint()
     }
 
-    inner class CustomFieldsAdapter (private val customFields: MutableList<IOUtilities.CustomField>) : RecyclerView.Adapter<CustomFieldsAdapter.ViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ViewHolder {  // create new views
-            val customFieldsView: View = LayoutInflater.from(parent.context).inflate(R.layout.custom_field, parent, false)
-            customFieldsView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+    inner class CustomFieldsAdapter(private val customFields: MutableList<IOUtilities.CustomField>) :
+        RecyclerView.Adapter<CustomFieldsAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): ViewHolder {  // create new views
+            val customFieldsView: View =
+                LayoutInflater.from(parent.context).inflate(R.layout.custom_field, parent, false)
+            customFieldsView.layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
             return ViewHolder(customFieldsView)
         }
 
@@ -1096,11 +1382,13 @@ class AddLogin : AppCompatActivity() {
 
             var hidden = false
 
-            customFieldView.fieldName.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
-            customFieldView.fieldValue.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+            customFieldView.fieldName.imeOptions =
+                EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+            customFieldView.fieldValue.imeOptions =
+                EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 
-            customFieldView.fieldName.setText (customField.name)
-            customFieldView.fieldValue.setText (customField.value)
+            customFieldView.fieldName.setText(customField.name)
+            customFieldView.fieldValue.setText(customField.value)
 
             if (customField.hidden) {
                 customFieldView.fieldValue.transformationMethod = PasswordTransformationMethod()
@@ -1113,18 +1401,42 @@ class AddLogin : AppCompatActivity() {
             }
 
             customFieldView.fieldName.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) { }
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(data: CharSequence, start: Int, before: Int, count: Int) {
+                override fun afterTextChanged(s: Editable) {}
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    data: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
                     addCustomFieldButton.isEnabled = data.isNotEmpty()
                     customFieldsData[customFieldView.adapterPosition].name = data.toString()
                 }
             })
 
             customFieldView.fieldValue.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) { }
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
-                override fun onTextChanged(data: CharSequence, start: Int, before: Int, count: Int) {
+                override fun afterTextChanged(s: Editable) {}
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    data: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
                     addCustomFieldButton.isEnabled = data.isNotEmpty()
                     customFieldsData[customFieldView.adapterPosition].value = data.toString()
                 }
@@ -1132,12 +1444,17 @@ class AddLogin : AppCompatActivity() {
 
             customFieldView.deleteIcon.setOnClickListener { view ->
                 addCustomFieldButton.isEnabled = true
-                Toast.makeText(applicationContext, "Deleted \"${customFieldView.fieldName.text}\"", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    "Deleted \"${customFieldView.fieldName.text}\"",
+                    Toast.LENGTH_SHORT
+                ).show()
                 customFieldView.fieldName.clearFocus()
                 customFieldView.fieldValue.clearFocus()
                 try {
                     customFieldsData.remove(customFieldsData[customFieldView.adapterPosition])
-                } catch (noItemsLeft: IndexOutOfBoundsException) { }
+                } catch (noItemsLeft: IndexOutOfBoundsException) {
+                }
                 customFieldsAdapter.notifyItemRemoved(position)
                 customFieldsView.invalidate()
                 customFieldsView.refreshDrawableState()
@@ -1165,18 +1482,29 @@ class AddLogin : AppCompatActivity() {
             return customFields.size
         }
 
-        inner class ViewHolder (itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
+        inner class ViewHolder(itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
             var fieldName: EditText = itemLayoutView.findViewById<View>(R.id.field_name) as EditText
-            var fieldValue: EditText = itemLayoutView.findViewById<View>(R.id.field_value) as EditText
-            var deleteIcon: ImageView = itemLayoutView.findViewById<View>(R.id.deleteCustomFieldButton) as ImageView
-            var hideIcon: ImageView = itemLayoutView.findViewById<View>(R.id.hideCustomFieldButton) as ImageView
+            var fieldValue: EditText =
+                itemLayoutView.findViewById<View>(R.id.field_value) as EditText
+            var deleteIcon: ImageView =
+                itemLayoutView.findViewById<View>(R.id.deleteCustomFieldButton) as ImageView
+            var hideIcon: ImageView =
+                itemLayoutView.findViewById<View>(R.id.hideCustomFieldButton) as ImageView
         }
     }
 
-    inner class SiteUrlsAdapter (private val siteUrls: MutableList<String>) : RecyclerView.Adapter<SiteUrlsAdapter.ViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ViewHolder {  // create new views
-            val siteUrlsView: View = LayoutInflater.from(parent.context).inflate(R.layout.site_url, parent, false)
-            siteUrlsView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+    inner class SiteUrlsAdapter(private val siteUrls: MutableList<String>) :
+        RecyclerView.Adapter<SiteUrlsAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): ViewHolder {  // create new views
+            val siteUrlsView: View =
+                LayoutInflater.from(parent.context).inflate(R.layout.site_url, parent, false)
+            siteUrlsView.layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
             return ViewHolder(siteUrlsView)
         }
 
@@ -1184,12 +1512,24 @@ class AddLogin : AppCompatActivity() {
             val siteUrl = siteUrlsData[siteUrlView.adapterPosition]
 
             siteUrlView.siteUrl.imeOptions = IME_FLAG_NO_PERSONALIZED_LEARNING
-            siteUrlView.siteUrl.setText (siteUrl)
+            siteUrlView.siteUrl.setText(siteUrl)
 
             siteUrlView.siteUrl.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) { }
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
-                override fun onTextChanged(data: CharSequence, start: Int, before: Int, count: Int) {
+                override fun afterTextChanged(s: Editable) {}
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    data: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
                     addSiteUrlButton.isEnabled = data.isNotEmpty()
                     siteUrlsData[siteUrlView.adapterPosition] = data.toString()
                 }
@@ -1198,10 +1538,15 @@ class AddLogin : AppCompatActivity() {
             siteUrlView.deleteIcon.setOnClickListener { view ->
                 addSiteUrlButton.isEnabled = true
                 siteUrlView.siteUrl.clearFocus()
-                Toast.makeText(applicationContext, "Deleted \"${siteUrlView.siteUrl.text}\"", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    "Deleted \"${siteUrlView.siteUrl.text}\"",
+                    Toast.LENGTH_SHORT
+                ).show()
                 try {
                     siteUrlsData.remove(siteUrlsData[siteUrlView.adapterPosition])
-                } catch (noItemsLeft: IndexOutOfBoundsException) { }
+                } catch (noItemsLeft: IndexOutOfBoundsException) {
+                }
                 siteUrlsAdapter.notifyItemRemoved(siteUrlView.adapterPosition)
                 siteUrlsView.invalidate()
                 siteUrlsView.refreshDrawableState()
@@ -1213,16 +1558,25 @@ class AddLogin : AppCompatActivity() {
             return siteUrls.size
         }
 
-        inner class ViewHolder (itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
+        inner class ViewHolder(itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
             var siteUrl: EditText = itemLayoutView.findViewById<View>(R.id.siteUrlInput) as EditText
-            var deleteIcon: ImageView = itemLayoutView.findViewById<View>(R.id.deleteSiteUrlButton) as ImageView
+            var deleteIcon: ImageView =
+                itemLayoutView.findViewById<View>(R.id.deleteSiteUrlButton) as ImageView
         }
     }
 
-    inner class PasswordHistoryAdapter (private val oldPasswords: MutableList<IOUtilities.Password>) : RecyclerView.Adapter<PasswordHistoryAdapter.ViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ViewHolder {  // create new views
-            val passwordHistoryView: View = LayoutInflater.from(parent.context).inflate(R.layout.password_history_card, parent, false)
-            passwordHistoryView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+    inner class PasswordHistoryAdapter(private val oldPasswords: MutableList<IOUtilities.Password>) :
+        RecyclerView.Adapter<PasswordHistoryAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): ViewHolder {  // create new views
+            val passwordHistoryView: View = LayoutInflater.from(parent.context)
+                .inflate(R.layout.password_history_card, parent, false)
+            passwordHistoryView.layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
             return ViewHolder(passwordHistoryView)
         }
 
@@ -1231,8 +1585,8 @@ class AddLogin : AppCompatActivity() {
 
             val calendar = Calendar.getInstance(Locale.getDefault())
             calendar.timeInMillis = passwordHistory.created * 1000L
-            val date = DateFormat.format("MMM dd, yyyy",calendar).toString()
-            val time = DateFormat.format("HH:mm",calendar).toString()
+            val date = DateFormat.format("MMM dd, yyyy", calendar).toString()
+            val time = DateFormat.format("HH:mm", calendar).toString()
 
             passwordHistoryView.oldPassword.text = passwordHistory.password
             passwordHistoryView.createdDate.text = date
@@ -1240,7 +1594,10 @@ class AddLogin : AppCompatActivity() {
 
             passwordHistoryView.copyOldPasswordButton.setOnClickListener { view ->
                 val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("Keyspace", passwordHistoryView.oldPassword.text.toString())
+                val clip = ClipData.newPlainText(
+                    "Keyspace",
+                    passwordHistoryView.oldPassword.text.toString()
+                )
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(applicationContext, "Copied!", Toast.LENGTH_SHORT).show()
                 passwordCopied = true
@@ -1252,11 +1609,15 @@ class AddLogin : AppCompatActivity() {
             return oldPasswords.size
         }
 
-        inner class ViewHolder (itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
-            var oldPassword: TextView = itemLayoutView.findViewById<View>(R.id.oldPassword) as TextView
-            var copyOldPasswordButton: Button = itemLayoutView.findViewById<View>(R.id.copyOldPasswordButton) as Button
-            var createdDate: TextView = itemLayoutView.findViewById<View>(R.id.createdDate) as TextView
-            var createdTime: TextView = itemLayoutView.findViewById<View>(R.id.createdTime) as TextView
+        inner class ViewHolder(itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
+            var oldPassword: TextView =
+                itemLayoutView.findViewById<View>(R.id.oldPassword) as TextView
+            var copyOldPasswordButton: Button =
+                itemLayoutView.findViewById<View>(R.id.copyOldPasswordButton) as Button
+            var createdDate: TextView =
+                itemLayoutView.findViewById<View>(R.id.createdDate) as TextView
+            var createdTime: TextView =
+                itemLayoutView.findViewById<View>(R.id.createdTime) as TextView
         }
     }
 
@@ -1265,7 +1626,11 @@ class AddLogin : AppCompatActivity() {
 
         constructor(context: Context?) : super(context!!)
         constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs)
-        constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context!!, attrs, defStyleAttr)
+        constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+            context!!,
+            attrs,
+            defStyleAttr
+        )
 
         fun setUpdateListener(listener: UpdateListener?) {
             this.listener = listener
@@ -1288,37 +1653,70 @@ class AddLogin : AppCompatActivity() {
         }
     }
 
-    private fun iconFilePicker () {
+    private fun iconFilePicker() {
 
         val builder = MaterialAlertDialogBuilder(this@AddLogin)
         builder.setCancelable(true)
         val iconsBox: View = layoutInflater.inflate(R.layout.icon_picker_dialog, null)
         builder.setView(iconsBox)
-        iconsBox.startAnimation(AnimationUtils.loadAnimation(applicationContext, R.anim.from_bottom))
+        iconsBox.startAnimation(
+            AnimationUtils.loadAnimation(
+                applicationContext,
+                R.anim.from_bottom
+            )
+        )
 
         val dialog = builder.create()
         dialog.show()
 
         val iconFileNames = misc.getSiteIconFilenames()
+
         class GridAdapter(var context: Context, filenames: ArrayList<String>) : BaseAdapter() {
             var listFiles: ArrayList<String>
-            init { listFiles = filenames }
-            override fun getCount(): Int { return listFiles.size }
-            override fun getItem(position: Int): Any { return listFiles[position] }
-            override fun getItemId(position: Int): Long { return position.toLong() }
+
+            init {
+                listFiles = filenames
+            }
+
+            override fun getCount(): Int {
+                return listFiles.size
+            }
+
+            override fun getItem(position: Int): Any {
+                return listFiles[position]
+            }
+
+            override fun getItemId(position: Int): Long {
+                return position.toLong()
+            }
+
             @SuppressLint("ViewHolder")
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = (context.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.site_icon, null)
+                val view =
+                    (context.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(
+                        R.layout.site_icon,
+                        null
+                    )
 
                 val icon = view.findViewById<ImageView>(R.id.icon)
-                icon.setImageDrawable(misc.getSiteIcon(listFiles[position], siteNameInput.currentTextColor))
+                icon.setImageDrawable(
+                    misc.getSiteIcon(
+                        listFiles[position],
+                        siteNameInput.currentTextColor
+                    )
+                )
 
                 val iconName = view.findViewById<TextView>(R.id.iconName)
                 iconName.text = listFiles[position].replace("_", "")
 
                 icon.setOnClickListener {
                     iconFileName = listFiles[position]
-                    siteNameInputIcon.setImageDrawable(misc.getSiteIcon(listFiles[position], siteNameInput.currentTextColor))
+                    siteNameInputIcon.setImageDrawable(
+                        misc.getSiteIcon(
+                            listFiles[position],
+                            siteNameInput.currentTextColor
+                        )
+                    )
                     dialog.dismiss()
                 }
 

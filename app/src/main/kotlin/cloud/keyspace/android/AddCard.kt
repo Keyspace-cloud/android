@@ -3,17 +3,13 @@ package cloud.keyspace.android
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
-import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +19,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,15 +26,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.keyspace.keyspacemobile.*
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -109,20 +101,28 @@ class AddCard : AppCompatActivity() {
 
     lateinit var configData: SharedPreferences
 
+    private lateinit var itemPersistence: ItemPersistence
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.edit_card)
 
-        configData = getSharedPreferences(applicationContext.packageName + "_configuration_data", MODE_PRIVATE)
+        configData = getSharedPreferences(
+            applicationContext.packageName + "_configuration_data",
+            MODE_PRIVATE
+        )
 
         val allowScreenshots = configData.getBoolean("allowScreenshots", false)
-        if (!allowScreenshots) window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        if (!allowScreenshots) window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
 
-        utils = MiscUtilities (applicationContext)
+        utils = MiscUtilities(applicationContext)
         crypto = CryptoUtilities(applicationContext, this)
         misc = MiscUtilities(applicationContext)
 
-        val intentData = crypto.receiveKeyringFromSecureIntent (
+        val intentData = crypto.receiveKeyringFromSecureIntent(
             currentActivityClassNameAsString = getString(R.string.title_activity_add_card),
             intent = intent
         )
@@ -138,14 +138,20 @@ class AddCard : AppCompatActivity() {
         vault = io.getVault()
         if (itemId != null) {
             card = io.decryptCard(io.getCard(itemId!!, vault)!!)
-            loadCard (card)
+            loadCard(card)
         }
 
+        itemPersistence = ItemPersistence(
+            applicationContext = applicationContext,
+            appCompatActivity = this,
+            keyring = keyring,
+            itemId = itemId
+        )
     }
 
-    private fun initializeUI (): Boolean {
+    private fun initializeUI(): Boolean {
 
-        doneButton = findViewById (R.id.done)
+        doneButton = findViewById(R.id.done)
         doneButton.setOnClickListener {
             saveItem()
         }
@@ -155,19 +161,22 @@ class AddCard : AppCompatActivity() {
             onBackPressed()
         }
 
-        deleteButton = findViewById (R.id.delete)
+        deleteButton = findViewById(R.id.delete)
         if (itemId != null) {
             deleteButton.setOnClickListener {
                 val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
                 alertDialog.setTitle(getString(R.string.delete_title))
                 alertDialog.setMessage("${getString(R.string.delete_subtitle)} \"${card.name}\"")
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.delete_title)) { _, _ ->
+                alertDialog.setButton(
+                    AlertDialog.BUTTON_POSITIVE,
+                    getString(R.string.delete_title)
+                ) { _, _ ->
 
                     vault.card!!.remove(io.getCard(itemId!!, vault))
                     io.writeVault(vault)
 
-                    network.writeQueueTask (itemId!!, mode = network.MODE_DELETE)
-                    crypto.secureStartActivity (
+                    network.writeQueueTask(itemId!!, mode = network.MODE_DELETE)
+                    crypto.secureStartActivity(
                         nextActivity = Dashboard(),
                         nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                         keyring = keyring,
@@ -175,7 +184,10 @@ class AddCard : AppCompatActivity() {
                     )
 
                 }
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.go_back_button)) { dialog, _ -> dialog.dismiss() }
+                alertDialog.setButton(
+                    AlertDialog.BUTTON_NEGATIVE,
+                    getString(R.string.go_back_button)
+                ) { dialog, _ -> dialog.dismiss() }
                 alertDialog.show()
 
             }
@@ -183,8 +195,8 @@ class AddCard : AppCompatActivity() {
             deleteButton.visibility = View.GONE
         }
 
-        tagButton = findViewById (R.id.tag)
-        tagPicker = AddTag (tagId, applicationContext, this@AddCard, keyring)
+        tagButton = findViewById(R.id.tag)
+        tagPicker = AddTag(tagId, applicationContext, this@AddCard, keyring)
         tagButton.setOnClickListener {
             tagPicker.showPicker(tagId)
             tagPicker.showPicker(tagId)
@@ -197,14 +209,34 @@ class AddCard : AppCompatActivity() {
         }
 
         favoriteButton = findViewById(R.id.favoriteButton)
-        favoriteButton.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
+        favoriteButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                applicationContext,
+                R.drawable.ic_baseline_star_border_24
+            )
+        )
         favoriteButton.setOnClickListener {
             favorite = if (!favorite) {
-                favoriteButton.setImageDrawable (ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_24))
-                favoriteButton.startAnimation(AnimationUtils.loadAnimation(applicationContext, R.anim.heartbeat))
+                favoriteButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_star_24
+                    )
+                )
+                favoriteButton.startAnimation(
+                    AnimationUtils.loadAnimation(
+                        applicationContext,
+                        R.anim.heartbeat
+                    )
+                )
                 true
             } else {
-                favoriteButton.setImageDrawable (ContextCompat.getDrawable(applicationContext, R.drawable.ic_baseline_star_border_24))
+                favoriteButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        applicationContext,
+                        R.drawable.ic_baseline_star_border_24
+                    )
+                )
                 false
             }
         }
@@ -225,24 +257,36 @@ class AddCard : AppCompatActivity() {
                 .show()
         }
 
-        nameInput = findViewById (R.id.nameInput)
+        nameInput = findViewById(R.id.nameInput)
         nameInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
-        nameInputLayout = findViewById (R.id.nameInputLayout)
+        nameInputLayout = findViewById(R.id.nameInputLayout)
 
-        nameInputIcon = findViewById (R.id.nameInputIcon)
+        nameInputIcon = findViewById(R.id.nameInputIcon)
         nameInputIcon.setOnClickListener {
             iconFilePicker()
         }
 
-        nameIconPicker = findViewById (R.id.pickIcon)
+        nameIconPicker = findViewById(R.id.pickIcon)
         nameIconPicker.setOnClickListener {
             iconFilePicker()
         }
 
         nameInput.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) { }
-            override fun beforeTextChanged(bankName: CharSequence, start: Int, count: Int, after: Int) { }
-            override fun onTextChanged(bankName: CharSequence, start: Int, before: Int, count: Int) {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(
+                bankName: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                bankName: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
                 thread {
                     val bankLogo = misc.getSiteIcon(bankName.toString(), nameInput.currentTextColor)
                     if (bankLogo != null/* && iconFileName == null*/) {
@@ -255,7 +299,7 @@ class AddCard : AppCompatActivity() {
             }
         })
 
-        cardNumberInput = findViewById (R.id.CardNumberInput)
+        cardNumberInput = findViewById(R.id.CardNumberInput)
         cardNumberInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
         cardNumberInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 
@@ -267,18 +311,24 @@ class AddCard : AppCompatActivity() {
                 if (s.isNotEmpty() && s.length % 5 == 0) {
                     val c = s[s.length - 1]
                     if (space == c) s.delete(s.length - 1, s.length)
-                    if (Character.isDigit(c) && TextUtils.split(s.toString(), space.toString()).size <= 3) s.insert(s.length - 1, space.toString())
+                    if (Character.isDigit(c) && TextUtils.split(
+                            s.toString(),
+                            space.toString()
+                        ).size <= 3
+                    ) s.insert(s.length - 1, space.toString())
                 }
                 if (s.toString().replace(" ", "").length in 0..16) {
                     cardNumberInput.removeTextChangedListener(this)
-                    cardNumberInput.setText(s.toString().replace(" ", "").replace("....".toRegex(), "$0 ")?.trim())
+                    cardNumberInput.setText(
+                        s.toString().replace(" ", "").replace("....".toRegex(), "$0 ")?.trim()
+                    )
                     cardNumberInput.addTextChangedListener(this)
                     cardNumberInput.setSelection(cardNumberInput.text.toString().length)
                 }
                 if (s.toString().replace(" ", "").length in 17..18) {
                     for (c in s) {
                         if (c == ' ') {
-                            s.delete(s.indexOf(c), s.indexOf(c)+1)
+                            s.delete(s.indexOf(c), s.indexOf(c) + 1)
                         }
                     }
                 }
@@ -286,8 +336,21 @@ class AddCard : AppCompatActivity() {
                     s.delete(s.length - 1, s.length)
                 }
             }
-            override fun beforeTextChanged(cardNumber: CharSequence, start: Int, count: Int, after: Int) { }
-            override fun onTextChanged(cardNumber: CharSequence, start: Int, before: Int, count: Int) {
+
+            override fun beforeTextChanged(
+                cardNumber: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                cardNumber: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
                 val paymentGateway = misc.getPaymentGateway(cardNumber.toString())
                 if (paymentGateway != null) {
                     val gatewayLogo = misc.getSiteIcon(paymentGateway, nameInput.currentTextColor)
@@ -299,9 +362,9 @@ class AddCard : AppCompatActivity() {
             }
         })
 
-        atmPinLayout = findViewById (R.id.AtmPinLayout)
+        atmPinLayout = findViewById(R.id.AtmPinLayout)
         atmPinLayout.visibility = View.GONE
-        isAtmCard = findViewById (R.id.isAtmCard)
+        isAtmCard = findViewById(R.id.isAtmCard)
         isAtmCard.isChecked = false
 
         isAtmCard.setOnCheckedChangeListener { _, isChecked ->
@@ -309,13 +372,13 @@ class AddCard : AppCompatActivity() {
             else atmPinLayout.visibility = View.VISIBLE
         }
 
-        hasRfidChip = findViewById (R.id.hasRfidChip)
+        hasRfidChip = findViewById(R.id.hasRfidChip)
 
-        atmPinInput = findViewById (R.id.AtmPinInput)
+        atmPinInput = findViewById(R.id.AtmPinInput)
         atmPinInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
         atmPinInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 
-        toDate = findViewById (R.id.ToDateInput)
+        toDate = findViewById(R.id.ToDateInput)
         toDate.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
         toDate.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
@@ -324,16 +387,20 @@ class AddCard : AppCompatActivity() {
                     val monthFormat = SimpleDateFormat("M", Locale.US)
                     val year = yearFormat.format(Date()).toString().toInt()
                     val month = monthFormat.format(Date()).toString().toInt()
-                    if (toDate.text?.takeLast(2).toString().toInt() > year+5) {
+                    if (toDate.text?.takeLast(2).toString().toInt() > year + 5) {
                         toDate.text!!.clear()
                         toDate.error = getString(R.string.invalid_card_year_blurb)
-                    } else  if ( (toDate.text?.take(2).toString().toInt() <= month && toDate.text?.takeLast(2).toString().toInt() == year) || toDate.text?.takeLast(2).toString().toInt() < year) {
+                    } else if ((toDate.text?.take(2).toString()
+                            .toInt() <= month && toDate.text?.takeLast(2).toString()
+                            .toInt() == year) || toDate.text?.takeLast(2).toString().toInt() < year
+                    ) {
                         toDate.text!!.clear()
                         toDate.error = getString(R.string.expired_card_blurb)
                     }
                 }
             }
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if (toDate.text?.length == 2) {
                     try {
@@ -349,11 +416,11 @@ class AddCard : AppCompatActivity() {
             }
         })
 
-        securityCode = findViewById (R.id.CVVInput)
-        cardholderNameInput = findViewById (R.id.CardholderInput)
+        securityCode = findViewById(R.id.CVVInput)
+        cardholderNameInput = findViewById(R.id.CardholderInput)
         cardholderNameInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 
-        notesInput = findViewById (R.id.notesInput)
+        notesInput = findViewById(R.id.notesInput)
         notesInput.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 
 
@@ -361,7 +428,7 @@ class AddCard : AppCompatActivity() {
         customFieldsView.layoutManager = LinearLayoutManager(this)
 
         customFieldsData = mutableListOf()
-        customFieldsAdapter = CustomFieldsAdapter (customFieldsData)
+        customFieldsAdapter = CustomFieldsAdapter(customFieldsData)
         customFieldsView.adapter = customFieldsAdapter
 
         addCustomFieldButton = findViewById(R.id.addCustomFieldButton)
@@ -377,83 +444,132 @@ class AddCard : AppCompatActivity() {
         return true
     }
 
-    private fun saveItem () {
-        var dateCreated = Instant.now().epochSecond
-
-        if (itemId != null) {
-            dateCreated = card.dateCreated!!
-            vault.card?.remove(io.getCard(itemId!!, vault))
+    private fun saveItem() {
+        itemPersistence.saveCard(
+            cardName = nameInput.text.toString(),
+            cardNumber = cardNumberInput.text.toString(),
+            cardholderName = cardholderNameInput.text.toString(),
+            toDate = toDate.text.toString(),
+            securityCode = securityCode.text.toString(),
+            atmPin = atmPinInput.text.toString(),
+            isAtmCard = isAtmCard.isChecked,
+            hasRfidChip = hasRfidChip.isChecked,
+            iconFileName = iconFileName,
+            cardColor = cardColor,
+            isFavorite = favorite,
+            tagId = tagPicker.getSelectedTagId() ?: tagId,
+            notes = notesInput.text.toString(),
+            customFieldsData = customFieldsData,
+            frequencyAccessed = frequencyAccessed
+        ) { error ->
+            cardNumberInput.error = error.cardNumberError
+            toDate.error = error.toDateError
+            securityCode.error = error.securityCodeError
+            cardholderNameInput.error = error.cardholderNameError
+            nameInput.error = error.nameError
+            atmPinInput.error = error.atmPinError
         }
-
-        if (cardNumberInput.text.toString().replace(" ", "").length < 16) cardNumberInput.error = "Enter a valid 16 digit card number"
-        else if (cardNumberInput.text.toString().replace(" ", "").length in 17..18
-            || cardNumberInput.text.toString().replace(" ", "").length > 19) cardNumberInput.error = "Enter a valid 19 digit card number"
-        else if (securityCode.text.toString().length !in 3..4) securityCode.error = "Enter a valid security code"
-        else if (toDate.text.toString().isEmpty()) toDate.error = "Enter an expiry date"
-        else if (cardholderNameInput.text.toString().isEmpty()) cardholderNameInput.error = "Enter card holder's name"
-        else if (nameInput.text.toString().isEmpty()) nameInput.error = "Enter a name. This can be your bank's name."
-        else if (isAtmCard.isChecked && atmPinInput.text.toString().length < 4) atmPinInput.error = "Enter a valid Personal Identification Number"
-
-        else {
-
-            val data = IOUtilities.Card(
-                id = itemId ?: UUID.randomUUID().toString(),
-                organizationId = null,
-                type = io.TYPE_CARD,
-                name = nameInput.text.toString(),
-                color = cardColor,
-                favorite = favorite,
-                tagId = tagPicker.getSelectedTagId() ?: tagId,
-                dateCreated = dateCreated,
-                dateModified = Instant.now().epochSecond,
-                frequencyAccessed = frequencyAccessed + 1,
-                cardNumber = cardNumberInput.text.toString().filter { !it.isWhitespace() },
-                cardholderName = cardholderNameInput.text.toString(),
-                expiry = toDate.text.toString(),
-                notes = notesInput.text.toString(),
-                pin = if (atmPinInput.text.toString().length == 4 && isAtmCard.isChecked) atmPinInput.text.toString() else "",
-                securityCode = securityCode.text.toString(),
-                customFields = customFieldsData,
-                rfid = hasRfidChip.isChecked,
-                iconFile = iconFileName
-            )
-
-            val encryptedCard = io.encryptCard(data)
-
-            vault.card?.add (encryptedCard)
-            io.writeVault(vault)
-
-            if (itemId != null) network.writeQueueTask (encryptedCard, mode = network.MODE_PUT)
-            else network.writeQueueTask (encryptedCard, mode = network.MODE_POST)
-
-            crypto.secureStartActivity (
-                nextActivity = Dashboard(),
-                nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
-                keyring = keyring,
-                itemId = null
-            )
-
-        }
-
     }
+
+    //region Original saveItem()
+//    private fun saveItem() {
+//        var dateCreated = Instant.now().epochSecond
+//
+//        if (itemId != null) {
+//            dateCreated = card.dateCreated!!
+//            vault.card?.remove(io.getCard(itemId!!, vault))
+//        }
+//
+//        if (cardNumberInput.text.toString().replace(" ", "").length < 16) cardNumberInput.error =
+//            "Enter a valid 16 digit card number"
+//        else if (cardNumberInput.text.toString().replace(" ", "").length in 17..18
+//            || cardNumberInput.text.toString().replace(" ", "").length > 19
+//        ) cardNumberInput.error = "Enter a valid 19 digit card number"
+//        else if (securityCode.text.toString().length !in 3..4) securityCode.error =
+//            "Enter a valid security code"
+//        else if (toDate.text.toString().isEmpty()) toDate.error = "Enter an expiry date"
+//        else if (cardholderNameInput.text.toString().isEmpty()) cardholderNameInput.error =
+//            "Enter card holder's name"
+//        else if (nameInput.text.toString().isEmpty()) nameInput.error =
+//            "Enter a name. This can be your bank's name."
+//        else if (isAtmCard.isChecked && atmPinInput.text.toString().length < 4) atmPinInput.error =
+//            "Enter a valid Personal Identification Number"
+//        else {
+//
+//            val data = IOUtilities.Card(
+//                id = itemId ?: UUID.randomUUID().toString(),
+//                organizationId = null,
+//                type = io.TYPE_CARD,
+//                name = nameInput.text.toString(),
+//                color = cardColor,
+//                favorite = favorite,
+//                tagId = tagPicker.getSelectedTagId() ?: tagId,
+//                dateCreated = dateCreated,
+//                dateModified = Instant.now().epochSecond,
+//                frequencyAccessed = frequencyAccessed + 1,
+//                cardNumber = cardNumberInput.text.toString().filter { !it.isWhitespace() },
+//                cardholderName = cardholderNameInput.text.toString(),
+//                expiry = toDate.text.toString(),
+//                notes = notesInput.text.toString(),
+//                pin = if (atmPinInput.text.toString().length == 4 && isAtmCard.isChecked) atmPinInput.text.toString() else "",
+//                securityCode = securityCode.text.toString(),
+//                customFields = customFieldsData,
+//                rfid = hasRfidChip.isChecked,
+//                iconFile = iconFileName
+//            )
+//
+//            val encryptedCard = io.encryptCard(data)
+//
+//            vault.card?.add(encryptedCard)
+//            io.writeVault(vault)
+//
+//            if (itemId != null) network.writeQueueTask(encryptedCard, mode = network.MODE_PUT)
+//            else network.writeQueueTask(encryptedCard, mode = network.MODE_POST)
+//
+//            crypto.secureStartActivity(
+//                nextActivity = Dashboard(),
+//                nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
+//                keyring = keyring,
+//                itemId = null
+//            )
+//
+//        }
+//
+//    }
+    //endregion Original saveItem()
 
     @SuppressLint("NotifyDataSetChanged")
     private fun loadCard(card: IOUtilities.Card): Boolean {
 
         favorite = if (card.favorite) {
-            favoriteButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_star_24)); true
+            favoriteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_star_24
+                )
+            ); true
         } else {
-            favoriteButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_star_border_24)); false
+            favoriteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_star_border_24
+                )
+            ); false
         }
 
         tagId = card.tagId
-        tagPicker = AddTag (tagId, applicationContext, this@AddCard, keyring)
+        tagPicker = AddTag(tagId, applicationContext, this@AddCard, keyring)
 
         nameInput.setText(card.name)
 
         notesInput.setText(card.notes)
 
-        if (card.cardNumber?.length!! == 16) cardNumberInput.setText(card.cardNumber.replace("....".toRegex(), "$0 "))
+        if (card.cardNumber?.length!! == 16) cardNumberInput.setText(
+            card.cardNumber.replace(
+                "....".toRegex(),
+                "$0 "
+            )
+        )
         else cardNumberInput.setText(card.cardNumber)
 
         toDate.setText(card.expiry)
@@ -469,7 +585,7 @@ class AddCard : AppCompatActivity() {
 
         if (card.customFields != null) {
             customFieldsData = card.customFields
-            customFieldsAdapter = CustomFieldsAdapter (customFieldsData)
+            customFieldsAdapter = CustomFieldsAdapter(customFieldsData)
             customFieldsView.adapter = customFieldsAdapter
             customFieldsAdapter.notifyItemInserted(customFieldsData.size)
             customFieldsView.invalidate()
@@ -479,19 +595,34 @@ class AddCard : AppCompatActivity() {
 
         cardColor = card.color
 
-        Handler().postDelayed({ runOnUiThread {
-            iconFileName = card.iconFile
-            if (iconFileName != null) nameInputIcon.setImageDrawable(misc.getSiteIcon(iconFileName!!, nameInput.currentTextColor))
-            else nameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
-        } }, 100)
+        Handler().postDelayed({
+            runOnUiThread {
+                iconFileName = card.iconFile
+                if (iconFileName != null) nameInputIcon.setImageDrawable(
+                    misc.getSiteIcon(
+                        iconFileName!!,
+                        nameInput.currentTextColor
+                    )
+                )
+                else nameInputIcon.setImageDrawable(getDrawable(R.drawable.ic_baseline_website_24))
+            }
+        }, 100)
 
         return true
     }
 
-    inner class CustomFieldsAdapter (private val customFields: MutableList<IOUtilities.CustomField>) : RecyclerView.Adapter<CustomFieldsAdapter.ViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ViewHolder {  // create new views
-            val customFieldsView: View = LayoutInflater.from(parent.context).inflate(R.layout.custom_field, parent, false)
-            customFieldsView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+    inner class CustomFieldsAdapter(private val customFields: MutableList<IOUtilities.CustomField>) :
+        RecyclerView.Adapter<CustomFieldsAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): ViewHolder {  // create new views
+            val customFieldsView: View =
+                LayoutInflater.from(parent.context).inflate(R.layout.custom_field, parent, false)
+            customFieldsView.layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
             return ViewHolder(customFieldsView)
         }
 
@@ -500,11 +631,13 @@ class AddCard : AppCompatActivity() {
 
             var hidden = false
 
-            customFieldView.fieldName.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
-            customFieldView.fieldValue.imeOptions = EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+            customFieldView.fieldName.imeOptions =
+                EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+            customFieldView.fieldValue.imeOptions =
+                EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
 
-            customFieldView.fieldName.setText (customField.name)
-            customFieldView.fieldValue.setText (customField.value)
+            customFieldView.fieldName.setText(customField.name)
+            customFieldView.fieldValue.setText(customField.value)
 
             if (customField.hidden) {
                 customFieldView.fieldValue.transformationMethod = PasswordTransformationMethod()
@@ -517,18 +650,42 @@ class AddCard : AppCompatActivity() {
             }
 
             customFieldView.fieldName.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) { }
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(data: CharSequence, start: Int, before: Int, count: Int) {
+                override fun afterTextChanged(s: Editable) {}
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    data: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
                     addCustomFieldButton.isEnabled = data.isNotEmpty()
                     customFieldsData[customFieldView.adapterPosition].name = data.toString()
                 }
             })
 
             customFieldView.fieldValue.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) { }
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
-                override fun onTextChanged(data: CharSequence, start: Int, before: Int, count: Int) {
+                override fun afterTextChanged(s: Editable) {}
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    data: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
                     addCustomFieldButton.isEnabled = data.isNotEmpty()
                     customFieldsData[customFieldView.adapterPosition].value = data.toString()
                 }
@@ -536,12 +693,17 @@ class AddCard : AppCompatActivity() {
 
             customFieldView.deleteIcon.setOnClickListener { view ->
                 addCustomFieldButton.isEnabled = true
-                Toast.makeText(applicationContext, "Deleted \"${customFieldView.fieldName.text}\"", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    "Deleted \"${customFieldView.fieldName.text}\"",
+                    Toast.LENGTH_SHORT
+                ).show()
                 customFieldView.fieldName.clearFocus()
                 customFieldView.fieldValue.clearFocus()
                 try {
                     customFieldsData.remove(customFieldsData[customFieldView.adapterPosition])
-                } catch (noItemsLeft: IndexOutOfBoundsException) { }
+                } catch (noItemsLeft: IndexOutOfBoundsException) {
+                }
                 customFieldsAdapter.notifyItemRemoved(position)
                 customFieldsView.invalidate()
                 customFieldsView.refreshDrawableState()
@@ -569,11 +731,14 @@ class AddCard : AppCompatActivity() {
             return customFields.size
         }
 
-        inner class ViewHolder (itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
+        inner class ViewHolder(itemLayoutView: View) : RecyclerView.ViewHolder(itemLayoutView) {
             var fieldName: EditText = itemLayoutView.findViewById<View>(R.id.field_name) as EditText
-            var fieldValue: EditText = itemLayoutView.findViewById<View>(R.id.field_value) as EditText
-            var deleteIcon: ImageView = itemLayoutView.findViewById<View>(R.id.deleteCustomFieldButton) as ImageView
-            var hideIcon: ImageView = itemLayoutView.findViewById<View>(R.id.hideCustomFieldButton) as ImageView
+            var fieldValue: EditText =
+                itemLayoutView.findViewById<View>(R.id.field_value) as EditText
+            var deleteIcon: ImageView =
+                itemLayoutView.findViewById<View>(R.id.deleteCustomFieldButton) as ImageView
+            var hideIcon: ImageView =
+                itemLayoutView.findViewById<View>(R.id.hideCustomFieldButton) as ImageView
         }
     }
 
@@ -591,12 +756,12 @@ class AddCard : AppCompatActivity() {
         finishAffinity()
     }
 
-    override fun onBackPressed () {
+    override fun onBackPressed() {
         val alertDialog: AlertDialog = MaterialAlertDialogBuilder(this).create()
         alertDialog.setTitle("Confirm exit")
         alertDialog.setMessage("Would you like to go back to the Dashboard?")
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Exit") { dialog, _ ->
-            crypto.secureStartActivity (
+            crypto.secureStartActivity(
                 nextActivity = Dashboard(),
                 nextActivityClassNameAsString = getString(R.string.title_activity_dashboard),
                 keyring = keyring,
@@ -605,7 +770,10 @@ class AddCard : AppCompatActivity() {
             super.onBackPressed()
             tagIdGrabber.removeCallbacksAndMessages(null)
         }
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel") { dialog, _ -> dialog.dismiss() }
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEGATIVE,
+            "Cancel"
+        ) { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
     }
 
@@ -642,37 +810,70 @@ class AddCard : AppCompatActivity() {
         super.onPause()
     }
 
-    private fun iconFilePicker () {
+    private fun iconFilePicker() {
 
         val builder = MaterialAlertDialogBuilder(this@AddCard)
         builder.setCancelable(true)
         val iconsBox: View = layoutInflater.inflate(R.layout.icon_picker_dialog, null)
         builder.setView(iconsBox)
-        iconsBox.startAnimation(AnimationUtils.loadAnimation(applicationContext, R.anim.from_bottom))
+        iconsBox.startAnimation(
+            AnimationUtils.loadAnimation(
+                applicationContext,
+                R.anim.from_bottom
+            )
+        )
 
         val dialog = builder.create()
         dialog.show()
 
         val iconFileNames = misc.getSiteIconFilenames()
+
         class GridAdapter(var context: Context, filenames: ArrayList<String>) : BaseAdapter() {
             var listFiles: ArrayList<String>
-            init { listFiles = filenames }
-            override fun getCount(): Int { return listFiles.size }
-            override fun getItem(position: Int): Any { return listFiles[position] }
-            override fun getItemId(position: Int): Long { return position.toLong() }
+
+            init {
+                listFiles = filenames
+            }
+
+            override fun getCount(): Int {
+                return listFiles.size
+            }
+
+            override fun getItem(position: Int): Any {
+                return listFiles[position]
+            }
+
+            override fun getItemId(position: Int): Long {
+                return position.toLong()
+            }
+
             @SuppressLint("ViewHolder")
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = (context.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.site_icon, null)
+                val view =
+                    (context.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(
+                        R.layout.site_icon,
+                        null
+                    )
 
                 val icon = view.findViewById<ImageView>(R.id.icon)
-                icon.setImageDrawable(misc.getSiteIcon(listFiles[position], nameInput.currentTextColor))
+                icon.setImageDrawable(
+                    misc.getSiteIcon(
+                        listFiles[position],
+                        nameInput.currentTextColor
+                    )
+                )
 
                 val iconName = view.findViewById<TextView>(R.id.iconName)
                 iconName.text = listFiles[position].replace("_", "")
 
                 icon.setOnClickListener {
                     iconFileName = listFiles[position]
-                    nameInputIcon.setImageDrawable(misc.getSiteIcon(listFiles[position], nameInput.currentTextColor))
+                    nameInputIcon.setImageDrawable(
+                        misc.getSiteIcon(
+                            listFiles[position],
+                            nameInput.currentTextColor
+                        )
+                    )
                     dialog.dismiss()
                 }
 

@@ -1,6 +1,5 @@
 package cloud.keyspace.android
 
-import android.R.drawable
 import android.R.raw
 import android.annotation.SuppressLint
 import android.content.Context
@@ -25,13 +24,14 @@ import java.lang.reflect.Field
 import java.net.URLDecoder
 import java.security.SecureRandom
 import java.util.*
+import kotlin.math.abs
 
 
 /**
  * Miscellaneous utilities such as datatype converters, 2FA code generators, QR code scanners etc live here.
  * // @param context The context of the activity that a `MiscUtilities` object is initialized in, example: `applicationContext`, `this` etc.
  */
-class MiscUtilities (applicationContext: Context) {
+class MiscUtilities(applicationContext: Context) {
     val context = applicationContext
     fun getPaymentGateway(cardNumber: String): String? {
         try {
@@ -78,7 +78,7 @@ class MiscUtilities (applicationContext: Context) {
         }
     }
 
-    fun checkIfCardExpired (expiryDate:String): String? {
+    fun checkIfCardExpired(expiryDate: String): String? {
         var status: String? = null
         val year = expiryDate.substringAfter("/")
         val month = expiryDate.substringBefore("/")
@@ -86,8 +86,9 @@ class MiscUtilities (applicationContext: Context) {
             val yearInt = year.toInt()
             val monthInt = month.toInt()
 
-            val currentYear = Calendar.getInstance().get(Calendar.YEAR).toString().takeLast(2).toInt()
-            val currentMonth = Calendar.getInstance().get(Calendar.MONTH).toString().toInt()+1
+            val currentYear =
+                Calendar.getInstance().get(Calendar.YEAR).toString().takeLast(2).toInt()
+            val currentMonth = Calendar.getInstance().get(Calendar.MONTH).toString().toInt() + 1
 
             if (
                 (currentYear > yearInt)
@@ -105,7 +106,13 @@ class MiscUtilities (applicationContext: Context) {
     }
 
     // password generator
-    fun passwordGenerator (length: Int, uppercase: Boolean, lowercase: Boolean, numbers: Boolean, symbols: Boolean): String {
+    fun passwordGenerator(
+        length: Int,
+        uppercase: Boolean,
+        lowercase: Boolean,
+        numbers: Boolean,
+        symbols: Boolean
+    ): String {
         var inputAlphabet = ""
         if (uppercase) inputAlphabet += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         if (lowercase) inputAlphabet += "abcdefghijklmnopqrstuvwxyz"
@@ -129,7 +136,7 @@ class MiscUtilities (applicationContext: Context) {
         return words.joinToString("-")
     }
 
-    fun passwordStrength (password: String): Int {
+    fun passwordStrength(password: String): Int {
         var score = 0
         if (password.length in 0..16) score = 3
         else if (password.length in 17..32) score = 6
@@ -137,7 +144,7 @@ class MiscUtilities (applicationContext: Context) {
         return score
     }
 
-    fun passwordStrengthRating (score: Int): String {
+    fun passwordStrengthRating(score: Int): String {
         var strength = "Strong"
         when (score) {
             3 -> strength = "Weak"
@@ -147,7 +154,7 @@ class MiscUtilities (applicationContext: Context) {
         return strength
     }
 
-    fun color (color: String?): Int {
+    fun color(color: String?): Int {
         var colorData: Int = Color.parseColor("#000000")
         if (color == null) return Color.parseColor("#000000")
         when (color.lowercase()) {
@@ -165,12 +172,19 @@ class MiscUtilities (applicationContext: Context) {
 
     fun generateProfilePicture(email: String): Drawable {
 
-        fun generateColorHash (email: String): Int {
+        fun generateColorHash(email: String): Int {
             var hashCode = email.hashCode()
-            val colorArray: ArrayList<String> =  context.resources.getStringArray(R.array.vault_item_colors).toList() as ArrayList<String>
+            val colorArray: ArrayList<String> =
+                context.resources.getStringArray(R.array.vault_item_colors)
+                    .toList() as ArrayList<String>
             if (hashCode < 0) hashCode = -hashCode
-            hashCode = (hashCode.toString().toCharArray()[2].code * hashCode.toString().toCharArray()[4].code).toString().takeLast(2).toInt() - 5
-            return try { Color.parseColor(colorArray[hashCode]) } catch (unsupportedValues: ArrayIndexOutOfBoundsException) { context.getColor(R.color.lightFinesseColor) }
+            hashCode = (hashCode.toString().toCharArray()[2].code * hashCode.toString()
+                .toCharArray()[4].code).toString().takeLast(2).toInt() - 5
+            return try {
+                Color.parseColor(colorArray[hashCode])
+            } catch (unsupportedValues: ArrayIndexOutOfBoundsException) {
+                context.getColor(R.color.lightFinesseColor)
+            }
         }
 
         val text = email.first().toString().uppercase()
@@ -190,21 +204,25 @@ class MiscUtilities (applicationContext: Context) {
 
         val canvas = Canvas(image)
         canvas.drawColor(generateColorHash(email))
-        canvas.drawText (text, width/2 - trueWidth/2, baseline, paint)
+        canvas.drawText(text, width / 2 - trueWidth / 2, baseline, paint)
 
         return BitmapDrawable(context.resources, image)
     }
 
-    fun isValidPackageName (packageName: String): Boolean {
+    fun isValidPackageName(packageName: String): Boolean {
         val isPackage: Boolean
-        val isRegexMatched = Regex("^(?:[a-zA-Z]+(?:\\d*[a-zA-Z_]*)*)(?:\\.[a-zA-Z]+(?:\\d*[a-zA-Z_]*)*)+\$").containsMatchIn(packageName)
+        val isRegexMatched =
+            Regex("^(?:[a-zA-Z]+(?:\\d*[a-zA-Z_]*)*)(?:\\.[a-zA-Z]+(?:\\d*[a-zA-Z_]*)*)+\$").containsMatchIn(
+                packageName
+            )
         isPackage = isRegexMatched
         return isPackage
     }
 
-    fun grabURLFromString (text: String): String? {
+    fun grabURLFromString(text: String): String? {
         var url: String? = null
-        val urlRegex = Regex("""^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$""")
+        val urlRegex =
+            Regex("""^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$""")
         val ipAddressRegex = Regex("""((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d{1,5})*(\/*.*)*)""")
 
         if (urlRegex.containsMatchIn(text)) {
@@ -231,7 +249,7 @@ class MiscUtilities (applicationContext: Context) {
         val label: String?,
     )
 
-    fun decodeOTPAuthURL (OTPAuthURL: String): MfaCode? {
+    fun decodeOTPAuthURL(OTPAuthURL: String): MfaCode? {
         val url = URLDecoder.decode(OTPAuthURL, "UTF-8")
         if (url.contains("otpauth") && url.contains("://")) {
             val type: String =
@@ -241,17 +259,31 @@ class MiscUtilities (applicationContext: Context) {
                 if (url.substringAfter("://").substringBefore("/").contains("totp"))
                     "totp"
                 else "hotp"
-            val issuer: String? = if (url.contains("issuer")) url.substringAfter("issuer=").substringBefore("&") else null
-            val account: String? = if (url.contains("otp")) url.substringAfter("otp/").substringBefore("?").replace(":", "") else null
-            val secret: String? = if (url.contains("secret")) url.substringAfter("secret=").substringBefore("&") else null
-            val algorithm: String? = if (url.contains("algorithm")) url.substringAfter("algorithm=").substringBefore("&") else null
-            val digits: Int? = if (url.contains("digits")) url.substringAfter("digits=").substringBefore("&").toInt() else null
-            val period: Int? = if (url.contains("period")) url.substringAfter("period=").substringBefore("&").toInt() else null
-            val lock: Boolean? = if (url.contains("lock")) url.substringAfter("lock=").substringBefore("&").toBoolean() else null
-            val counter: Int? = if (url.contains("counter")) url.substringAfter("counter=").substringBefore("&").toInt() else null
-            val label: String? = if (url.contains("label")) url.substringAfter("label=").substringBefore("&") else null
+            val issuer: String? = if (url.contains("issuer")) url.substringAfter("issuer=")
+                .substringBefore("&") else null
+            val account: String? =
+                if (url.contains("otp")) url.substringAfter("otp/").substringBefore("?")
+                    .replace(":", "") else null
+            val secret: String? = if (url.contains("secret")) url.substringAfter("secret=")
+                .substringBefore("&") else null
+            val algorithm: String? = if (url.contains("algorithm")) url.substringAfter("algorithm=")
+                .substringBefore("&") else null
+            val digits: Int? =
+                if (url.contains("digits")) url.substringAfter("digits=").substringBefore("&")
+                    .toInt() else null
+            val period: Int? =
+                if (url.contains("period")) url.substringAfter("period=").substringBefore("&")
+                    .toInt() else null
+            val lock: Boolean? =
+                if (url.contains("lock")) url.substringAfter("lock=").substringBefore("&")
+                    .toBoolean() else null
+            val counter: Int? =
+                if (url.contains("counter")) url.substringAfter("counter=").substringBefore("&")
+                    .toInt() else null
+            val label: String? = if (url.contains("label")) url.substringAfter("label=")
+                .substringBefore("&") else null
 
-            return MfaCode (
+            return MfaCode(
                 type = type,
                 mode = mode,
                 issuer = issuer,
@@ -269,18 +301,23 @@ class MiscUtilities (applicationContext: Context) {
         }
     }
 
-    fun encodeOTPAuthURL (mfaCodeObject: MfaCode): String? {
+    fun encodeOTPAuthURL(mfaCodeObject: MfaCode): String? {
         lateinit var type: String
         lateinit var issuer: String
         lateinit var account: String
         lateinit var secret: String
 
         if (mfaCodeObject.type.toString().isNotEmpty())
-            type = if (mfaCodeObject.type.toString().lowercase().contains("backup") || mfaCodeObject.type.toString().lowercase().contains("migration")) "otpauth-migration" else "otpauth"
+            type = if (mfaCodeObject.type.toString().lowercase()
+                    .contains("backup") || mfaCodeObject.type.toString().lowercase()
+                    .contains("migration")
+            ) "otpauth-migration" else "otpauth"
         else return null
 
         val mode: String = if (mfaCodeObject.mode.toString().isNotEmpty())
-            if (mfaCodeObject.mode.toString().lowercase().contains("time") || mfaCodeObject.mode.toString().contains("totp")) "totp" else "hotp"
+            if (mfaCodeObject.mode.toString().lowercase()
+                    .contains("time") || mfaCodeObject.mode.toString().contains("totp")
+            ) "totp" else "hotp"
         else "totp"
 
         if (mfaCodeObject.account.toString().isNotEmpty())
@@ -329,7 +366,7 @@ class MiscUtilities (applicationContext: Context) {
         return output.toString()
     }
 
-    fun areSimilar (string1: String, string2: String): Boolean {
+    fun areSimilar(string1: String, string2: String): Boolean {
         val strippedString1 = string1
             .lowercase(Locale.getDefault()) // ignore case
             .replace(" ", "") // remove spaces
@@ -360,16 +397,18 @@ class MiscUtilities (applicationContext: Context) {
 
     }
 
-    fun scanQrCode (viewfinderMessage: String): String {
+    fun scanQrCode(viewfinderMessage: String): String {
         return viewfinderMessage
     }
 
-    fun generateQrCode (text: String): Bitmap? {
+    fun generateQrCode(text: String): Bitmap? {
         val colorPalette = com.github.sumimakito.awesomeqr.option.color.Color()
         colorPalette.light = 0xFFFFFFFF.toInt() // for blank spaces
         colorPalette.dark = 0xFF000000.toInt() // for non-blank spaces
-        colorPalette.background = 0xFFFFFFFF.toInt() // for the background (will be overriden by background images, if set)
-        colorPalette.auto = false // set to true to automatically pick out colors from the background image (will only work if background image is present)
+        colorPalette.background =
+            0xFFFFFFFF.toInt() // for the background (will be overriden by background images, if set)
+        colorPalette.auto =
+            false // set to true to automatically pick out colors from the background image (will only work if background image is present)
 
         val renderOption = RenderOption()
         renderOption.content = text // content to encode
@@ -409,21 +448,29 @@ class MiscUtilities (applicationContext: Context) {
 
     @SuppressLint("DiscouragedApi")
     fun getSiteIcon(siteName: String, color: Int?): Drawable? {
-
         var trimmedSiteName = siteName
             .lowercase()
             .replace(" ", "")
 
         val svg: Sharp? = try {
-            Sharp.loadResource(context.resources, context.resources.getIdentifier(trimmedSiteName, "raw", context.packageName))
+            Sharp.loadResource(
+                context.resources,
+                context.resources.getIdentifier(trimmedSiteName, "raw", context.packageName)
+            )
         } catch (_: Exception) {
             trimmedSiteName = trimmedSiteName.replace(("[^\\w\\d ]").toRegex(), "")
             try {
-                Sharp.loadResource(context.resources, context.resources.getIdentifier(trimmedSiteName, "raw", context.packageName))
+                Sharp.loadResource(
+                    context.resources,
+                    context.resources.getIdentifier(trimmedSiteName, "raw", context.packageName)
+                )
             } catch (_: Exception) {
                 trimmedSiteName = "_${trimmedSiteName}"
                 try {
-                    Sharp.loadResource(context.resources, context.resources.getIdentifier(trimmedSiteName, "raw", context.packageName))
+                    Sharp.loadResource(
+                        context.resources,
+                        context.resources.getIdentifier(trimmedSiteName, "raw", context.packageName)
+                    )
                 } catch (_: Exception) {
                     null
                 }
@@ -431,22 +478,34 @@ class MiscUtilities (applicationContext: Context) {
         }
 
         svg?.setOnElementListener(object : OnSvgElementListener {
-            override fun onSvgStart(canvas: Canvas, bounds: RectF?) { }
-            override fun onSvgEnd(canvas: Canvas, bounds: RectF?) { }
-            override fun <T : Any> onSvgElementDrawn(id: String?, element: T, canvas: Canvas, paint: Paint?) { }
+            override fun onSvgStart(canvas: Canvas, bounds: RectF?) {}
+            override fun onSvgEnd(canvas: Canvas, bounds: RectF?) {}
+            override fun <T : Any> onSvgElementDrawn(
+                id: String?,
+                element: T,
+                canvas: Canvas,
+                paint: Paint?
+            ) {
+            }
 
-            override fun <T : Any> onSvgElement(p0: String?, p1: T, elementBounds: RectF?, canvas: Canvas, canvasBounds: RectF?, paint: Paint?): T {
-
+            override fun <T : Any> onSvgElement(
+                p0: String?,
+                p1: T,
+                elementBounds: RectF?,
+                canvas: Canvas,
+                canvasBounds: RectF?,
+                paint: Paint?
+            ): T {
                 if (color != null) {
-                    paint?.color = Color.argb (
+                    paint?.color = Color.argb(
                         255,
                         Color.red(color),
                         Color.blue(color),
                         Color.green(color)
                     )
                 } else {
-                    val palette = context.resources.getColor(android.R.attr.textColorPrimary)
-                    paint?.color = Color.argb (
+                    val palette = context.attrToColor(android.R.attr.textColorPrimary)
+                    paint?.color = Color.argb(
                         255,
                         Color.red(palette),
                         Color.blue(palette),
@@ -456,16 +515,17 @@ class MiscUtilities (applicationContext: Context) {
 
                 return p1
             }
-
         })
 
-        return try { svg?.drawable?.current } catch (_: Exception) { null }
-
+        return try {
+            svg?.drawable?.current
+        } catch (_: Exception) {
+            null
+        }
     }
 
-    fun getSiteIconFilenames (): ArrayList<String> {
+    fun getSiteIconFilenames(): ArrayList<String> {
         val filenames = arrayListOf<String>()
-        val rawResources = raw()
         val rawClass = R.raw::class.java
         val fields: Array<out Field> = rawClass.declaredFields
 
@@ -477,15 +537,19 @@ class MiscUtilities (applicationContext: Context) {
         return filenames
     }
 
-    fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) } // to print, not related to crypto
+    fun ByteArray.toHex(): String =
+        joinToString(separator = "") { eachByte -> "%02x".format(eachByte) } // to print, not related to crypto
 
-    fun screenLockEnabled() : Boolean {
-
+    fun screenLockEnabled(): Boolean {
         var isKeyguardSet = false // don't allow successful authentication by default
 
         try {
             val biometricManager = BiometricManager.from(context)
-            val canAuthenticate = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+            val canAuthenticate = biometricManager
+                .canAuthenticate(
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
 
             isKeyguardSet = if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
                 Log.d("Keyspace", "Device lock found")
@@ -493,16 +557,11 @@ class MiscUtilities (applicationContext: Context) {
             } else {
                 Log.e("Keyspace", "Device lock not set")
                 throw NoSuchMethodError()
-                false
             }
-
         } catch (noLockSet: NoSuchMethodError) {
-            isKeyguardSet = false
             Log.e("Keyspace", "Please set a screen lock.")
             noLockSet.stackTrace
-
         } catch (incorrectCredentials: Exception) {
-            isKeyguardSet = false
             Log.e("Keyspace", "Your identity could not be verified.")
             incorrectCredentials.stackTrace
         }
@@ -510,12 +569,16 @@ class MiscUtilities (applicationContext: Context) {
         return isKeyguardSet
     }
 
-    fun biometricsExist() : Boolean {
+    fun biometricsExist(): Boolean {
         var isKeyguardSet = false // don't allow successful authentication by default
 
         try {
             val biometricManager = BiometricManager.from(context)
-            val canAuthenticate = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            val canAuthenticate = biometricManager
+                .canAuthenticate(
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                )
 
             isKeyguardSet = if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
                 Log.d("Keyspace", "Device lock found")
@@ -523,16 +586,12 @@ class MiscUtilities (applicationContext: Context) {
             } else {
                 Log.e("Keyspace", "Device lock not set")
                 throw NoSuchMethodError()
-                false
             }
-
         } catch (noLockSet: NoSuchMethodError) {
-            isKeyguardSet = false
             Log.e("Keyspace", "Please set a screen lock.")
             noLockSet.stackTrace
 
         } catch (incorrectCredentials: Exception) {
-            isKeyguardSet = false
             Log.e("Keyspace", "Your identity could not be verified.")
             incorrectCredentials.stackTrace
         }
@@ -541,50 +600,77 @@ class MiscUtilities (applicationContext: Context) {
     }
 
     fun backup2faCodesToList(pastedCodesAsString: String): List<String> {
-        var pastedCodes: String = pastedCodesAsString
-        pastedCodes = Regex("(([0-9a-zA-Z ]{4,} +[0-9a-zA-Z]{4,}+)|([0-9a-zA-Z-]{4,}))").findAll(pastedCodes).map { it.groupValues[1] }.joinToString()
+        val pastedCodes =
+            Regex(
+                "(([0-9a-zA-Z ]{4,} +[0-9a-zA-Z]{4,}+)|([0-9a-zA-Z-]{4,}))"
+            ).findAll(pastedCodesAsString).map { it.groupValues[1] }.joinToString()
+
         val trim1 = pastedCodes.trim().split(",").toList()
         val trimList1: MutableList<String> = mutableListOf()
+
         for (item in trim1) {
             trimList1.add(item.trim())
         }
+
         val trimList2: MutableList<String> = mutableListOf()
+
         for (item in trimList1) {
-            if (item.any {it in "0123456789/?!:;%"}) {
+            if (item.any { it in "0123456789/?!:;%" }) {
                 trimList2.add(item)
             }
         }
+
         return trimList2
     }
 
-    fun containsNonAlphabet (string: String): Boolean {
+    fun containsNonAlphabet(string: String): Boolean {
         return (
                 string.contains(" ") ||
-                string.contains(Regex("""[!@#$%?,^&*)(+=._\-<>{}\[\]|]+$""")) ||
-                string.contains(Regex("""[0-9].*"""))
-        )
+                        string.contains(Regex("""[!@#$%?,^&*)(+=._\-<>{}\[\]|]+$""")) ||
+                        string.contains(Regex("""[0-9].*"""))
+                )
     }
 
-    fun checkIfListContainsSubstring (list: List<String>, searchTerm: String):  Boolean {
+    fun checkIfListContainsSubstring(list: List<String>, searchTerm: String): Boolean {
         val newList = mutableListOf<String>()
-        if (searchTerm.isEmpty()) return false
-        val searchTerm = searchTerm.replace(Regex("[^A-Za-z0-9 ]"), "").replace("", "").replace(" ", "").lowercase()
-        for (item in list) newList.add(item.replace(Regex("[^A-Za-z0-9 ]"), "").replace(" ", "").lowercase())
-        for (item in newList) if (item.equals (searchTerm, ignoreCase = true)) return true
+
+        if (searchTerm.isEmpty()) {
+            return false
+        }
+
+        val term = searchTerm
+            .replace(Regex("[^A-Za-z0-9 ]"), "")
+            .replace("", "")
+            .replace(" ", "")
+            .lowercase()
+
+        for (item in list) newList.add(
+            item.replace(Regex("[^A-Za-z0-9 ]"), "").replace(" ", "").lowercase()
+        )
+
+        for (item in newList) {
+            if (item.equals(term, ignoreCase = true)) {
+                return true
+            }
+        }
+
         return false
     }
 
-    fun stringToNumberedString (string: String): String {
-        var string = string
-        if (string.replace(" ", "").isNotEmpty()) {
+    fun stringToNumberedString(string: String): String {
+        var result = string
+
+        if (result.replace(" ", "").isNotEmpty()) {
             var lineBreakCounter = 1
-            if (string.contains("\n")) {
+
+            if (result.contains("\n")) {
                 val stringCharacters = mutableListOf<Char>()
                 stringCharacters.add(lineBreakCounter.toString().single())
                 stringCharacters.add('.')
                 stringCharacters.add(' ')
                 lineBreakCounter += 1
-                for (c in string) {
+
+                for (c in result) {
                     stringCharacters.add(c)
                     if (c == '\n') {
                         stringCharacters.add(lineBreakCounter.toString().single())
@@ -593,44 +679,52 @@ class MiscUtilities (applicationContext: Context) {
                         lineBreakCounter += 1
                     }
                 }
-                string = String(stringCharacters.toCharArray())
+
+                result = String(stringCharacters.toCharArray())
             } else {
-                string = "\n1. $string"
+                result = "\n1. $result"
             }
         } else {
-            string = "\n1. one\n2. two\n3. three\n"
+            result = "\n1. one\n2. two\n3. three\n"
         }
-        return string
+
+        return result
     }
 
-    fun stringToBulletedString (string: String): String {
-        var string = string
-        if (string.replace(" ", "").isNotEmpty()) {
-            string = if (string.contains("\n")) {
+    fun stringToBulletedString(string: String): String {
+        var result = string
+
+        if (result.replace(" ", "").isNotEmpty()) {
+            result = if (result.contains("\n")) {
                 val stringCharacters = mutableListOf<Char>()
                 stringCharacters.add('-')
                 stringCharacters.add(' ')
-                for (c in string) {
+
+                for (c in result) {
                     stringCharacters.add(c)
+
                     if (c == '\n') {
                         stringCharacters.add('-')
                         stringCharacters.add(' ')
                     }
                 }
+
                 String(stringCharacters.toCharArray())
             } else {
-                "\n- $string"
+                "\n- $result"
             }
         } else {
-            string = "\n- one\n- two\n- three\n"
+            result = "\n- one\n- two\n- three\n"
         }
-        return string
+
+        return result
     }
 
-    fun stringToUncheckedString (string: String): String {
-        var string = string
-        if (string.replace(" ", "").isNotEmpty()) {
-            string = if (string.contains("\n")) {
+    fun stringToUncheckedString(string: String): String {
+        var result = string
+
+        if (result.replace(" ", "").isNotEmpty()) {
+            result = if (result.contains("\n")) {
                 val stringCharacters = mutableListOf<Char>()
                 stringCharacters.add('-')
                 stringCharacters.add(' ')
@@ -638,8 +732,10 @@ class MiscUtilities (applicationContext: Context) {
                 stringCharacters.add(' ')
                 stringCharacters.add(']')
                 stringCharacters.add(' ')
-                for (c in string) {
+
+                for (c in result) {
                     stringCharacters.add(c)
+
                     if (c == '\n') {
                         stringCharacters.add('-')
                         stringCharacters.add(' ')
@@ -649,20 +745,23 @@ class MiscUtilities (applicationContext: Context) {
                         stringCharacters.add(' ')
                     }
                 }
+
                 String(stringCharacters.toCharArray())
             } else {
-                "\n- [ ] $string"
+                "\n- [ ] $result"
             }
         } else {
-            string = "\n- [ ] one\n- [ ] two\n- [ ] three\n"
+            result = "\n- [ ] one\n- [ ] two\n- [ ] three\n"
         }
-        return string
+
+        return result
     }
 
-    fun stringToCheckedString (string: String): String {
-        var string = string
-        if (string.replace(" ", "").isNotEmpty()) {
-            string = if (string.contains("\n")) {
+    fun stringToCheckedString(string: String): String {
+        var result = string
+
+        if (result.replace(" ", "").isNotEmpty()) {
+            result = if (result.contains("\n")) {
                 val stringCharacters = mutableListOf<Char>()
                 stringCharacters.add('-')
                 stringCharacters.add(' ')
@@ -670,8 +769,10 @@ class MiscUtilities (applicationContext: Context) {
                 stringCharacters.add('x')
                 stringCharacters.add(']')
                 stringCharacters.add(' ')
-                for (c in string) {
+
+                for (c in result) {
                     stringCharacters.add(c)
+
                     if (c == '\n') {
                         stringCharacters.add('-')
                         stringCharacters.add(' ')
@@ -681,113 +782,126 @@ class MiscUtilities (applicationContext: Context) {
                         stringCharacters.add(' ')
                     }
                 }
+
                 String(stringCharacters.toCharArray())
             } else {
-                "\n- [x] $string"
+                "\n- [x] $result"
             }
         } else {
-            string = "\n- [x] one\n- [x] two\n- [x] three\n"
+            result = "\n- [x] one\n- [x] two\n- [x] three\n"
         }
-        return string
+
+        return result
     }
 
-    fun stringToTitledStrings (string: String): String {
-        var string = string
-        if (string.replace(" ", "").isNotEmpty()) {
-            string = if (string.contains("\n")) {
+    fun stringToTitledStrings(string: String): String {
+        var result = string
+
+        if (result.replace(" ", "").isNotEmpty()) {
+            result = if (result.contains("\n")) {
                 val stringCharacters = mutableListOf<Char>()
                 stringCharacters.add('\n')
                 stringCharacters.add('#')
                 stringCharacters.add(' ')
-                for (c in string) {
+
+                for (c in result) {
                     stringCharacters.add(c)
+
                     if (c == '\n') {
                         stringCharacters.add('\n')
                         stringCharacters.add('#')
                         stringCharacters.add(' ')
                     }
                 }
+
                 String(stringCharacters.toCharArray()) + "\n"
             } else {
-                "# $string\n"
+                "# $result\n"
             }
         } else {
-            string = "# "
+            result = "# "
         }
-        return string
+
+        return result
     }
 
-// UI stuff
-open class OnSwipeTouchListener(c: Context?) : View.OnTouchListener {
-    private val gestureDetector: GestureDetector
-    override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        return gestureDetector.onTouchEvent(motionEvent!!)
-    }
+    // UI stuff
+    open class OnSwipeTouchListener(c: Context?) : View.OnTouchListener {
+        private val gestureDetector: GestureDetector
 
-    private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
-
-        private val SWIPE_THRESHOLD = 100
-        private val SWIPE_VELOCITY_THRESHOLD = 100
-
-        override fun onDown(e: MotionEvent): Boolean {
-            return true
+        @SuppressLint("ClickableViewAccessibility")
+        override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
+            return gestureDetector.onTouchEvent(motionEvent!!)
         }
 
-        override fun onSingleTapUp(e: MotionEvent): Boolean {
-            onClick()
-            return super.onSingleTapUp(e)
-        }
+        private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
+            private val SWIPE_THRESHOLD = 100
+            private val SWIPE_VELOCITY_THRESHOLD = 100
 
-        override fun onDoubleTap(e: MotionEvent): Boolean {
-            onDoubleClick()
-            return super.onDoubleTap(e)
-        }
-
-        override fun onLongPress(e: MotionEvent) {
-            onLongClick()
-            super.onLongPress(e)
-        }
-
-        // Determines the fling velocity and then fires the appropriate swipe event accordingly
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-            val result = false
-            try {
-                val diffY = e2.y - e1.y
-                val diffX = e2.x - e1.x
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            onSwipeRight()
-                        } else {
-                            onSwipeLeft()
-                        }
-                    }
-                } else {
-                    if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffY > 0) {
-                            onSwipeDown()
-                        } else {
-                            onSwipeUp()
-                        }
-                    }
-                }
-            } catch (exception: java.lang.Exception) {
-                exception.printStackTrace()
+            override fun onDown(e: MotionEvent): Boolean {
+                return true
             }
-            return result
+
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
+                onClick()
+                return super.onSingleTapUp(e)
+            }
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                onDoubleClick()
+                return super.onDoubleTap(e)
+            }
+
+            override fun onLongPress(e: MotionEvent) {
+                onLongClick()
+                super.onLongPress(e)
+            }
+
+            // Determines the fling velocity and then fires the appropriate swipe event accordingly
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                val result = false
+                try {
+                    val diffY = e2.y - (e1?.y ?: 0f)
+                    val diffX = e2.x - (e1?.x ?: 0f)
+                    if (abs(diffX) > abs(diffY)) {
+                        if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                            if (diffX > 0) {
+                                onSwipeRight()
+                            } else {
+                                onSwipeLeft()
+                            }
+                        }
+                    } else {
+                        if (abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                            if (diffY > 0) {
+                                onSwipeDown()
+                            } else {
+                                onSwipeUp()
+                            }
+                        }
+                    }
+                } catch (exception: java.lang.Exception) {
+                    exception.printStackTrace()
+                }
+                return result
+            }
         }
 
-    }
+        open fun onSwipeRight() {}
+        open fun onSwipeLeft() {}
+        open fun onSwipeUp() {}
+        open fun onSwipeDown() {}
+        open fun onClick() {}
+        fun onDoubleClick() {}
+        open fun onLongClick() {}
 
-    open fun onSwipeRight() {}
-    open fun onSwipeLeft() {}
-    open fun onSwipeUp() {}
-    open fun onSwipeDown() {}
-    open fun onClick() {}
-    fun onDoubleClick() {}
-    open fun onLongClick() {}
-
-    init {
-        gestureDetector = GestureDetector(c, GestureListener())
+        init {
+            gestureDetector = GestureDetector(c, GestureListener())
+        }
     }
-}}
+}
