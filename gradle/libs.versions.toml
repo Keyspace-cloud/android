@@ -44,11 +44,11 @@ jackson-module-kotlin = "2.12.1"
 colorpicker = "2.3"
 awesomeqrcode = "1.2.0"
 swipeable-recyclerview = "1.1"
-lazysodium-android = "5.0.2@aar"
+lazysodium-android = "5.0.2" #@aar"
 permissionx = "1.6.4"
 nv-websocket-client = "2.14"
 zxcvbn = "1.7.0"
-library = "1.1.2@aar"
+pixplicity-library = "1.1.2" #@aar"
 rootbeer-lib = "0.1.0"
 markdown-processor = "0.1.3"
 rxmarkdown-wrapper = "0.1.3"
@@ -56,7 +56,7 @@ kotlin-onetimepassword = "2.4.0"
 markdownedittext = "1.1.3"
 rxandroid = "1.2.1"
 rxjava = "1.3.8"
-jna = "5.10.0@aar"
+jna = "5.10.0" #@aar"
 acra = "5.9.7"
 anggrayudi-storage = "1.5.4"
 
@@ -70,8 +70,8 @@ junit = "4.13.2"
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 
-android-multidex = { group = "com.android.support", name = "android-multidex", version.ref = "android-multidex" }
-android-volley = { group = "com.android.volley", name = "android-volley", version.ref = "android-volley" }
+android-multidex = { group = "com.android.support", name = "multidex", version.ref = "android-multidex" }
+android-volley = { group = "com.android.volley", name = "volley", version.ref = "android-volley" }
 
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
 androidx-autofill = { group = "androidx.autofill", name = "autofill", version.ref = "androidx-autofill" }
@@ -119,12 +119,12 @@ code-scanner = { group = "com.budiyev.android", name = "code-scanner", version.r
 jackson-module-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson-module-kotlin" }
 colorpicker = { group = "com.github.dhaval2404", name = "colorpicker", version.ref = "colorpicker" }
 awesomeqrcode = { group = "com.github.sumimakito", name = "awesomeqrcode", version.ref = "awesomeqrcode" }
-swipeable-recyclerview = { group = "com.github.tsuryo", name = "swipeable-recyclerview", version.ref = "swipeable-recyclerview" }
+swipeable-recyclerview = { group = "com.github.tsuryo", name = "Swipeable-RecyclerView", version.ref = "swipeable-recyclerview" }
 lazysodium-android = { group = "com.goterl", name = "lazysodium-android", version.ref = "lazysodium-android" }
 permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
 nv-websocket-client = { group = "com.neovisionaries", name = "nv-websocket-client", version.ref = "nv-websocket-client" }
 zxcvbn = { group = "com.nulab-inc", name = "zxcvbn", version.ref = "zxcvbn" }
-library = { group = "com.pixplicity.sharp", name = "library", version.ref = "library" }
+pixplicity-library = { group = "com.pixplicity.sharp", name = "library", version.ref = "pixplicity-library" }
 rootbeer-lib = { group = "com.scottyab", name = "rootbeer-lib", version.ref = "rootbeer-lib" }
 markdown-processor = { group = "com.yydcdut", name = "markdown-processor", version.ref = "markdown-processor" }
 rxmarkdown-wrapper = { group = "com.yydcdut", name = "rxmarkdown-wrapper", version.ref = "rxmarkdown-wrapper" }
