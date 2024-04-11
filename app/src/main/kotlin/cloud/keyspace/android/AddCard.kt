@@ -324,10 +324,7 @@ class AddCard : AppCompatActivity() {
                     val monthFormat = SimpleDateFormat("M", Locale.US)
                     val year = yearFormat.format(Date()).toString().toInt()
                     val month = monthFormat.format(Date()).toString().toInt()
-                    if (toDate.text?.takeLast(2).toString().toInt() > year+5) {
-                        toDate.text!!.clear()
-                        toDate.error = "Please enter a valid expiry year"
-                    } else  if ( (toDate.text?.take(2).toString().toInt() <= month && toDate.text?.takeLast(2).toString().toInt() == year) || toDate.text?.takeLast(2).toString().toInt() < year) {
+                    if ( (toDate.text?.take(2).toString().toInt() <= month && toDate.text?.takeLast(2).toString().toInt() == year) || toDate.text?.takeLast(2).toString().toInt() < year) {
                         toDate.text!!.clear()
                         toDate.error = "This card has expired"
                     }
